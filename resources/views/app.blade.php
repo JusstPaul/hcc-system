@@ -7,6 +7,12 @@
     @routes
     @vite('resources/js/app.js')
     @inertiaHead
+
+    <style>
+        html, body, #app {
+            height: 100%;
+        }
+    </style>
 </head>
 
 <body>

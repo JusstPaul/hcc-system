@@ -16,7 +16,7 @@ createInertiaApp({
             import.meta.glob("./Pages/**/*.vue")
         ),
     setup({ el, app, props, plugin }) {
-        const a = createApp({ render: () => h(app, props) })
+        createApp({ render: () => h(app, props) })
             .use(plugin)
             .use(ZiggyVue)
             .component("i-head", Head)
