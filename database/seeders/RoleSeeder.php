@@ -13,7 +13,7 @@ class RoleSeeder extends Seeder
      *
      * @return void
      */
-    public function void()
+    public function run()
     {
         // Reset cache
         app()['cache']->forget('maklad.permission.cache');

@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
      *
      * @return void
      */
-    public function void()
+    public function run()
     {
         $user_password = env('ADMIN_PASSWORD', 'admin');
 
