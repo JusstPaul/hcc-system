@@ -17,5 +17,5 @@ use Inertia\Inertia;
 
 Route::group(['middleware' => ['guest']], function () {
     Route::get('/login', fn () => Inertia::render('Guest/Login'))->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->name('post.login');
 });

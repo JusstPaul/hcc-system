@@ -12,7 +12,8 @@
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
-        "mostafamaklad/laravel-permission-mongodb": "^4.0"
+        "mostafamaklad/laravel-permission-mongodb": "^4.0",
+        "tightenco/ziggy": "^1.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

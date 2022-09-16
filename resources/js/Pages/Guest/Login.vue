@@ -2,10 +2,11 @@
     <div style="padding: 8rem;">
         <van-row justify="center">
             <van-col span="8">
-                <van-form @submit="loginForm.post('/login')">
+                <van-form @submit="loginForm.post(route('post.login'))">
                     <van-cell-group inset>
                         <van-field v-model="loginForm.username" name="username" label="Username"
-                            :rules="[{ required: true, message: 'Username field is required' }]" />
+                            :rules="[{ required: true, message: 'Username field is required' }]"
+                            :error-message="loginForm.errors.username" />
                         <van-field v-model="loginForm.password" name="password" label="Password" type="password"
                             :rules="[{ required: true, message: 'Password field is required' }]" />
                     </van-cell-group>
