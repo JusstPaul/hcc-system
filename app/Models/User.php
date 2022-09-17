@@ -24,12 +24,42 @@ class User extends Authenticatable
     ];
 
     /**
+     * -------------------------------------------------------------------
+     * Static methods
+     * -------------------------------------------------------------------
+     */
+
+    /**
      * Casts \Illuminate\Contracts\Auth\Authenticable|null to own User class.
      *
      * @return User
      */
-    public static function get(): User
+    public static function get(): ?User
     {
         return auth()->user();
+    }
+
+    /**
+     * Returns authenticated user id.
+     *
+     * @return ?string
+     */
+    public static function id(): ?string
+    {
+        $user = User::get();
+        if ($user) {
+            return $user->_id;
+        }
+        return null;
+    }
+
+    /**
+     * -------------------------------------------------------------------
+     * Relationships
+     * -------------------------------------------------------------------
+     */
+    public function profile()
+    {
+        return $this->embedsOne(Profile::class);
     }
 }

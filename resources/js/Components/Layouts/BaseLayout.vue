@@ -1,16 +1,19 @@
 <template>
-    <div>
+    <n-layout>
         <slot />
-    </div>
+    </n-layout>
 </template>
 
 <script>
-import { Row, Col } from 'vant'
+import { NLayout, NLayoutSider, } from 'naive-ui'
 
 export default {
     components: {
-        [Row.name]: Row,
-        [Col.name]: Col
-    }
+        NLayout,
+    },
 }
 </script>
+
+<style scoped>
+
+</style>

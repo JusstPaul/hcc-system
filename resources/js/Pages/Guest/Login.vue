@@ -1,30 +1,34 @@
 <template>
-    <div style="padding: 8rem;">
-        <van-row justify="center">
-            <van-col span="8">
-                <van-form @submit="loginForm.post(route('post.login'))">
-                    <van-cell-group inset>
-                        <van-field v-model="loginForm.username" name="username" label="Username"
-                            :rules="[{ required: true, message: 'Username field is required' }]"
-                            :error-message="loginForm.errors.username" />
-                        <van-field v-model="loginForm.password" name="password" label="Password" type="password"
-                            :rules="[{ required: true, message: 'Password field is required' }]" />
-                    </van-cell-group>
-                    <div style="margin: 16px;">
-                        <van-button round block type="primary" native-type="submit">Login</van-button>
-                    </div>
-                </van-form>
-            </van-col>
-        </van-row>
+    <div class="content">
+        <div class="form-content">
+            <n-form @submit.prevent="loginForm.post(route('post.login'))" :model="loginForm">
+                <n-form-item label="Username" :required="true" path="username">
+                    <n-input v-model:value="loginForm.username" />
+                </n-form-item>
+                <n-form-item label="Password" :required="true" path="password">
+                    <n-input type="password" show-password-on="click" v-model:value="loginForm.password" />
+                </n-form-item>
+                <n-form-item>
+                    <n-button type="primary" block attr-type="submit" :loading="loginForm.processing">Login</n-button>
+                </n-form-item>
+            </n-form>
+        </div>
     </div>
 </template>
 
+
 <script>
 import { useForm } from '@inertiajs/inertia-vue3';
+import { NForm, NFormItem, NInput, NButton } from 'naive-ui'
+import Layout from '@/Components/Layouts/BaseLayout.vue'
 
 export default {
+    layout: Layout,
     components: {
-
+        NForm,
+        NFormItem,
+        NInput,
+        NButton
     },
     setup() {
         const loginForm = useForm({
@@ -33,7 +37,20 @@ export default {
             remember: false,
         });
 
-        return { loginForm };
+        return { loginForm }
     }
 }
 </script>
+
+<style scoped>
+.content {
+    padding: 8rem;
+    display: flex;
+    justify-content: center;
+}
+
+.form-content {
+    width: 100%;
+    max-width: 320px;
+}
+</style>

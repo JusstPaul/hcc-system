@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User as UserGroup;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -34,8 +35,14 @@ Route::group(['middleware' => ['guest']], function () {
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/', [AuthController::class, 'index'])->name('auth.index');
     Route::post('/logout', [AuthController::class, 'logout'])->name('post.logout');
+    Route::post('/profile/update/{id}', [ProfileController::class, 'update'])->name('post.profile.update');
 });
 
 Route::group(['middleware' => ['auth', 'role:admin']], function () {
     Route::get('/admin', [UserGroup\AdminController::class, 'index'])->name('admin.index');
+    Route::get('/admin/create_user', [UserGroup\AdminController::class, 'create_user_page'])->name('admin.create_user');
+    Route::get('/admin/classrooms', [UserGroup\AdminController::class, 'classroom_page'])->name('admin.classrooms');
+    Route::get('/admin/profile', [UserGroup\AdminController::class, 'profile_page'])->name('admin.profile');
+
+    Route::post('/admin/create_user', [UserGroup\AdminController::class, 'create_user_store'])->name('post.admin.create_user');
 });

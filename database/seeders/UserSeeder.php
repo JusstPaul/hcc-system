@@ -17,6 +17,7 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
+        // Create user
         $user_password = env('ADMIN_PASSWORD', 'admin');
 
         $user = User::create([
@@ -25,6 +26,15 @@ class UserSeeder extends Seeder
             'remember_token' => Str::random(10),
         ]);
 
+        // Assign admin role
         $user->assignRole('admin');
+
+        // Create profile
+        $user->profile()->create([
+            'l_name' => 'Admin',
+            'm_name' => null,
+            'f_name' => 'System',
+            'details' => null,
+        ]);
     }
 }
