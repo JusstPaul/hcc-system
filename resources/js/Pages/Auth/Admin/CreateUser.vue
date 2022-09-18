@@ -1,10 +1,10 @@
 <template>
     <n-layout>
         <n-layout-header>
-            <n-page-header title="Create User" @back="backLink" style="overflow: hidden;" />
+            <n-page-header title="Create User" @back="() => backLink()" style="overflow: hidden;" />
         </n-layout-header>
         <n-layout-content content-style="padding: 24px;">
-            <n-form @submit.prevent="userForm.post(route('post.admin.create_user'))" label-placement="left"
+            <n-form @submit.prevent="() => userForm.post(route('post.admin.create_user'))" label-placement="left"
                 require-mark-placement="right-hanging" label-width="120" :model="userForm" style="max-width: 400px;">
                 <n-form-item label="Username" path="username" required>
                     <n-input v-model:value="userForm.username" />
@@ -22,7 +22,7 @@
                     <n-input v-model:value="userForm.fName" />
                 </n-form-item>
 
-                <!-- HACK Manually setting guards for roles -->
+                <!-- HACK: Manually setting if guards for roles -->
                 <n-form-item v-if="userForm.role === 'instructor' || userForm.role === 'student'" label="Contact"
                     path="details.contact" required>
                     <n-input-number v-model:value="userForm.details.contact" :show-button="false"

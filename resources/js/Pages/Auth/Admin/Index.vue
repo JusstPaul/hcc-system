@@ -17,8 +17,7 @@
             </div>
         </n-layout-header>
         <n-layout-content content-style="padding: 0 24px 0 24px;">
-            <n-data-table :single-line="false" :border="false" :columns="userTableColumns" />
-            {{ users }}
+            <n-data-table :single-line="false" :bordered="false" :columns="userTableColumns" :data="userTableData" />
         </n-layout-content>
     </n-layout>
 </template>
@@ -36,6 +35,7 @@ import {
 } from 'naive-ui'
 import { UserPlus } from '@vicons/tabler'
 import { Link } from '@inertiajs/inertia-vue3'
+import { formatName } from '@/utils'
 import Layout from '@/Components/Layouts/AdminLayout.vue'
 
 export default {
@@ -51,7 +51,7 @@ export default {
         UserPlusIcon: UserPlus,
     },
     props: {
-        users: Object,
+        users: Array,
     },
     setup(props) {
         const userTableColumns = [
@@ -72,12 +72,25 @@ export default {
                 key: 'action'
             }
         ];
+        const userTableData = props.users.map((val) => {
+            const { username, role_name } = val
+            const { l_name, m_name, f_name } = val.profile
+            const role = role_name.charAt(0).toUpperCase() + role_name.slice(1)
+
+            return {
+                username,
+                name: formatName(l_name, m_name, f_name),
+                role,
+                action: 'None'
+            }
+        })
 
         const createUserLink = h(Link, { href: route('admin.create_user') })
 
         return {
             userTableColumns,
-            createUserLink
+            userTableData,
+            createUserLink,
         }
     }
 }

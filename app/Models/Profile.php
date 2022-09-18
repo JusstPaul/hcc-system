@@ -7,6 +7,18 @@ use Jenssegers\Mongodb\Eloquent\Model;
 class Profile extends Model
 {
     /**
+     * Fillable attributes.
+     *
+     * @var array<string, string>
+     */
+    protected $fillable = [
+        'l_name',
+        'm_name',
+        'f_name',
+        'details',
+    ];
+
+    /**
      * The attributes that should be cast to date.
      *
      * @var array<string, string>
@@ -14,6 +26,13 @@ class Profile extends Model
     protected $dates = [
         'created_at',
         'updated_at',
+    ];
+
+    /**
+     * The attributes that should be cast to a specific type.
+     */
+    protected $casts = [
+        'details' => 'array',
     ];
 
     /**

@@ -42,7 +42,9 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
     Route::get('/admin', [UserGroup\AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/create_user', [UserGroup\AdminController::class, 'create_user_page'])->name('admin.create_user');
     Route::get('/admin/classrooms', [UserGroup\AdminController::class, 'classroom_page'])->name('admin.classrooms');
+    Route::get('/admin/create_classroom', [UserGroup\AdminController::class, 'create_classroom_page'])->name('admin.create_classroom');
     Route::get('/admin/profile', [UserGroup\AdminController::class, 'profile_page'])->name('admin.profile');
 
     Route::post('/admin/create_user', [UserGroup\AdminController::class, 'create_user_store'])->name('post.admin.create_user');
+    Route::post('/admin/create_school_year', [UserGroup\AdminController::class, 'school_year_store'])->name('post.admin.school_year');
 });

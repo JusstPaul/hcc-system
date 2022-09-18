@@ -1,1 +1,6 @@
-export const isMobile = /iPhone/iPad/iPod/Android/i.test(navigator.userAgent)
+export function formatName(lName, mName, fName) {
+    if (mName == null || mName.length === 0) {
+        return `${lName}, ${fName}`;
+    }
+    return `${lName}, ${fName}, ${mName}`;
+}

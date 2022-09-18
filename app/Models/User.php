@@ -14,6 +14,25 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**
+     * Fillable attributes.
+     *
+     * @var array<string, string>
+     */
+    protected $fillable = [
+        'username',
+        'password',
+    ];
+
+    /**
+     * Hide secret attributes.
+     *
+     * @var array<string, string>
+     */
+    protected $hidden = [
+        'password'
+    ];
+
+    /**
      * The attributes that should be cast to date.
      *
      * @var array<string, string>
@@ -61,5 +80,19 @@ class User extends Authenticatable
     public function profile()
     {
         return $this->embedsOne(Profile::class);
+    }
+
+    public function classroom_handled()
+    {
+        if (User::get()->hasRole('instructor')) {
+            return $this->hasMany(Classroom::class, '_id', 'classroom_handled_ids');
+        }
+    }
+
+    public function classroom_joined()
+    {
+        if (User::get()->hasRole('student')) {
+            return $this->belongsTo(Classroom::class, '_id', 'classroom_joined_id');
+        }
     }
 }
