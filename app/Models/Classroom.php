@@ -9,6 +9,13 @@ class Classroom extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'day',
+        'room',
+        'time_start',
+        'time_end',
+    ];
+
     /**
      * The attributes that should be cast to date.
      *

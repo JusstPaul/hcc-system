@@ -21,7 +21,6 @@
 
 <script>
 import { Inertia } from '@inertiajs/inertia'
-import dayjs from 'dayjs'
 import {
     NLayout,
     NLayoutContent,
@@ -33,6 +32,7 @@ import {
     NPageHeader,
     NPopconfirm,
 } from 'naive-ui'
+import { formatSchoolYear } from '@/utils'
 import Layout from '@/Components/Layouts/AdminLayout.vue'
 
 export default {
@@ -76,8 +76,7 @@ export default {
         ]
 
         const { school_year } = props
-
-        const showCurrentSchoolYear = school_year == null ? 'None' : `${school_year.start} to ${school_year.end}`
+        const showCurrentSchoolYear = formatSchoolYear(school_year)
 
         function previewSchoolYear() {
             return `${dayjs().year()} to ${dayjs().add(1, 'y').year()}`;

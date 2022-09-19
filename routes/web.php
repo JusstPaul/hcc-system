@@ -47,4 +47,5 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
 
     Route::post('/admin/create_user', [UserGroup\AdminController::class, 'create_user_store'])->name('post.admin.create_user');
     Route::post('/admin/create_school_year', [UserGroup\AdminController::class, 'school_year_store'])->name('post.admin.school_year');
+    Route::post('/admin/create_classroom', [UserGroup\AdminController::class, 'create_classroom_store'])->name('post.admin.create_classroom');
 });

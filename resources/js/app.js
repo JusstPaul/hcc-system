@@ -3,11 +3,17 @@ import { createInertiaApp, Head, Link } from "@inertiajs/inertia-vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createPinia } from "pinia";
 import { ZiggyVue } from "ziggy";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
 import "vfonts/Lato.css";
 import "vfonts/FiraCode.css";
 
-// Some helpers
+// Configure general libraries
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("Asia/Manila");
 
 // Initialize the system
 createInertiaApp({

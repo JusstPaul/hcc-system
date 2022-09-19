@@ -4,3 +4,9 @@ export function formatName(lName, mName, fName) {
     }
     return `${lName}, ${fName}, ${mName}`;
 }
+
+export function formatSchoolYear(schoolYear) {
+    return schoolYear == null
+        ? "None"
+        : `${schoolYear.start} to ${schoolYear.end}`;
+}

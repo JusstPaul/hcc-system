@@ -160,6 +160,11 @@ class AdminController extends Controller
         ]);
     }
 
+    public function create_classroom_store(Request $request)
+    {
+        dd($request);
+    }
+
     public function profile_page()
     {
         return Inertia::render('Auth/Admin/Profile', [
