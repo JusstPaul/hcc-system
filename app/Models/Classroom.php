@@ -14,6 +14,8 @@ class Classroom extends Model
         'room',
         'time_start',
         'time_end',
+        'instructor_id',
+        'student_ids',
     ];
 
     /**

@@ -12,11 +12,18 @@ class AuthController extends Controller
     //
     public function index()
     {
-        $user = User::get();
+        $role = User::get()->getRoleName()->first();
 
-        if ($user->hasRole('admin')) {
+        if (strcmp($role, 'admin') == 0) {
             return redirect()->route('admin.index');
+        } else if (strcmp($role, 'instructor') == 0) {
+            return redirect()->route('instructor.index');
+        } else if (strcmp($role, 'student') == 0) {
+            return redirect()->route('student.index');
         }
+
+        // Invalid role
+        return $this->logout();
     }
 
     public function login(Request $request)

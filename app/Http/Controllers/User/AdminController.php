@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Classroom;
 use App\Models\SchoolYear;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Maklad\Permission\Models\Role;
@@ -139,13 +141,15 @@ class AdminController extends Controller
             'end' => date('Y', strtotime('+1 year'))
         ]);
 
-        return redirect()->back(200);
+        return redirect()->back();
     }
 
     public function classroom_page()
     {
+        $school_year = SchoolYear::latest()->first();
         return Inertia::render('Auth/Admin/Classrooms', [
-            'school_year' => fn () => SchoolYear::latest()->first()
+            'school_year' => fn () => $school_year,
+            'classrooms' => fn () => $school_year->classrooms,
         ]);
     }
 
@@ -162,7 +166,45 @@ class AdminController extends Controller
 
     public function create_classroom_store(Request $request)
     {
-        dd($request);
+        $request->validate([
+            'day' => 'required|in:mwf,tth,sat',
+            'room' => 'required|string',
+            'timeStart' => 'required|date_format:h:i A',
+            'timeEnd' => 'required|date_format:h:i A|after:timeStart',
+            'instructor' => 'required|string',
+            'students' => 'required|array|min:1',
+            'students.*' => 'required|string|distinct',
+        ]);
+
+        // TODO: Lessen the ammount of requests to the database.
+        $classroom = Classroom::create([
+            'day' => $request->day,
+            'room' => $request->room,
+            'time_start' => $request->timeStart,
+            'time_end' => $request->timeEnd,
+            'instructor_id' => $request->instructor,
+            'student_ids' => $request->students,
+        ]);
+        $sy = SchoolYear::latest()->first();
+        $sy->classrooms()->save($classroom);
+
+
+        $instructor = User::find($classroom->instructor_id);
+        $instructor->classroom_handled->push($classroom->id);
+        DB::collection('users')
+            ->where('_id', $classroom->instructor_id)
+            ->push('classroom_handled_ids', $classroom->id);
+
+        // NOTE: Needs testing for relationships.
+        DB::collection('users')
+            ->whereIn('_id', $classroom->student_ids)
+            ->update([
+                'classroom_joined_id' => $classroom->id,
+            ], [
+                'upsert' => true,
+            ]);
+
+        return redirect()->route('admin.classrooms');
     }
 
     public function profile_page()

@@ -84,15 +84,11 @@ class User extends Authenticatable
 
     public function classroom_handled()
     {
-        if (User::get()->hasRole('instructor')) {
-            return $this->hasMany(Classroom::class, '_id', 'classroom_handled_ids');
-        }
+        return $this->hasMany(Classroom::class, '_id', 'classroom_handled_ids');
     }
 
     public function classroom_joined()
     {
-        if (User::get()->hasRole('student')) {
-            return $this->belongsTo(Classroom::class, '_id', 'classroom_joined_id');
-        }
+        return $this->belongsTo(Classroom::class, '_id', 'classroom_joined_id');
     }
 }

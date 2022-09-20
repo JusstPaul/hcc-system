@@ -13,13 +13,15 @@
                 <n-button type="primary" @click.prevent="visitCreateClassroom()">New Classroom</n-button>
             </n-page-header>
             <n-layout-content content-style="padding: 24px;">
-                <n-data-table :single-line="false" :bordered="false" :columns="classroomTableColumns" />
+                <n-data-table :single-line="false" :bordered="false" :columns="classroomTableColumns"
+                    :data="classroomData" />
             </n-layout-content>
         </n-layout-header>
     </n-layout>
 </template>
 
 <script>
+import dayjs from 'dayjs'
 import { Inertia } from '@inertiajs/inertia'
 import {
     NLayout,
@@ -50,8 +52,11 @@ export default {
     },
     props: {
         school_year: Object,
+        classrooms: Array,
     },
     setup(props) {
+        const { classrooms, school_year } = props
+
         const classroomTableColumns = [
             {
                 title: 'Adviser',
@@ -74,8 +79,15 @@ export default {
                 key: 'action'
             }
         ]
+        const classroomData = classrooms.map((val) => ({
+            'adviser': 'TODO',
+            'room': val.room,
+            'time': val.time_start,
+            'days': val.day,
+            'action': 'TODO',
+        }))
 
-        const { school_year } = props
+
         const showCurrentSchoolYear = formatSchoolYear(school_year)
 
         function previewSchoolYear() {
@@ -94,6 +106,7 @@ export default {
 
         return {
             classroomTableColumns,
+            classroomData,
             showCurrentSchoolYear,
             previewSchoolYear,
             generateSchoolYear,

@@ -5,9 +5,14 @@
                 @back="() => backLink()" style="overflow: hidden;" />
         </n-layout-header>
         <n-layout-content content-style="padding: 24px;">
-            <n-form @submit.prevent="() => classroomForm.post(route('post.admin.create_classroom'))"
-                :model="classroomForm" label-placement="left" require-mark-placement="right-hanging" label-width="120"
-                style="max-width: 400px;">
+
+            <!-- Format the time before submitting for validation. -->
+            <n-form @submit.prevent="() => classroomForm.transform((data) => ({
+                ...data,
+                timeStart: formatTime(data.timeStart),
+                timeEnd: formatTime(data.timeEnd),
+            })).post(route('post.admin.create_classroom'))" :model="classroomForm" label-placement="left"
+                require-mark-placement="right-hanging" label-width="120" style="max-width: 400px;">
                 <n-form-item label="Day" path="day" required>
                     <n-select v-model:value="classroomForm.day" :options="daySelect" />
                 </n-form-item>
@@ -56,7 +61,7 @@ import {
     NTimePicker,
 } from 'naive-ui'
 import { useForm } from '@inertiajs/inertia-vue3'
-import { formatName, formatSchoolYear } from '@/utils'
+import { formatName, formatSchoolYear, formatTime } from '@/utils'
 import Layout from '@/Components/Layouts/AdminLayout.vue'
 
 export default {
@@ -153,6 +158,7 @@ export default {
         }
 
         return {
+            formatTime,
             backLink,
             studentsRowKey,
             selectStudent,

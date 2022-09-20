@@ -49,3 +49,11 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
     Route::post('/admin/create_school_year', [UserGroup\AdminController::class, 'school_year_store'])->name('post.admin.school_year');
     Route::post('/admin/create_classroom', [UserGroup\AdminController::class, 'create_classroom_store'])->name('post.admin.create_classroom');
 });
+
+Route::group(['middleware' => ['auth', 'role:instructor']], function () {
+    Route::get('/instructor', [UserGroup\InstructorController::class, 'index'])->name('instructor.index');
+});
+
+Route::group(['middleware' => ['auth', 'role:student']], function () {
+    Route::get('/instructor', [UserGroup\StudentController::class, 'index'])->name('student.index');
+});
