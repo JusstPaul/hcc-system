@@ -13,6 +13,9 @@
                 timeEnd: formatTime(data.timeEnd),
             })).post(route('post.admin.create_classroom'))" :model="classroomForm" label-placement="left"
                 require-mark-placement="right-hanging" label-width="120" style="max-width: 400px;">
+                <n-form-item label="Section" path="section" required>
+                    <n-input v-model:value="classroomForm.section" />
+                </n-form-item>
                 <n-form-item label="Day" path="day" required>
                     <n-select v-model:value="classroomForm.day" :options="daySelect" />
                 </n-form-item>
@@ -90,6 +93,7 @@ export default {
         const showCurrentSchoolYear = formatSchoolYear(props.school_year)
 
         const classroomForm = useForm({
+            section: '',
             day: '',
             room: '',
             timeStart: null,

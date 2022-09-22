@@ -146,10 +146,11 @@ class AdminController extends Controller
 
     public function classroom_page()
     {
+        // TODO: Prompt to create school year first.
         $school_year = SchoolYear::latest()->first();
         return Inertia::render('Auth/Admin/Classrooms', [
             'school_year' => fn () => $school_year,
-            'classrooms' => fn () => $school_year->classrooms,
+            'classrooms' => fn () => is_null($school_year) ? [] : $school_year->classrooms,
         ]);
     }
 
@@ -167,6 +168,7 @@ class AdminController extends Controller
     public function create_classroom_store(Request $request)
     {
         $request->validate([
+            'section' => 'required|string',
             'day' => 'required|in:mwf,tth,sat',
             'room' => 'required|string',
             'timeStart' => 'required|date_format:h:i A',
@@ -178,6 +180,7 @@ class AdminController extends Controller
 
         // TODO: Lessen the ammount of requests to the database.
         $classroom = Classroom::create([
+            'section' => $request->section,
             'day' => $request->day,
             'room' => $request->room,
             'time_start' => $request->timeStart,

@@ -2,7 +2,7 @@
 </template>
 
 <script>
-import Layout from '@/Components/Layouts/StudentLayout.vue'
+import Layout from '@/Components/Layouts/InstructorLayout.vue'
 
 export default {
     layout: Layout,

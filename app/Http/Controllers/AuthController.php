@@ -12,7 +12,7 @@ class AuthController extends Controller
     //
     public function index()
     {
-        $role = User::get()->getRoleName()->first();
+        $role = User::get()->getRoleNames()->first();
 
         if (strcmp($role, 'admin') == 0) {
             return redirect()->route('admin.index');

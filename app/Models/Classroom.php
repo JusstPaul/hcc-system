@@ -10,6 +10,7 @@ class Classroom extends Model
     use HasFactory;
 
     protected $fillable = [
+        'section',
         'day',
         'room',
         'time_start',

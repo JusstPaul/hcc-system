@@ -1,9 +1,11 @@
 <template>
     <n-layout has-sider style="height: 100%;">
-        <n-layout-sider bordered>
+        <n-layout-sider bordered collapse-mode="width" :collapsed-width="64" :width="240" :collapsed="collapsed"
+            show-trigger @collapse="collapsed = true" @expand="collapsed = false">
             <n-layout style="height: 100%;">
                 <n-layout-content>
-                    <n-menu :value="currentRouteKey()" :options="routes" style="padding-top: 24px;" />
+                    <n-menu :value="currentRouteKey()" :options="routes" style="padding-top: 24px;"
+                        :collapsed="collapsed" :collapsed-width="64" :collapsed-icon-size="22" />
                 </n-layout-content>
                 <n-layout-footer position="absolute" bordered style="padding: 24px;">
                     <i-link :href="route('post.logout')" method="post" as="button"
@@ -21,7 +23,7 @@
 </template>
 
 <script>
-import { h } from 'vue'
+import { h, ref } from 'vue'
 import { Link } from '@inertiajs/inertia-vue3'
 import { NLayoutContent, NLayout, NLayoutSider, NLayoutFooter, NMenu } from 'naive-ui'
 
@@ -82,7 +84,8 @@ export default {
 
         return {
             routes,
-            currentRouteKey
+            currentRouteKey,
+            collapsed: ref(false),
         }
     }
 }
