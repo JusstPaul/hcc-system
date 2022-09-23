@@ -55,9 +55,9 @@ Route::group(['middleware' => ['auth', 'role:instructor']], function () {
     Route::get('/instructor/classroom/{classroom_id}', [UserGroup\InstructorController::class, 'classroom_page'])->name('instructor.classroom');
     Route::get('/instructor/classroom/{classroom_id}/create_activity', [UserGroup\InstructorController::class, 'create_activity_page'])->name('instructor.create_activity');
 
-    Route::post('/instructor/classroom/{classroom_id}/create_activity', [UserGroup\InstructorController::class, 'create_activity_page'])->name('post.instructor.create_activity');
+    Route::post('/instructor/classroom/{classroom_id}/create_activity', [UserGroup\InstructorController::class, 'create_activity_store'])->name('post.instructor.create_activity');
 });
 
 Route::group(['middleware' => ['auth', 'role:student']], function () {
-    Route::get('/student', [UserGroup\StudentController::class, 'index'])->name('student.index');
+    Route::get('/student/{student_id}', [UserGroup\StudentController::class, 'index'])->name('student.index');
 });
