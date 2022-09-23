@@ -60,4 +60,5 @@ Route::group(['middleware' => ['auth', 'role:instructor']], function () {
 
 Route::group(['middleware' => ['auth', 'role:student']], function () {
     Route::get('/student/{student_id}', [UserGroup\StudentController::class, 'index'])->name('student.index');
+    Route::get('/student/{student_id}/activity/{activity_id}', [UserGroup\StudentController::class, 'activity_page'])->name('student.activity');
 });

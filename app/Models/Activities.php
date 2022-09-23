@@ -17,4 +17,6 @@ class Activities extends Model
         'questions',
         'target',
     ];
+
+    protected $casts = [];
 }

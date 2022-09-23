@@ -1,12 +1,16 @@
 <template>
     <n-space vertical>
-        <n-card v-for="(activity, index) in activities" :key="activity._id.$oid" :title="activity.title"></n-card>
+        <n-card v-for="(activity, _index) in activities" :key="activity._id.$oid">
+            <template #header>
+                <n-h4 @click="visitActivity(activity._id.$oid)" style="margin-bottom: 0;">{{ activity.title }}</n-h4>
+            </template>
+        </n-card>
     </n-space>
-    {{ activities }}
 </template>
 
 <script>
-import { NSpace, NCard } from 'naive-ui'
+import { Inertia } from '@inertiajs/inertia'
+import { NSpace, NCard, NEllipsis, NH4, } from 'naive-ui'
 import Layout from '@/Components/Layouts/StudentLayout.vue'
 
 export default {
@@ -14,10 +18,25 @@ export default {
     components: {
         NSpace,
         NCard,
+        NEllipsis,
+        NH4,
     },
     props: {
         student_id: String,
         activities: Array,
+    }, setup(props) {
+        const { student_id } = props
+
+        function visitActivity(_id) {
+            Inertia.get(route('student.activity', {
+                student_id,
+                activity_id: _id,
+            }))
+        }
+
+        return {
+            visitActivity,
+        }
     }
 }
 </script>
