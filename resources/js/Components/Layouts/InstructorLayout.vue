@@ -44,6 +44,8 @@ export default {
                     return 'instructor-classroom'
                 case 'instructor.create_activity':
                     return 'instructor-create_activity'
+                case 'instructor.students':
+                    return 'instructor-students'
                 default:
                     alert('InstructorLayout: Invalid route')
                     return ''
@@ -65,24 +67,46 @@ export default {
             switch (route().current()) {
                 case 'instructor.index':
                     return defaultRoutes;
-                case 'instructor.classroom':
-                    defaultRoutes.push({
-                        label: () => h(Link, {
-                            href: route('instructor.create_activity', {
-                                classroom_id: route().params.classroom_id,
-                            })
-                        }, {
-                            default: () => 'Create Activity'
-                        }),
-                        key: 'classroom-create_activity',
-                    })
 
                 case 'instructor.create_activity':
-                    return defaultRoutes;
+                case 'instructor.classroom':
+                case 'instructor.students':
+                    defaultRoutes.push.apply(defaultRoutes, [
+                        {
+                            key: "divider-1",
+                            type: "divider",
+                            props: {
+                                style: {
+                                    marginLeft: "32px"
+                                }
+                            }
+                        },
+                        {
+                            label: () => h(Link, {
+                                href: route('instructor.students', {
+                                    classroom_id: route().params.classroom_id,
+                                })
+                            }, {
+                                default: () => 'Students',
+                            }),
+                            key: 'classroom-students',
+                        },
+                        {
+                            label: () => h(Link, {
+                                href: route('instructor.create_activity', {
+                                    classroom_id: route().params.classroom_id,
+                                })
+                            }, {
+                                default: () => 'Create Task'
+                            }),
+                            key: 'classroom-create_activity',
+                        },
+                    ])
+                    break;
                 default:
                     alert('InstructorLayout: Invalid route')
-                    return defaultRoutes;
             }
+            return defaultRoutes
         }
 
         return {

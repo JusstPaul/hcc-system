@@ -3,7 +3,10 @@
         <n-grid-item v-for="classroom in classrooms">
             <n-card size="small">
                 <template #header>
-                    <n-h4 @click="visitClassroom(classroom._id)" style="margin-bottom: 0;">Section</n-h4>
+                    <n-button text class="underline-hover">
+                        <n-h4 @click="visitClassroom(classroom._id)" style="margin-bottom: 0;">{{ classroom.section }}
+                        </n-h4>
+                    </n-button>
                 </template>
                 <div style="text-transform: uppercase;">
                     {{ classroom.time_start }} to {{ classroom.time_end }} {{ classroom.day }}
@@ -20,6 +23,7 @@ import {
     NGridItem,
     NCard,
     NH4,
+    NButton,
 } from 'naive-ui';
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
 
@@ -30,6 +34,7 @@ export default {
         NGridItem,
         NCard,
         NH4,
+        NButton,
     },
     props: {
         classrooms: Array,

@@ -28,6 +28,20 @@ class InstructorController extends Controller
         ]);
     }
 
+    public function students_page(String $classroom_id)
+    {
+        return Inertia::render('Auth/Instructor/Students', [
+            'classroom_id' => $classroom_id,
+            'students' => fn () => User::where('classroom_joined_id', $classroom_id)
+                ->project([
+                    '_id' => 1,
+                    'username' => 1,
+                    'profile' => 1,
+                ])
+                ->get()
+        ]);
+    }
+
     public function create_activity_page(String $classroom_id)
     {
         return Inertia::render('Auth/Instructor/CreateActivity', [
@@ -49,6 +63,7 @@ class InstructorController extends Controller
         $questions = array_map(function ($item) use ($classroom_id) {
             if (strcmp($item['type'], 'Handwriting Comparator') == 0) {
                 $files = array_map(function ($file) use ($classroom_id) {
+                    dd(gettype($file['file']));
                     return Storage::disk('public')
                         ->put("classroom/$classroom_id/activities", new File($file['file']));
                 }, $item['value']);

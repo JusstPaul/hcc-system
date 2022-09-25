@@ -6,13 +6,17 @@ import { ZiggyVue } from "ziggy";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import duration from "dayjs/plugin/duration";
 
 import "vfonts/Lato.css";
 import "vfonts/FiraCode.css";
 
+import "../css/app.css";
+
 // Configure general libraries
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(duration);
 dayjs.tz.setDefault("Asia/Manila");
 
 // Initialize the system

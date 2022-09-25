@@ -13,6 +13,45 @@ class StudentController extends Controller
 {
     public function index(String $student_id)
     {
+        dd(User::raw(function ($collection) use ($student_id) {
+            return $collection->aggregate([
+                [
+                    '$match' => [
+                        '_id' => [
+                            '$eq' => new ObjectId($student_id)
+                        ],
+                    ],
+                ],
+                [
+                    '$lookup' => [
+                        'from' => 'activities',
+                        'localField' => 'classroom_joined_id',
+                        'foreignField' => 'target.value',
+                        'as' => 'activities'
+                    ],
+                ],
+                [
+                    '$match' => [
+                        'activities' => [
+                            '$elemMatch' => [
+                                'target' => [
+                                    '$elemMatch' => [
+                                        'type' => 'classroom'
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    '$project' => [
+                        'activities' => 1,
+                        '_id' => 0
+                    ],
+                ],
+            ]);
+        })->first()->activities);
+
         return Inertia::render('Auth/Student/Index', [
             'student_id' => $student_id,
             'activities' => fn () => User::raw(function ($collection) use ($student_id) {
@@ -20,7 +59,7 @@ class StudentController extends Controller
                     [
                         '$match' => [
                             '_id' => [
-                                '$eq' => new ObjectId('632c763790dc1985b8046dd7')
+                                '$eq' => new ObjectId($student_id)
                             ],
                         ],
                     ],

@@ -1,7 +1,7 @@
 <template>
     <n-layout>
         <n-layout-header>
-            <n-page-header title="Create Activity" @back="() => backLink()" style="overflow: hidden;" />
+            <n-page-header title="Create Task" @back="() => backLink()" style="overflow: hidden;" />
         </n-layout-header>
         <n-layout-content content-style="padding: 24px;">
             <n-form @submit.prevent="() => activityForm.post(route('post.instructor.create_activity', {
@@ -20,7 +20,7 @@
                 <n-form-item label="Lock after deadline" path="lockAfterEnd">
                     <n-switch v-model:value="activityForm.lockAfterEnd" />
                 </n-form-item>
-                <n-form-item label="General Directions" path="generalDirections">
+                <n-form-item label="General Instruction" path="generalDirections">
                     <n-input v-model:value="activityForm.generalDirections" type="textarea" />
                 </n-form-item>
                 <n-divider />

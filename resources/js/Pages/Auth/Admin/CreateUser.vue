@@ -25,8 +25,7 @@
                 <!-- HACK: Manually setting if guards for roles -->
                 <n-form-item v-if="userForm.role === 'instructor' || userForm.role === 'student'" label="Contact"
                     path="details.contact" required>
-                    <n-input-number v-model:value="userForm.details.contact" :show-button="false"
-                        style="width: 100%;" />
+                    <n-input v-model:value="userForm.details.contact" type="text" :allow-input="allowNumberOnly" />
                 </n-form-item>
                 <n-form-item v-if="userForm.role === 'instructor' || userForm.role === 'student'" label="Email"
                     path="details.email" required>
@@ -37,8 +36,8 @@
                 </n-form-item>
                 <n-form-item v-if="userForm.role === 'student'" label="Contact Person Mobile"
                     path="details.contactPersonContact">
-                    <n-input-number v-model:value="userForm.details.contactPersonContact" :show-button="false"
-                        style="width: 100%;" />
+                    <n-input v-model:value="userForm.details.contactPersonContact" type="text"
+                        :allow-input="allowNumberOnly" />
                 </n-form-item>
                 <n-form-item>
                     <n-button type="primary" attr-type="submit" :loading="userForm.processing" :style="{
@@ -67,6 +66,7 @@ import {
     NSelect,
 } from 'naive-ui'
 import { useForm } from '@inertiajs/inertia-vue3'
+import { allowNumberOnly } from '@/utils'
 import Layout from '@/Components/Layouts/AdminLayout.vue'
 
 export default {
@@ -100,10 +100,10 @@ export default {
             mName: '',
             fName: '',
             details: {
-                contact: 9,
+                contact: null,
                 email: '',
                 contactPerson: '',
-                contactPersonContact: 9,
+                contactPersonContact: null,
             },
         })
 
@@ -112,6 +112,7 @@ export default {
         }
 
         return {
+            allowNumberOnly,
             userForm,
             backLink,
             roleOptions

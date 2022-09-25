@@ -169,7 +169,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'section' => 'required|string',
-            'day' => 'required|in:mwf,tth,sat',
+            'day' => 'required|in:mw,tth,fs',
             'room' => 'required|string',
             'timeStart' => 'required|date_format:h:i A',
             'timeEnd' => 'required|date_format:h:i A|after:timeStart',
