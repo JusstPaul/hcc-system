@@ -53,29 +53,29 @@ class InstructorController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'deadline' => 'required',
+            'start' => 'required|numeric',
+            'deadline' => 'required|numeric|gt:start',
             'lockAfterEnd' => 'required|boolean',
             'generalDirections' => 'required|string',
-            'questions.*' => 'required|array:id,type,value,answer',
+            'questions.*' => 'required',
+            'questions.*.*' => 'required|array:id,type,value,answer,instruction',
             'target.*' => 'required|array:type,value',
         ]);
 
         $questions = array_map(function ($item) use ($classroom_id) {
-            if (strcmp($item['type'], 'Handwriting Comparator') == 0) {
-                $files = array_map(function ($file) use ($classroom_id) {
-                    dd(gettype($file['file']));
-                    return Storage::disk('public')
-                        ->put("classroom/$classroom_id/activities", new File($file['file']));
-                }, $item['value']);
+            return array_map(function ($child) use ($classroom_id) {
+                if (strcmp($child['type'], 'Handwriting Comparator') == 0) {
+                    $files = array_map(fn ($file) => storeFile($file, "classroom/$classroom_id/activities"), $child['value']);
+                    $child['value'] = $files;
+                }
 
-                $item['value'] = $files;
-            }
-
-            return $item;
+                return $child;
+            }, $item);
         }, $request->questions);
 
         Activities::create([
             'title' => $request->title,
+            'start' => $request->start,
             'deadline' => $request->deadline,
             'lock_after_end' => $request->lockAfterEnd,
             'general_directions' => $request->generalDirections,

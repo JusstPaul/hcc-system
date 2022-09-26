@@ -13,44 +13,6 @@ class StudentController extends Controller
 {
     public function index(String $student_id)
     {
-        dd(User::raw(function ($collection) use ($student_id) {
-            return $collection->aggregate([
-                [
-                    '$match' => [
-                        '_id' => [
-                            '$eq' => new ObjectId($student_id)
-                        ],
-                    ],
-                ],
-                [
-                    '$lookup' => [
-                        'from' => 'activities',
-                        'localField' => 'classroom_joined_id',
-                        'foreignField' => 'target.value',
-                        'as' => 'activities'
-                    ],
-                ],
-                [
-                    '$match' => [
-                        'activities' => [
-                            '$elemMatch' => [
-                                'target' => [
-                                    '$elemMatch' => [
-                                        'type' => 'classroom'
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    '$project' => [
-                        'activities' => 1,
-                        '_id' => 0
-                    ],
-                ],
-            ]);
-        })->first()->activities);
 
         return Inertia::render('Auth/Student/Index', [
             'student_id' => $student_id,
@@ -100,7 +62,7 @@ class StudentController extends Controller
         return Inertia::render('Auth/Student/Activity', [
             'student_id' => $student_id,
             'activity' => function () use ($activity_id) {
-                $activity = Activities::find($activity_id)->first()->toArray();
+                $activity = Activities::find($activity_id)->toArray();
                 $activity['questions'] = json_encode($activity['questions']);
                 $activity['questions'] = json_decode($activity['questions'], true);
 

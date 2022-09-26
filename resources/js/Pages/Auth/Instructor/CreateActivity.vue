@@ -4,7 +4,10 @@
             <n-page-header title="Create Task" @back="() => backLink()" style="overflow: hidden;" />
         </n-layout-header>
         <n-layout-content content-style="padding: 24px;">
-            <n-form @submit.prevent="() => activityForm.post(route('post.instructor.create_activity', {
+            <n-form @submit.prevent="() => activityForm.transform((data) => ({
+                ...data,
+                start: data.start ? data.start : dayjs().millisecond(),
+            })).post(route('post.instructor.create_activity', {
                 classroom_id,
             }), {
                 _method: 'PUT',
@@ -12,6 +15,15 @@
                 style="max-width: 500px;">
                 <n-form-item label="Title" path="title" required>
                     <n-input v-model:value="activityForm.title" />
+                </n-form-item>
+                <n-form-item label="Start" path="start">
+                    <template v-if="activityForm.start == null" #feedback>
+                        <n-tag type="warning" style="margin-bottom: 0.5rem;">
+                            Leaving time to start blank immediatetly starts the task.
+                        </n-tag>
+                    </template>
+                    <n-date-picker v-model:value="activityForm.start" type="datetime" format="MM-dd-yyyy - hh:mm a"
+                        clearable />
                 </n-form-item>
                 <n-form-item label="Deadline" path="deadline" required>
                     <n-date-picker v-model:value="activityForm.deadline" type="datetime" format="MM-dd-yyyy - hh:mm a"
@@ -23,25 +35,50 @@
                 <n-form-item label="General Instruction" path="generalDirections">
                     <n-input v-model:value="activityForm.generalDirections" type="textarea" />
                 </n-form-item>
-                <n-divider />
 
-                <n-form-item v-for="({ id, type }, index) in activityForm.questions" :key="id"
-                    :path="`questions[${index}]`">
-                    <n-card closable @close="() => removeQuestion(id)">
-                        <template #header>
-                            <n-select :options="questionOptions" v-model:value="activityForm.questions[index].type" />
-                        </template>
-                        <template v-if="type === QUESTION_TYPES[5]">
-                            <n-upload :max="11" :multiple="true" list-type="image-card" :show-preview-button="true"
-                                @preview="handleImgPreview" @change="({ fileList }) => setImgList(fileList, index)"
-                                :name="`comparator-${id}`" />
-                        </template>
-                    </n-card>
-                </n-form-item>
+                <template v-for="(val, index) in activityForm.questions" :key="index">
+                    <n-divider />
+
+                    <n-form-item v-for="({ id, type }, idx) in val" :key="id" :path="`questions[${index}]`">
+                        <n-card closable @close="() => removeQuestion(index, idx)">
+                            <template #header>
+                                <n-select :options="questionOptions"
+                                    v-model:value="activityForm.questions[index][idx].type" />
+                            </template>
+
+                            <n-input v-model:value="activityForm.questions[index][idx].instruction" type="textarea"
+                                placeholder="Instructions" />
+
+                            <n-layout-content content-style="margin-top: 1rem; margin-left: 1rem;">
+                                <!-- True or False -->
+                                <template v-if="type === QUESTION_TYPES[2]">
+                                    <n-dynamic-input v-model:value="activityForm.questions[index][idx].value"
+                                        :min="2" />
+                                </template>
+
+                                <!-- Handwriting Comparator -->
+                                <template v-if="type === QUESTION_TYPES[4]">
+                                    <n-upload list-type="image-card" :name="`upload-${id}`" multiple :min="7" :max="11"
+                                        @file-list="(fileList) => setImgList(fileList, index, idx)" />
+                                </template>
+                            </n-layout-content>
+                        </n-card>
+                    </n-form-item>
+
+                    <n-form-item>
+                        <n-layout>
+                            <n-space justify="center" item-style="width: 100%;">
+                                <n-button @click="addQuestion(index)" attry-type="button" dashed block>Add Question
+                                </n-button>
+                            </n-space>
+                        </n-layout>
+                    </n-form-item>
+                </template>
                 <n-form-item>
                     <n-layout>
-                        <n-space justify="center" item-style="width: 100%; padding: 1.5rem;">
-                            <n-button @click="() => addQuestion()" attr-type="button" block>Add Question</n-button>
+                        <n-space justify="center" item-style="width: 100%;">
+                            <n-button @click="() => addSection()" :disabled="isAddSectionDisabled()" attr-type="button"
+                                dashed block>Add Section</n-button>
                         </n-space>
                     </n-layout>
                 </n-form-item>
@@ -61,6 +98,7 @@
 </template>
 
 <script>
+import dayjs from 'dayjs'
 import { ref } from 'vue'
 import { Inertia } from '@inertiajs/inertia'
 import { useForm } from '@inertiajs/inertia-vue3'
@@ -70,6 +108,7 @@ import {
     NLayoutHeader,
     NH2,
     NButton,
+    NButtonGroup,
     NPageHeader,
     NForm,
     NFormItem,
@@ -84,6 +123,8 @@ import {
     NCard,
     NModal,
     NUpload,
+    NTag,
+    NDynamicInput,
 } from 'naive-ui'
 import { nanoid } from 'nanoid'
 
@@ -98,6 +139,7 @@ export default {
         NLayoutHeader,
         NH2,
         NButton,
+        NButtonGroup,
         NPageHeader,
         NForm,
         NFormItem,
@@ -112,6 +154,8 @@ export default {
         NCard,
         NModal,
         NUpload,
+        NTag,
+        NDynamicInput,
     },
     props: {
         classroom_id: String,
@@ -127,10 +171,11 @@ export default {
 
         const activityForm = useForm({
             title: '',
+            start: null,
             deadline: null,
             lockAfterEnd: false,
             generalDirections: '',
-            questions: [],
+            questions: [[]],
             target: [
                 {
                     type: 'classroom',
@@ -144,18 +189,28 @@ export default {
             value: val,
         }))
 
-        function addQuestion() {
-            activityForm.questions.push({
+        function addQuestion(parentIndex) {
+            activityForm.questions[parentIndex].push({
                 id: nanoid(10),
                 type: QUESTION_TYPES[0],
+                instruction: '',
                 value: '', // Either string or FileList
                 answer: '',
             })
+            console.log(activityForm.questions)
         }
 
-        function removeQuestion(targetId) {
-            const index = activityForm.questions.findIndex(({ id }) => id === targetId)
-            activityForm.questions.splice(index, 1)
+        function addSection() {
+            if (activityForm.questions[activityForm.questions.length - 1].length !== 0) {
+                activityForm.questions.push([])
+            }
+        }
+        function isAddSectionDisabled() {
+            return activityForm.questions[activityForm.questions.length - 1].length === 0
+        }
+
+        function removeQuestion(parentIndex, childIndex) {
+            activityForm.questions[parentIndex].splice(childIndex, 1)
         }
 
         const showPreviewRef = ref(false)
@@ -165,15 +220,18 @@ export default {
             previewImgRef.value = url
             showPreviewRef.value = true
         }
-        function setImgList(fileList, index) {
-            activityForm.questions[index].value = fileList
+        function setImgList(fileList, parentIndex, childIndex) {
+            activityForm.questions[parentIndex][childIndex].value = fileList
         }
 
         return {
+            dayjs,
             backLink,
             activityForm,
             questionOptions,
             addQuestion,
+            addSection,
+            isAddSectionDisabled,
             removeQuestion,
             QUESTION_TYPES,
             showPreviewRef,
