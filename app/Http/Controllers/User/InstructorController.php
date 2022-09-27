@@ -65,7 +65,7 @@ class InstructorController extends Controller
         $questions = array_map(function ($item) use ($classroom_id) {
             return array_map(function ($child) use ($classroom_id) {
                 if (strcmp($child['type'], 'Handwriting Comparator') == 0) {
-                    $files = array_map(fn ($file) => storeFile($file, "classroom/$classroom_id/activities"), $child['value']);
+                    $files = array_map(fn ($file) => storeFile($file['file'], "classroom/$classroom_id/activities"), $child['value']);
                     $child['value'] = $files;
                 }
 

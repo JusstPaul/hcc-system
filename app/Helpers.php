@@ -10,6 +10,6 @@ use Illuminate\Http\File;
  */
 function storeFile($file, String $parent = '')
 {
-    return Storage::disk('public')
+    return Storage::disk(env('STORAGE', 'public'))
         ->put($parent, new File($file));
 }

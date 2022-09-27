@@ -59,7 +59,7 @@
                                 <!-- Handwriting Comparator -->
                                 <template v-if="type === QUESTION_TYPES[4]">
                                     <n-upload list-type="image-card" :name="`upload-${id}`" multiple :min="7" :max="11"
-                                        @file-list="(fileList) => setImgList(fileList, index, idx)" />
+                                        @change="({fileList}) => setImgList(fileList, index, idx)" />
                                 </template>
                             </n-layout-content>
                         </n-card>

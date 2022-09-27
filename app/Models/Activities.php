@@ -11,6 +11,7 @@ class Activities extends Model
 
     protected $fillable = [
         'title',
+        'start',
         'deadline',
         'lock_after_end',
         'general_directions',

@@ -47,7 +47,9 @@
 
                         <!-- Handwriting Comparator -->
                         <template v-if="matchQuestion(index, idx, 4)">
-                            TODO
+                            <n-layout>
+                                <n-layout-content></n-layout-content>
+                            </n-layout>
                         </template>
                     </n-layout-content>
                 </n-card>

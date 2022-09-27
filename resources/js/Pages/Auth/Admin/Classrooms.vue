@@ -10,7 +10,11 @@
                         Generate new School Year? {{ previewSchoolYear() }}
                     </n-popconfirm>
                 </template>
-                <n-button type="primary" @click.prevent="visitCreateClassroom()">New Classroom</n-button>
+                <n-space>
+                    <n-button :disabled="!has_instructors" type="primary" @click.prevent="visitCreateClassroom()">New
+                        Classroom</n-button>
+                    <n-tag v-if="!has_instructors" :bordered="false">No Instructors registered</n-tag>
+                </n-space>
             </n-page-header>
             <n-layout-content content-style="padding: 24px;">
                 <n-data-table :single-line="false" :bordered="false" :columns="classroomTableColumns"
@@ -33,6 +37,8 @@ import {
     NDataTable,
     NPageHeader,
     NPopconfirm,
+    NTag,
+    NSpace,
 } from 'naive-ui'
 import { formatSchoolYear } from '@/utils'
 import Layout from '@/Components/Layouts/AdminLayout.vue'
@@ -49,13 +55,15 @@ export default {
         NDataTable,
         NPageHeader,
         NPopconfirm,
+        NTag,
+        NSpace,
     },
     props: {
         school_year: Object,
         classrooms: Array,
+        has_instructors: Boolean,
     },
-    setup(props) {
-        const { classrooms, school_year } = props
+    setup({ classrooms, school_year }) {
 
         const classroomTableColumns = [
             {

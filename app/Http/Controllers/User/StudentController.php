@@ -16,44 +16,53 @@ class StudentController extends Controller
 
         return Inertia::render('Auth/Student/Index', [
             'student_id' => $student_id,
-            'activities' => fn () => User::raw(function ($collection) use ($student_id) {
-                return $collection->aggregate([
-                    [
-                        '$match' => [
-                            '_id' => [
-                                '$eq' => new ObjectId($student_id)
+            'joined_class' => fn () => !is_null(User::get()->classroom_joined_id),
+            'activities' => function () use ($student_id) {
+                $activites = User::raw(function ($collection) use ($student_id) {
+                    return $collection->aggregate([
+                        [
+                            '$match' => [
+                                '_id' => [
+                                    '$eq' => new ObjectId($student_id)
+                                ],
                             ],
                         ],
-                    ],
-                    [
-                        '$lookup' => [
-                            'from' => 'activities',
-                            'localField' => 'classroom_joined_id',
-                            'foreignField' => 'target.value',
-                            'as' => 'activities'
+                        [
+                            '$lookup' => [
+                                'from' => 'activities',
+                                'localField' => 'classroom_joined_id',
+                                'foreignField' => 'target.value',
+                                'as' => 'activities'
+                            ],
                         ],
-                    ],
-                    [
-                        '$match' => [
-                            'activities' => [
-                                '$elemMatch' => [
-                                    'target' => [
-                                        '$elemMatch' => [
-                                            'type' => 'classroom'
+                        [
+                            '$match' => [
+                                'activities' => [
+                                    '$elemMatch' => [
+                                        'target' => [
+                                            '$elemMatch' => [
+                                                'type' => 'classroom'
+                                            ],
                                         ],
                                     ],
                                 ],
                             ],
                         ],
-                    ],
-                    [
-                        '$project' => [
-                            'activities' => 1,
-                            '_id' => 0
+                        [
+                            '$project' => [
+                                'activities' => 1,
+                                '_id' => 0
+                            ],
                         ],
-                    ],
-                ]);
-            })->first()->activities,
+                    ]);
+                });
+
+                if ($activites->isEmpty()) {
+                    return [];
+                }
+
+                return $activites->first()->activities;
+            },
         ]);
     }
 

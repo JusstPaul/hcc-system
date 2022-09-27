@@ -7,9 +7,7 @@
                     :collapsed-icon-size="22" />
             </n-layout-content>
             <n-layout-footer position="absolute" bordered style="padding: 24px;">
-                <i-link :href="route('post.logout')" method="post" as="button"
-                    class="van-button van-button--default van-button--normal">Logout
-                </i-link>
+                <n-button v-if="!collapsed" @click="logout">Logout</n-button>
             </n-layout-footer>
         </n-layout-sider>
         <n-layout>
@@ -22,7 +20,8 @@
 
 <script>
 import { ref } from 'vue'
-import { NLayoutContent, NLayout, NLayoutSider, NLayoutFooter, NMenu } from 'naive-ui'
+import { NLayoutContent, NLayout, NLayoutSider, NLayoutFooter, NMenu, NButton, } from 'naive-ui'
+import { logout } from '@/utils'
 import Layout from './BaseLayout.vue'
 
 export default {
@@ -33,10 +32,12 @@ export default {
         NLayout,
         NLayoutSider,
         NLayoutFooter,
+        NButton,
     },
     setup() {
         return {
-            collapsed: ref(false)
+            collapsed: ref(false),
+            logout,
         }
     }
 }

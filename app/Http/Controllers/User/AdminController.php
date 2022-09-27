@@ -151,6 +151,7 @@ class AdminController extends Controller
         return Inertia::render('Auth/Admin/Classrooms', [
             'school_year' => fn () => $school_year,
             'classrooms' => fn () => is_null($school_year) ? [] : $school_year->classrooms,
+            'has_instructors' => fn () => !(User::role('instructor')->get()->isEmpty()),
         ]);
     }
 

@@ -1,4 +1,9 @@
 import dayjs from "dayjs";
+import { Inertia } from "@inertiajs/inertia";
+
+export function logout() {
+    Inertia.post(route("post.logout"));
+}
 
 export function formatName(lName, mName, fName) {
     if (mName == null || mName.length === 0) {
