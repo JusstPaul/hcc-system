@@ -1,3 +1,7 @@
 .underline-hover:hover {
     text-decoration: underline;
 }
+
+.btn-icon {
+  font-size: 24px;
+}
