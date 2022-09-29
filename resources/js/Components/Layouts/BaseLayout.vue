@@ -1,19 +1,16 @@
 <template>
-    <n-notification-provider>
-        <n-layout>
-            <slot />
-        </n-layout>
-    </n-notification-provider>
+  <n-layout>
+    <slot />
+  </n-layout>
 </template>
 
 <script>
-import { NLayout, NNotificationProvider } from 'naive-ui'
+import { NLayout, } from 'naive-ui'
 
 export default {
-    components: {
-        NLayout,
-        NNotificationProvider,
-    },
+  components: {
+    NLayout,
+  },
 }
 </script>
 

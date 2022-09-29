@@ -7,12 +7,14 @@
     <n-layout-content content-style="padding: 24px;">
 
       <!-- Format the time before submitting for validation. -->
-      <n-form @submit.prevent="() => classroomForm.transform((data) => ({
-          ...data,
-          timeStart: formatTime(data.timeStart),
-          timeEnd: formatTime(data.timeEnd),
-      })).post(route('post.admin.create_classroom'))" :model="classroomForm" label-placement="left"
-        require-mark-placement="right-hanging" label-width="120" style="max-width: 400px;">
+      <n-form @submit.prevent="classroomForm.transform((data) => ({
+        ...data,
+        timeStart: formatTime(data.timeStart),
+        timeEnd: formatTime(data.timeEnd),
+            })).post(route('post.admin.create_classroom'), {
+        onError: () => createUserError(),
+      })" :model="classroomForm" label-placement="left" require-mark-placement="right-hanging" label-width="120"
+        style="max-width: 400px;">
         <n-form-item label="Section" path="section" required>
           <n-input v-model:value="classroomForm.section" />
         </n-form-item>
@@ -71,6 +73,7 @@ import {
   NTimePicker,
   NTime,
   NSpace,
+  useNotification,
 } from 'naive-ui'
 import { useForm } from '@inertiajs/inertia-vue3'
 import { formatName, formatSchoolYear, formatTime } from '@/utils'
@@ -99,9 +102,10 @@ export default {
     school_year: Object,
     instructors: Array,
     students: Array,
-    errors: Object,
   },
   setup({ school_year, instructors, students }) {
+    const notification = useNotification()
+
     const showCurrentSchoolYear = formatSchoolYear(school_year)
 
     const classroomForm = useForm({
@@ -200,12 +204,20 @@ export default {
       classroomForm.students = rowKeys
     }
 
+    function createUserError() {
+      notification.error({
+        title: 'Failed to create classroom',
+        content: 'Please check entered data'
+      })
+    }
+
     function backLink() {
       Inertia.get(route('admin.classrooms'))
     }
 
     return {
       formatTime,
+      createUserError,
       backLink,
       studentsRowKey,
       selectStudent,
