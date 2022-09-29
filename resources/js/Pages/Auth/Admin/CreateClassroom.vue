@@ -12,7 +12,7 @@
         timeStart: formatTime(data.timeStart),
         timeEnd: formatTime(data.timeEnd),
             })).post(route('post.admin.create_classroom'), {
-        onError: () => createUserError(),
+        onError: (error) => createUserError(error),
       })" :model="classroomForm" label-placement="left" require-mark-placement="right-hanging" label-width="120"
         style="max-width: 400px;">
         <n-form-item label="Section" path="section" required>
@@ -204,7 +204,8 @@ export default {
       classroomForm.students = rowKeys
     }
 
-    function createUserError() {
+    function createUserError(error) {
+      console.log(error)
       notification.error({
         title: 'Failed to create classroom',
         content: 'Please check entered data'
