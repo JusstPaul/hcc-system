@@ -41,6 +41,14 @@
               </template>
 
               <!-- Handwriting Comparator -->
+              <template v-if="matchQuestion(index, 4)">
+                <n-layout has-sider>
+                  <n-layout-sider></n-layout-sider>
+                  <n-layout-content>
+                    <n-space></n-space>
+                  </n-layout-content>
+                </n-layout>
+              </template>
 
             </n-layout-content>
           </n-layout>
@@ -66,6 +74,7 @@ import {
   NInput,
   NLayout,
   NLayoutContent,
+  NLayoutSider,
   NRadio,
   NRadioGroup,
   NAlert,
@@ -88,6 +97,7 @@ export default {
     NInput,
     NLayout,
     NLayoutContent,
+    NLayoutSider,
     NRadio,
     NRadioGroup,
     NAlert,

@@ -45,7 +45,7 @@ import {
   NModal,
 } from 'naive-ui'
 import { Trash as TrashIcon } from '@vicons/tabler'
-import { formatSchoolYear } from '@/utils'
+import { formatSchoolYear, formatName, formatTime } from '@/utils'
 import Layout from '@/Components/Layouts/AdminLayout.vue'
 
 export default {
@@ -82,7 +82,10 @@ export default {
     function confirmDeleteSectionPositive() {
       Inertia.post(route('post.delete_classroom', {
         classroom_id: confirmDeleteSectionId.value,
-      }))
+      }), undefined, {
+        onFinish: () => location.reload(),
+        preserveScroll: true,
+      })
     }
 
     const classroomTableColumns = [
@@ -91,8 +94,8 @@ export default {
         key: 'section',
       },
       {
-        title: 'Adviser',
-        key: 'adviser',
+        title: 'Instructor',
+        key: 'instructor',
       },
       {
         title: 'Room',
@@ -127,13 +130,14 @@ export default {
         }
       }
     ]
-    const classroomData = classrooms.map((val) => ({
-      'key': val._id,
-      'section': val.section,
-      'adviser': 'TODO',
-      'room': val.room,
-      'time': val.time_start,
-      'days': val.day,
+    console.log(classrooms)
+    const classroomData = classrooms.map(({ _id, section, instructor, room, time_start, time_end, day }) => ({
+      'key': _id,
+      'section': section,
+      'instructor': formatName(instructor.profile.l_name, instructor.profile.m_name, instructor.profile.f_name),
+      'room': room,
+      'time': `${time_start} to ${time_end}`,
+      'days': day.toUpperCase(),
     }))
 
 

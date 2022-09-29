@@ -99,9 +99,10 @@ export default {
     school_year: Object,
     instructors: Array,
     students: Array,
+    errors: Object,
   },
-  setup(props) {
-    const showCurrentSchoolYear = formatSchoolYear(props.school_year)
+  setup({ school_year, instructors, students }) {
+    const showCurrentSchoolYear = formatSchoolYear(school_year)
 
     const classroomForm = useForm({
       section: '',
@@ -135,7 +136,7 @@ export default {
       })).valueOf()
     }
 
-    const instructorSelect = props.instructors.map((val) => {
+    const instructorSelect = instructors.map((val) => {
       const { _id } = val
       const { l_name, m_name, f_name } = val.profile
 
@@ -162,7 +163,7 @@ export default {
     ])
     function studentsData() {
       if (studentSearch.value === '') {
-        return props.students.map((val) => {
+        return students.map((val) => {
           const { username, _id } = val
           const { l_name, m_name, f_name } = val.profile
 
@@ -174,7 +175,7 @@ export default {
         })
       }
 
-      return props.students.filter((val) => {
+      return students.filter((val) => {
         const searchRegex = new RegExp(studentSearch.value, 'ig')
         const { username } = val
         const { l_name, m_name, f_name } = val.profile

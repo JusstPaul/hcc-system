@@ -147,9 +147,48 @@ class AdminController extends Controller
   {
     // TODO: Prompt to create school year first.
     $school_year = SchoolYear::latest()->first();
+
     return Inertia::render('Auth/Admin/Classrooms', [
       'school_year' => fn () => $school_year,
-      'classrooms' => fn () => is_null($school_year) ? [] : $school_year->classrooms,
+      'classrooms' => fn () => is_null($school_year) ? [] : $school_year->classrooms()
+        ->raw(function ($collection) {
+          return $collection->aggregate([
+            [
+              '$addFields' => [
+                'str_id' => [
+                  '$toString' => '$_id'
+                ],
+              ],
+            ],
+            [
+              '$lookup' => [
+                'from' => 'users',
+                'localField' => 'str_id',
+                'foreignField' => 'classroom_handled_ids',
+                'as' => 'instructor_raw'
+              ],
+            ],
+            [
+              '$set' => [
+                'instructor' => [
+                  '$first' => '$instructor_raw'
+                ],
+              ],
+            ],
+            [
+              '$project' => [
+                '_id' => 1,
+                'section' => 1,
+                'room' => 1,
+                'time' => 1,
+                'day' => 1,
+                'time_start' => 1,
+                'time_end' => 1,
+                'instructor' => 1
+              ],
+            ],
+          ]);
+        }),
       'has_instructors' => fn () => !(User::role('instructor')->get()->isEmpty()),
     ]);
   }
