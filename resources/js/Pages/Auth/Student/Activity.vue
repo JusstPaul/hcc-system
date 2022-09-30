@@ -43,9 +43,13 @@
               <!-- Handwriting Comparator -->
               <template v-if="matchQuestion(index, 4)">
                 <n-layout has-sider>
-                  <n-layout-sider></n-layout-sider>
+                  <n-layout-sider>
+                  </n-layout-sider>
                   <n-layout-content>
-                    <n-space></n-space>
+                    <n-image-group>
+                      <n-space>
+                      </n-space>
+                    </n-image-group>
                   </n-layout-content>
                 </n-layout>
               </template>

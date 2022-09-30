@@ -86,8 +86,16 @@
               <div style="margin-top: 1rem;">
                 <!-- True or false -->
                 <template v-if="type === QUESTION_TYPES[1]">
-                  <n-select v-model:value="activityForm.questions[index].values[idx].answer"
-                    :options="trueOrFalseOptions" placeholder="Answer" />
+                  <n-space vertical :size="1">
+                    <span>Answer</span>
+                    <n-radio-group v-model:value="activityForm.questions[index].values[idx].answer"
+                      :name="`answer-${id}-${childId}`">
+                      <n-space>
+                        <n-radio :value="true" label="True" />
+                        <n-radio :value="false" label="False" />
+                      </n-space>
+                    </n-radio-group>
+                  </n-space>
                 </template>
                 <!-- Multiple choice -->
                 <template v-if="type === QUESTION_TYPES[2]">
@@ -172,6 +180,8 @@ import {
   NUpload,
   NTag,
   NDynamicInput,
+  NRadio,
+  NRadioGroup,
 } from 'naive-ui'
 import { nanoid } from 'nanoid'
 
@@ -204,6 +214,8 @@ export default {
     NUpload,
     NTag,
     NDynamicInput,
+    NRadio,
+    NRadioGroup,
   },
   props: {
     classroom_id: String,
@@ -247,12 +259,17 @@ export default {
         '1' :
         activityForm.questions[index].values[activityForm.questions[index].values.length - 1].score
 
+      let answer = null;
+      if (activityForm.questions[index].type === QUESTION_TYPES[1]) {
+        answer = true;
+      }
+
       activityForm.questions[index].values.push({
         id: nanoid(10),
         instruction: '',
         content: null,
         score: score,
-        answer: '',
+        answer: answer,
       })
     }
 
