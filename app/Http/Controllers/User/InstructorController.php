@@ -59,21 +59,30 @@ class InstructorController extends Controller
       'generalDirections' => 'required|string',
       'questions' => 'required',
       'questions.*' => 'required|array:id,type,values,instruction',
-      'questions.*.values.*' => 'required|array:id,instruction,content,answer',
+      'questions.*.values.*' => 'required|array:id,instruction,content,answer,score',
       'target.*' => 'required|array:type,value',
     ]);
 
     $questions = array_map(function ($item) use ($classroom_id) {
       if (strcmp($item['type'], 'Handwriting Comparator') == 0) {
-        $values =  array_map(function ($child) use ($classroom_id) {
-          $files = array_map(fn ($file) => storeFile($file['file'], "classroom/$classroom_id/activities"), $child['content']);
-          $child['content'] = $files;
+        $values = array_map(function ($child) use ($classroom_id) {
+
+          $questioned = storeToClassroomActivities($child['content']['questioned']['file'], $classroom_id);
+          $samples = array_map(function ($file) use ($classroom_id) {
+            return storeToClassroomActivities($file['file'], $classroom_id);
+          }, $child['content']['samples']);
+
+          $child['content'] = [
+            'questioned' => $questioned,
+            'samples' => $samples,
+          ];
 
           return $child;
         }, $item['values']);
 
         $item['values'] = $values;
       }
+
       return $item;
     }, $request->questions);
 

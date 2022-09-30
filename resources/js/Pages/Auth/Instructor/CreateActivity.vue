@@ -36,7 +36,9 @@
         </n-form-item>
 
         <template v-for="({ id, type, values }, index) in activityForm.questions" :key="id">
+
           <n-divider />
+
           <n-form-item label="Type" :path="`activityForm.questions[${index}].type`">
             <n-select :options="questionOptions" v-model:value="activityForm.questions[index].type" />
           </n-form-item>
@@ -51,19 +53,54 @@
                   placeholder="Instructions" />
               </template>
 
+              <n-input v-model:value="activityForm.questions[index].values[idx].score" :allow-input="allowNumberOnly"
+                placeholder="Score" />
+
               <n-layout>
                 <n-layout-content content-style="margin-top: 1rem; margin-left: 1rem;">
+
                   <!-- Multiple choice -->
                   <template v-if="type === QUESTION_TYPES[2]">
                     <n-dynamic-input v-model:value="activityForm.questions[index].values[idx].content" :min="2" />
                   </template>
 
+                  <!-- Handwriting Comparator -->
                   <template v-if="type === QUESTION_TYPES[4]">
-                    <n-upload list-type="image-card" :name="`upload-${id}`" multiple :min="7" :max="11"
-                      @change="({fileList}) => setImgList(fileList, index, idx)" />
+                    <div style="margin-bottom: 1.5rem;">
+                      <span>Questioned</span>
+                      <n-upload list-type="image-card" :name="`upload-${id}-${childId}-questioned`"
+                        @change="({ fileList }) => setQuestionedImg(fileList, index, idx)" />
+                    </div>
+
+                    <div>
+                      <span>Samples</span>
+                      <n-upload list-type="image-card" :name="`upload-${id}-${childId}-samples`" multiple :min="6"
+                        :max="10" @change="({fileList}) => setSamplesImgList(fileList, index, idx)" />
+                    </div>
+
                   </template>
+
                 </n-layout-content>
               </n-layout>
+
+              <div style="margin-top: 1rem;">
+                <!-- True or false -->
+                <template v-if="type === QUESTION_TYPES[1]">
+                  <n-select v-model:value="activityForm.questions[index].values[idx].answer"
+                    :options="trueOrFalseOptions" placeholder="Answer" />
+                </template>
+                <!-- Multiple choice -->
+                <template v-if="type === QUESTION_TYPES[2]">
+                  <n-select v-model:value="activityForm.questions[index].values[idx].answer"
+                    :options="choicesToOptions(activityForm.questions[index].values[index].content)"
+                    placeholder="Answer" />
+                </template>
+                <!-- Answer except for comparator -->
+                <template v-if="type !== QUESTION_TYPES[4] && type !== QUESTION_TYPES[1] && type !== QUESTION_TYPES[2]">
+                  <n-input v-model:value="activityForm.questions[index].values[idx].answer" placeholder="Answer" />
+                </template>
+              </div>
+
             </n-card>
           </n-form-item>
 
@@ -74,7 +111,8 @@
                   Question
                 </n-button>
                 <n-button @click="() => removeSection(index)" attr-type="button" type="error" tertiary block>Remove
-                  Question</n-button>
+                  Question
+                </n-button>
               </n-space>
             </n-layout>
           </n-form-item>
@@ -93,7 +131,9 @@
           <n-button type="primary" attr-type="submit" :loading="activityForm.processing" :style="{
               marginRight: 0,
               marginLeft: 'auto'
-          }">Submit</n-button>
+          }">
+            Post Task
+          </n-button>
         </n-form-item>
       </n-form>
     </n-layout-content>
@@ -105,6 +145,7 @@
 
 <script>
 import dayjs from 'dayjs'
+import { isString, first } from 'lodash'
 import { ref } from 'vue'
 import { Inertia } from '@inertiajs/inertia'
 import { useForm } from '@inertiajs/inertia-vue3'
@@ -134,8 +175,9 @@ import {
 } from 'naive-ui'
 import { nanoid } from 'nanoid'
 
-import Layout from '@/Components/Layouts/InstructorLayout.vue'
+import { allowNumberOnly } from '@/utils'
 import { QUESTION_TYPES } from '@/constants'
+import Layout from '@/Components/Layouts/InstructorLayout.vue'
 
 export default {
   layout: Layout,
@@ -201,10 +243,15 @@ export default {
     }))
 
     function addQuestion(index) {
+      const score = activityForm.questions[index].values.length === 0 ?
+        '1' :
+        activityForm.questions[index].values[activityForm.questions[index].values.length - 1].score
+
       activityForm.questions[index].values.push({
         id: nanoid(10),
         instruction: '',
         content: null,
+        score: score,
         answer: '',
       })
     }
@@ -221,6 +268,26 @@ export default {
       activityForm.questions.splice(index, 1)
     }
 
+    function choicesToOptions(choices) {
+      if (choices == null) {
+        return []
+      }
+      return choices.map((val) => ({
+        label: val,
+        value: val,
+      }))
+    }
+    const trueOrFalseOptions = [
+      {
+        label: 'True',
+        value: 'True',
+      },
+      {
+        label: 'False',
+        value: 'False',
+      },
+    ]
+
     function removeQuestion(parentIndex, childIndex) {
       activityForm.questions[parentIndex].values.splice(childIndex, 1)
     }
@@ -232,12 +299,33 @@ export default {
       previewImgRef.value = url
       showPreviewRef.value = true
     }
-    function setImgList(fileList, parentIndex, childIndex) {
-      activityForm.questions[parentIndex].values[childIndex].content = fileList
+    function setSamplesImgList(fileList, parentIndex, childIndex) {
+      const content = activityForm.questions[parentIndex].values[childIndex].content
+      if (content == null || isString(content)) {
+        activityForm.questions[parentIndex].values[childIndex].content = {
+          samples: fileList,
+          questioned: null,
+        }
+      } else {
+        activityForm.questions[parentIndex].values[childIndex].content.samples = fileList
+      }
+    }
+
+    function setQuestionedImg(fileList, parentIndex, childIndex) {
+      const content = activityForm.questions[parentIndex].values[childIndex].content
+      if (content == null || isString(content)) {
+        activityForm.questions[parentIndex].values[childIndex].content = {
+          samples: null,
+          questioned: first(fileList),
+        }
+      } else {
+        activityForm.questions[parentIndex].values[childIndex].content.questioned = first(fileList)
+      }
     }
 
     return {
       dayjs,
+      allowNumberOnly,
       backLink,
       activityForm,
       questionOptions,
@@ -249,7 +337,10 @@ export default {
       showPreviewRef,
       previewImgRef,
       handleImgPreview,
-      setImgList,
+      setSamplesImgList,
+      setQuestionedImg,
+      choicesToOptions,
+      trueOrFalseOptions,
     }
   }
 }

@@ -10,6 +10,11 @@ use Illuminate\Http\File;
  */
 function storeFile($file, String $parent = '')
 {
-    return Storage::disk(env('STORAGE', 'public'))
-        ->put($parent, new File($file));
+  return Storage::disk(env('STORAGE', 'public'))
+    ->put($parent, new File($file));
+}
+
+function storeToClassroomActivities($file, String $classroom_id)
+{
+  return storeFile($file, "classroom/$classroom_id/activities");
 }

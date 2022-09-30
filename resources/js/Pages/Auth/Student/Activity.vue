@@ -120,7 +120,7 @@ export default {
               files: content,
               progress: {
                 current: 1,
-                total: content.value.length - 1,
+                total: content.samples.length - 1,
               }
             }))
           }
