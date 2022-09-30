@@ -42,6 +42,11 @@ class AuthController extends Controller
       $request->session()->regenerate();
 
       // Create session token
+      $user = User::get();
+      $id   = $user->_id;
+      $user->createToken("api-access-$id", [
+        $user->getRoleNames()->first()
+      ]);
 
       return redirect()->route('auth.index');
     }
@@ -53,6 +58,8 @@ class AuthController extends Controller
 
   public function logout()
   {
+    User::get()->tokens()->delete();
+
     Session::flush();
     Auth::logout();
 
