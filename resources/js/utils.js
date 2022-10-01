@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import axios from "axios";
 import { Inertia } from "@inertiajs/inertia";
 
 export function logout() {
@@ -24,4 +25,33 @@ export function formatTime(time) {
 
 export function allowNumberOnly(input) {
   return !input || /^\d+$/.test(input);
+}
+
+
+export function requestFile(token, key, onLoad = (url) => { }) {
+
+  axios.defaults.headers.common = {
+    Authorization: `bearer ${token}`,
+  }
+
+  axios.get(route('api.file', {
+    _query: {
+      key: key
+    }
+  }), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    responseType: 'blob',
+  }).then((res) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(res.data)
+    reader.onload = () => {
+      const result = reader.result.toString();
+      onLoad(result ? result : '#')
+    }
+  }).catch((err) => {
+    console.error(err)
+  })
+
 }

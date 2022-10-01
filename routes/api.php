@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Mimey\MimeTypes;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +15,25 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// TODO
+Route::group(['middleware' => ['auth:sanctum']], function () {
 });
+
+Route::get('/file', function (Request $request) {
+  if (fileExists($request->key)) {
+    $dot   = explode('.', $request->key);
+    $slash = explode('/', $request->key);
+
+    $file = getFile($request->key);
+    $mime = new MimeTypes;
+
+    return response()->make($file, 200, [
+      'Content-Type' => $mime->getMimeType(end($dot)),
+      'Content-Disposition' => 'attachment; filename="' . end($slash) . '"',
+    ]);
+  } else {
+    return response()->json([
+      'file' => 'missing!',
+    ], 500);
+  }
+})->name('api.file');

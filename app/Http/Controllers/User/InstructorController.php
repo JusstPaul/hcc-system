@@ -8,8 +8,6 @@ use App\Models\Classroom;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Activities;
-use Illuminate\Http\File;
-use Illuminate\Support\Facades\Storage;
 
 class InstructorController extends Controller
 {
