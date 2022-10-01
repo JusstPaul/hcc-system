@@ -55,7 +55,8 @@
                                 type="primary">Snapshot</n-button>
                             </div>
                             <div>
-                              <n-switch>
+                              <n-switch v-model:value="answerForm.answers[index].values[idx].state.mode"
+                                checked-value="r" unchecked-value="l">
                                 <template #checked>Right</template>
                                 <template #unchecked>Left</template>
                               </n-switch>
@@ -67,23 +68,45 @@
                             <n-space vertical item-style="margin-right: 0.5rem;">
                               <div>
                                 <span>Zoom</span>
-                                <n-slider size="small" />
+                                <template v-if="checkModeL(index, idx)">
+                                  <n-slider size="small"
+                                    v-model:value="answerForm.answers[index].values[idx].state.zoom.left" :max="2"
+                                    :min="1" :step="0.1" />
+                                </template>
+                                <template v-else>
+                                  <n-slider size="small"
+                                    v-model:value="answerForm.answers[index].values[idx].state.zoom.right" :max="2"
+                                    :min="1" :step="0.1" />
+                                </template>
                               </div>
                               <div>
                                 <span>Filters</span>
-                                <n-select size="small" />
+                                <template v-if="checkModeL(index, idx)">
+                                  <n-select size="small" :options="filters"
+                                    v-model:value="answerForm.answers[index].values[idx].state.filter.left" />
+                                </template>
+                                <template v-else>
+                                  <n-select size="small" :options="filters"
+                                    v-model:value="answerForm.answers[index].values[idx].state.filter.right" />
+                                </template>
                               </div>
                               <div>
-                                <span>Contrast</span>
-                                <n-select size="small" />
+                                <span>Opacity</span>
+                                <template v-if="checkModeL(index, idx)">
+                                  <n-slider size="small"
+                                    v-model:value="answerForm.answers[index].values[idx].state.opacity.left" :max="1"
+                                    :min="0.1" :step="0.1" />
+                                </template>
+                                <template v-else>
+                                  <n-slider size="small"
+                                    v-model:value="answerForm.answers[index].values[idx].state.opacity.right" :max="1"
+                                    :min="0.1" :step="0.1" />
+                                </template>
                               </div>
                               <div>
-                                <span>Brightness</span>
-                                <n-select size="small" />
-                              </div>
-                              <div>
-                                <span>Overlap</span>
-                                <n-select size="small" />
+                                <span>Gap</span>
+                                <n-slider size="small" v-model:value="answerForm.answers[index].values[idx].state.gap"
+                                  :max="20" :min="0" :step="1" />
                               </div>
                               <div>
                                 <n-button @click="addImaginaryLine(index, idx, id, childId)" attr-type="button"
@@ -99,24 +122,40 @@
                                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: fit-content;">
                                   <n-image-group>
                                     <n-space justify="center">
-                                      <n-space item-style="border-style: solid; border-width: 0.75px;">
-                                        <n-image width="350" object-fit="contain"
-                                          :src="answerForm.answers[index].values[idx].files.questioned" />
-                                        <n-image width="350" object-fit="contain"
-                                          :src="answerForm.answers[index].values[idx].files.questioned" />
+                                      <n-space item-style="border-style: solid; border-width: 0.75px;"
+                                        :size="answerForm.answers[index].values[idx].state.gap">
+                                        <div style="overflow: hidden;">
+                                          <n-image width="350" object-fit="contain"
+                                            :src="answerForm.answers[index].values[idx].files.questioned" :style="{
+                                                transform: `scale(${answerForm.answers[index].values[idx].state.zoom.left})`,
+                                              filter: filterToCSS(answerForm.answers[index].values[idx].state.filter.left),
+                                              opacity: answerForm.answers[index].values[idx].state.opacity.left,
+                                            }" />
+                                        </div>
+                                        <div style="overflow: hidden;">
+                                          <n-image width="350" object-fit="contain"
+                                            :src="answerForm.answers[index].values[idx].files.samples[answerForm.answers[index].values[idx].progress.current]"
+                                            :style="{
+                                                transform: `scale(${answerForm.answers[index].values[idx].state.zoom.right})`,
+                                              filter: filterToCSS(answerForm.answers[index].values[idx].state.filter.right),
+                                              opacity: answerForm.answers[index].values[idx].state.opacity.right,
+                                            }" />
+                                        </div>
                                       </n-space>
                                     </n-space>
                                   </n-image-group>
                                 </div>
-                                <svg :id="`hcc-${id}-${index}-${idx}-svg`"
-                                  style="width: 100%; position: absolute; top: 0; left: 0;"></svg>
+                                <svg :id="`hcc-${id}-${index}-${idx}-svg`" class="comparator-svg"></svg>
                               </div>
                               <div style="padding-left: 24px; padding-right: 24px;">
                                 <n-space>
                                   <span>Characteristics: </span>
 
-                                  <n-tooltip v-for="({ label, description }, i) in hccCharacteristics" :key="i"
+                                  <n-tooltip v-for="({ header, label, description }, i) in hccCharacteristics" :key="i"
                                     trigger="hover">
+                                    <template #header>
+                                      {{ header }}
+                                    </template>
                                     <template #trigger>
                                       <n-button @click="hccAddCharacteristic(label, index, idx, id, childId)" text>{{
                                       label }}
@@ -131,12 +170,13 @@
                           </n-layout-content>
                         </n-layout>
                         <n-layout-content>
-                          <n-card style="margin-top: 0.5rem;" closable
-                            v-for="({ file, id: valId }, i) in answerForm.answers[index].values[idx].value" :key="valId"
-                            :title="`Snapshot #${i + 1}`">
+                          <n-card style="margin-top: 0.5rem;"
+                            v-for="({ file, id: valId, }, i) in answerForm.answers[index].values[idx].value"
+                            :key="valId" :title="`Snapshot #${i + 1}`">
                             <n-space vertical>
                               <n-image :src="file" style="width: 100%" />
-                              <n-input type="textarea" />
+                              <n-input type="textarea"
+                                v-model:value="answerForm.answers[index].values[idx].value[i].description" />
                             </n-space>
                           </n-card>
                         </n-layout-content>
@@ -157,9 +197,6 @@
 </template>
 
 <script>
-import * as d3 from 'd3'
-import { drag } from 'd3-drag'
-import { symbol, symbolTriangle } from 'd3-shape'
 import { nanoid } from 'nanoid'
 import { useForm, usePage } from '@inertiajs/inertia-vue3'
 import {
@@ -245,19 +282,20 @@ export default {
                 id,
                 state: {
                   svg: null,
+                  mode: 'l', // l or r
                   zoom: {
                     left: 1,
                     right: 1,
                   },
                   filter: {
-                    left: '',
-                    right: '',
+                    left: 0,
+                    right: 0,
                   },
-                  contrast: {
-                    left: '',
-                    right: '',
+                  opacity: {
+                    left: 1,
+                    right: 1,
                   },
-                  overlap: 1,
+                  gap: 20,
                 },
                 files: {
                   questioned: null,
@@ -282,6 +320,59 @@ export default {
       })
     })
 
+    function checkModeL(parentIndex, childIndex) {
+      return answerForm.answers[parentIndex].values[childIndex].state.mode === 'l'
+    }
+
+    const _filters = ['none', 'hue', 'sepia', 'saturate', 'grayscale']
+    const filters = _filters.map((val, index) => ({
+      label: val,
+      value: index,
+    }))
+
+    function filterToCSS(index) {
+      switch (_filters[index]) {
+        case 'hue':
+          return 'hue-rotate(180deg)'
+        case 'sepia':
+          return 'sepia(100%)'
+        case 'saturate':
+          return 'saturate(4)'
+        case 'grayscale':
+          return 'grayscale(100%)'
+        case 'none':
+        default:
+          return 'none';
+      }
+    }
+
+    function resetState(parentIndex, childIndex) {
+      const id = answerForm.answers[parentIndex].id
+      const parentDiv = getParentDiv(parentIndex, childIndex)
+
+      const svg = d3.select(`#hcc-${id}-${parentIndex}-${childIndex}-svg`)
+      svg.selectAll('*').remove()
+
+      answerForm.answers[parentIndex].values[childIndex].state = {
+        svg: null,
+        mode: 'l', // l or r
+        zoom: {
+          left: 1,
+          right: 1,
+        },
+        filter: {
+          left: 0,
+          right: 0,
+        },
+        opacity: {
+          left: 1,
+          right: 1,
+        },
+        gap: 20,
+      }
+
+    }
+
     function matchQuestion(index, typeIndex) {
       return activity.questions[index].type === QUESTION_TYPES[typeIndex]
     }
@@ -296,7 +387,10 @@ export default {
             file: url,
             description: '',
           })
+          resetState(parentIndex, childIndex)
           answerForm.answers[parentIndex].values[childIndex].progress.current += 1
+
+
         }
       }).catch((err) => {
         alert('Snapshot failed')
@@ -338,17 +432,19 @@ export default {
         .attr('x2', clientWidth * 0.6)
         .attr('y2', clientHeight * 0.5)
         .attr('id', `line-${parentId}-${childId}-${lineId}`)
-        .call(drag().on('start', () => {
+        .on('dblclick', () => {
+          d3.select(`#line-${parentId}-${childId}-${lineId}`).remove()
+        })
+        .call(d3.drag().on('start', () => {
           d3.select(`#line-${parentId}-${childId}-${lineId}`).classed('dragged', true)
-        }).on('drag', ({ dx, dy }, _d) => {
-
+        }).on('drag', () => {
 
           const line = d3.select(`#line-${parentId}-${childId}-${lineId}`)
 
-          const x1 = parseInt(line.attr('x1')) + dx
-          const x2 = parseInt(line.attr('x2')) + dx
-          const y1 = parseInt(line.attr('y1')) + dy
-          const y2 = parseInt(line.attr('y2')) + dy
+          const x1 = parseInt(line.attr('x1')) + d3.event.dx
+          const x2 = parseInt(line.attr('x2')) + d3.event.dx
+          const y1 = parseInt(line.attr('y1')) + d3.event.dy
+          const y2 = parseInt(line.attr('y2')) + d3.event.dy
 
           line.attr('x1', x1)
             .attr('x2', x2)
@@ -361,9 +457,10 @@ export default {
 
     const hccCharacteristics = [
       {
-        label: 'NV',
-        description: '',
-      }
+        label: 'PP',
+        header: 'Pen pressure',
+        description: 'The average force with which the pen contracts the paper',
+      },
     ]
 
     function hccAddCharacteristic(label, parentIndex, childIndex, parentId, childId) {
@@ -374,76 +471,37 @@ export default {
 
       const id = nanoid(5)
 
-      const group = answerForm.answers[parentIndex].values[childIndex].state.svg
+      answerForm.answers[parentIndex].values[childIndex].state.svg
         .append('g')
-      group.append('line')
-        .attr('id', `hc-${parentId}-${childId}-${id}-line`)
-        .attr('x1', clientWidth * 0.3)
-        .attr('x2', clientWidth * 0.6)
-        .attr('y1', clientHeight * 0.5)
-        .attr('y2', clientHeight * 0.5)
-        .style('stroke', 'black')
-
-      group.append('text')
-        .style('stroke', 'black')
-        .style('font-size', '16px')
-        .style('cursor', 'default')
-        .attr('id', `hc-${parentId}-${childId}-${id}-text`)
-        .attr('x', getLine().attr('x1') + 8)
-        .attr('y', parseInt(getLine().attr('y1')) + 4)
-        .text(label)
-        .call(drag().on('start', () => {
-          getLine().classed('dragged', true)
-          getText().classed('dragged', true)
-        }).on('drag', ({ dx, dy }, _id) => {
-          // only move the text, cicle, and y1 for line
-          const text = getText()
-          const line = getLine()
-
-          const textX = parseInt(text.attr('x')) + dx
-          const textY = parseInt(text.attr('y')) + dy
-
-          text.attr('x', textX)
-            .attr('y', textY)
-
-          line.attr('x1', lineX1)
-            .attr('y1', lineY1)
-        }).on('end', () => {
-          getLine().classed('dragged', false)
-          getText().classed('dragged', false)
-        }))
-
-      function getLine() {
-        return d3.select(`#hc-${parentId}-${childId}-${id}-line`)
-      }
-
-      function getText() {
-        return d3.select(`#hc-${parentId}-${childId}-${id}-text`)
-      }
-
-      // .call(drag().on('start', () => {
-      //   d3.select(`#hcc-characteristic-${parentId}-${childId}-${id}-text`).classed('dragged', true)
-      // }).on('drag', (event, _id) => {
-      //   d3.select(`#hcc-characteristic-${parentId}-${childId}-${id}-text`)
-      //     .attr('y', event.y)
-      //     .attr('x', event.x)
-      // })
-      //   .on('end', () => {
-      //     d3.select(`#hcc-characteristic-${parentId}-${childId}-${id}-text`).classed('dragged', false)
-      //   }))
-      // .append('text')
-      // .style('stroke', 'black')
-      // .style('font', '11px')
-      // .style('cursor', 'default')
-      // .attr('id', `hcc-characteristic-${parentId}-${childId}-${id}-text`)
-      // .attr('x', clientWidth * 0.5)
-      // .attr('y', clientHeight * 0.5)
-      // .text(label)
+        .attr('class', 'annotation-group')
+        .attr('id', `ch-${parentId}-${childId}-${id}`)
+        .on('dblclick', () => {
+          d3.select(`#ch-${parentId}-${childId}-${id}`).remove()
+        })
+        .call(d3.annotation()
+          .editMode(true)
+          .notePadding(15)
+          .type(d3.annotationCallout)
+          .annotations([{
+            note: {
+              title: label,
+              bgPadding: 10,
+            },
+            x: clientWidth * 0.5,
+            y: clientHeight * 0.5,
+            dx: 20,
+            dy: 20,
+            color: 'black',
+          }]))
+        .attr('stroke', 'black')
     }
 
     return {
       answerForm,
       matchQuestion,
+      checkModeL,
+      filters,
+      filterToCSS,
       questions,
       generalDirection: general_directions,
       snapshot,
@@ -467,4 +525,12 @@ export default {
   top: 0;
   left: 0;
 }
+
+.comparator-svg {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
 </style>
+
