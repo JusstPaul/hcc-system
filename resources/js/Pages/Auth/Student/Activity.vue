@@ -348,7 +348,6 @@ export default {
 
     function resetState(parentIndex, childIndex) {
       const id = answerForm.answers[parentIndex].id
-      const parentDiv = getParentDiv(parentIndex, childIndex)
 
       const svg = d3.select(`#hcc-${id}-${parentIndex}-${childIndex}-svg`)
       svg.selectAll('*').remove()
@@ -459,7 +458,97 @@ export default {
       {
         label: 'PP',
         header: 'Pen pressure',
-        description: 'The average force with which the pen contracts the paper',
+        description: 'The average force with which the pen contracts the paper'
+      },
+      {
+        label: 'PTCH',
+        header: 'Patching',
+        description: 'The retouching or going back over a defective writing stroke.'
+      },
+      {
+        label: 'TR',
+        header: 'Tremor',
+        description: 'The irregular shaky stroke.'
+      },
+      {
+        label: 'STR',
+        header: 'Stroke',
+        description: 'These are series of lines or curves within a single letter.'
+      },
+      {
+        label: 'D',
+        header: 'Diacritic',
+        description: 'It is a sign added to a letter or symbol to give it a particular phonetic value.'
+      },
+      {
+        label: 'B',
+        header: 'Baseline',
+        description: 'It is the ruled or imaginary line upon which the writing rests.'
+      },
+      {
+        label: 'A',
+        header: 'Alignment',
+        description: 'The relation of parts of the whole line of writing or line of individual letter in words to the baseline.'
+      },
+      {
+        label: 'LQ',
+        header: 'Line quality',
+        description: 'Refers to the overall character of the written strokes from the initial to the terminal.'
+      },
+      {
+        label: 'B',
+        header: 'Baseline',
+        description: 'It is the ruled or imaginary line upon which the writing rests.'
+      },
+      {
+        label: 'LS',
+        header: 'Lateral spacing',
+        description: 'The horizontal dimension of writing produced by the width of letters, the space between letters and words, and the width of margins.'
+      },
+      {
+        label: 'NV',
+        header: 'Natural variation',
+        description: 'The normal or usual deviation found in repeated specimen of any individual handwriting.'
+      },
+      {
+        label: 'RHY',
+        header: 'Rhythm',
+        description: 'The element of the writing movement marked by regular or periodic recurrences. It may be classed as smooth, intermittent, or jerky in its quality.'
+      },
+      {
+        label: 'PR',
+        header: 'Proportion',
+        description: 'It is the relation of the tall and short letters.'
+      },
+      {
+        label: 'SLNT',
+        header: 'Slant',
+        description: 'The angle or inclination of the axis of letters relative to the baseline.'
+      },
+      {
+        label: 'H',
+        header: 'Hiatus',
+        description: 'The gap in writing stroke of a letter formed when the instrument leaves the paper. An opening, an interruption in the continuity of a line.'
+      },
+      {
+        label: 'PL',
+        header: 'Pen lift',
+        description: 'Is an interruption in stroke caused by removing or lifting the writing instrument from the paper.'
+      },
+      {
+        label: 'L',
+        header: 'Ligature',
+        description: 'It is a group of connected characters treated typographically as a single character, sometimes a stroke or bar connecting two letters.'
+      },
+      {
+        label: 'RE',
+        header: 'Retracing',
+        description: 'The stroke that goes back over another writing stroke. In natural handwriting there may be many instances in which the pen doubles back over the same course but some retracing in fraudulent signatures represents a reworking of a letter form or stroke.'
+      },
+      {
+        label: 'WH',
+        header: 'Writing habit',
+        description: 'It is persistently repeated element or detail of writing that occurs when the opportunity allows. '
       },
     ]
 

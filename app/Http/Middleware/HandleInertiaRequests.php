@@ -40,7 +40,7 @@ class HandleInertiaRequests extends Middleware
     $user = User::get();
 
     return array_merge(parent::share($request), [
-      'user' => fn () => $user ? $user->only('username') : null,
+      'user' => fn () => $user ? $user->only('username', '_id') : null,
       'user.role' => fn () => $user ? $user->getRoleNames()->first() : null,
       'user.token' => fn () => $user ? $user->tokens()->first()->token : null,
     ]);

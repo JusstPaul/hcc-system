@@ -19,6 +19,7 @@ import {
 } from '@vicons/tabler'
 import { pXS, ptXS } from '@/styles'
 import { logout, renderIcon } from '@/utils'
+import { SIDER } from '@/constants'
 import Layout from './BaseLayout.vue'
 
 export default {
@@ -56,7 +57,6 @@ export default {
     ]
 
     const footerRoutes = [
-      /*
       {
         label: () => h(Link, {
           href: route('admin.profile')
@@ -66,7 +66,6 @@ export default {
         key: 'admin-profile',
         icon: renderIcon(UserCircleIcon),
       },
-      */
       {
         label: () => h('a', {
           onClick: () => logout(),
@@ -101,6 +100,7 @@ export default {
       collapsed: ref(false),
       pXS,
       ptXS,
+      SIDER,
     }
   }
 }
@@ -112,8 +112,8 @@ n-layout.h-full(has-sider)
     bordered,
     show-trigger,
     collapse-mode="width",
-    :collapsed-width="64",
-    :width="180", 
+    :collapsed-width="SIDER.COLLAPSED_WIDTH",
+    :width="SIDER.WIDTH", 
     :collapsed="collapsed",
     @collapse="() => collapsed = true",
     @expand="() => collapsed = false"
@@ -124,16 +124,16 @@ n-layout.h-full(has-sider)
           :value="currentRouteKey()",
           :options="routes", 
           :collapsed="collapsed",
-          :collapsed-width="64",
-          :collapsed-icon-size="22"
+          :collapsed-width="SIDER.COLLAPSED_WIDTH",
+          :collapsed-icon-size="SIDER.COLLAPSED_ICON_SIZE"
         )
       n-layout-footer.pt-xs(bordered, position="absolute")
         n-menu(
           :options="footerRoutes", 
           :collapsed="collapsed",
-          :collapsed-width="64",
-          :collapsed-icon-size="22"
+          :collapsed-width="SIDER.COLLAPSED_WIDTH",
+          :collapsed-icon-size="SIDER.COLLAPSED_ICON_SIZE"
         )
-  n-layout(:content-style="pXS")
+  n-layout-content(:content-style="pXS")
     slot
 </template>

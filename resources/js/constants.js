@@ -5,3 +5,9 @@ export const QUESTION_TYPES = [
   "Essay",
   "Handwriting Comparator",
 ];
+
+export const SIDER = {
+  COLLAPSED_WIDTH: 64,
+  COLLAPSED_ICON_SIZE: 22,
+  WIDTH: 180,
+}

@@ -49,22 +49,20 @@
           <n-form-item v-for="({ id: childId }, idx) in values" :key="childId">
             <n-card closable @close="() => removeQuestion(index, idx)">
               <template #header>
-                <n-input v-model:value="activityForm.questions[index].values[idx].instruction"
-                  placeholder="Instructions" />
+                <n-input v-model:value="activityForm.questions[index].values[idx].score" :allow-input="allowNumberOnly"
+                  placeholder="Score" style="margin-bottom: 1rem;" />
               </template>
 
-              <n-input v-model:value="activityForm.questions[index].values[idx].score" :allow-input="allowNumberOnly"
-                placeholder="Score" />
+              <n-input v-model:value="activityForm.questions[index].values[idx].instruction"
+                placeholder="Instructions" />
 
               <n-layout>
                 <n-layout-content content-style="margin-top: 1rem; margin-left: 1rem;">
 
-                  <!-- Multiple choice -->
                   <template v-if="type === QUESTION_TYPES[2]">
                     <n-dynamic-input v-model:value="activityForm.questions[index].values[idx].content" :min="2" />
                   </template>
 
-                  <!-- Handwriting Comparator -->
                   <template v-if="type === QUESTION_TYPES[4]">
                     <div style="margin-bottom: 1.5rem;">
                       <span>Questioned</span>
@@ -84,7 +82,6 @@
               </n-layout>
 
               <div style="margin-top: 1rem;">
-                <!-- True or false -->
                 <template v-if="type === QUESTION_TYPES[1]">
                   <n-space vertical :size="1">
                     <span>Answer</span>
@@ -97,13 +94,11 @@
                     </n-radio-group>
                   </n-space>
                 </template>
-                <!-- Multiple choice -->
                 <template v-if="type === QUESTION_TYPES[2]">
                   <n-select v-model:value="activityForm.questions[index].values[idx].answer"
                     :options="choicesToOptions(activityForm.questions[index].values[index].content)"
                     placeholder="Answer" />
                 </template>
-                <!-- Answer except for comparator -->
                 <template v-if="type !== QUESTION_TYPES[4] && type !== QUESTION_TYPES[1] && type !== QUESTION_TYPES[2]">
                   <n-input v-model:value="activityForm.questions[index].values[idx].answer" placeholder="Answer" />
                 </template>
@@ -363,3 +358,13 @@ export default {
 }
 </script>
 
+<!--
+<template lang="pug">
+n-layout
+  n-layout-header
+    n-page-header.overflow-hidden(
+      title="Create Task",
+      @back="() => backLink()",
+    )
+</template>
+-->

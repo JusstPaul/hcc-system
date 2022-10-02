@@ -8,6 +8,7 @@ use App\Models\Classroom;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Activities;
+use App\Models\Announcement;
 
 class InstructorController extends Controller
 {
@@ -23,6 +24,7 @@ class InstructorController extends Controller
   {
     return Inertia::render('Auth/Instructor/Classroom', [
       'classroom_id' => $classroom_id,
+      'announcements' => fn () => Classroom::find($classroom_id)->announcements,
     ]);
   }
 
@@ -36,8 +38,30 @@ class InstructorController extends Controller
           'username' => 1,
           'profile' => 1,
         ])
-        ->get()
+        ->get(),
     ]);
+  }
+
+  public function create_announcement_store(Request $request, String $classroom_id)
+  {
+    $request->validate([
+      'content' => 'required',
+      'fileContents' => 'nullable',
+      'fileContents.*' => 'required_if:files,!=,null'
+    ]);
+
+    $files = array_map(function ($item) use ($classroom_id) {
+      return storeAnnouncement($item['file'], $classroom_id);
+    }, $request->fileContents);
+
+    Classroom::find($classroom_id)->announcements()->save(
+      new Announcement([
+        'content' => $request->content,
+        'fileContents' => $files,
+      ])
+    );
+
+    return redirect()->back();
   }
 
   public function create_activity_page(String $classroom_id)

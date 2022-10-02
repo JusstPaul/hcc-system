@@ -36,8 +36,7 @@ export function allowNumberOnly(input) {
 }
 
 
-export function requestFile(token, key, onLoad = (url) => { }) {
-
+export function requestFile(token, key, onLoad = (_url) => { }) {
   axios.defaults.headers.common = {
     Authorization: `bearer ${token}`,
   }

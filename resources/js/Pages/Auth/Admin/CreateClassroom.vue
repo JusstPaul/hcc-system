@@ -239,7 +239,7 @@ n-layout
           )
           if classroomForm.timeEnd
             span.time-end-show to
-            n-time(:tile="classroomForm.timeEnd" format="h:mm a")
+            n-time(:time="classroomForm.timeEnd" format="h:mm a")
 
         n-form-item(label="Instructor" path="instructor" required)
           n-select(

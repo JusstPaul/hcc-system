@@ -13,6 +13,14 @@ export function mr(px) {
   }
 }
 
+export const mtXS = {
+  marginTop: '24px',
+}
+
+export const mtHalfRem = {
+  marginTop: '0.5rem',
+}
+
 export const ptXS = {
   paddingTop: '24px',
 }
@@ -37,4 +45,8 @@ export function wMax(px) {
   return {
     maxWidth: `${px}px`
   }
+}
+
+export const hFull = {
+  height: '100%',
 }

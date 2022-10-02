@@ -11,6 +11,7 @@ import duration from "dayjs/plugin/duration";
 
 import "vfonts/Lato.css";
 import "vfonts/FiraCode.css";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
 import "../css/app.css";
 
