@@ -1,9 +1,17 @@
 import dayjs from "dayjs";
 import axios from "axios";
+import { h } from "vue";
+import { NIcon } from "naive-ui";
 import { Inertia } from "@inertiajs/inertia";
 
 export function logout() {
   Inertia.post(route("post.logout"));
+}
+
+export function renderIcon(icon) {
+  return () => h(NIcon, null, {
+    default: () => h(icon),
+  });
 }
 
 export function formatName(lName, mName, fName) {

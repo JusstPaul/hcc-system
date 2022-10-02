@@ -1,31 +1,3 @@
-<template>
-  <n-layout>
-    <n-layout-header>
-      <n-page-header :title="`School Year: ${showCurrentSchoolYear}`">
-        <template #subtitle>
-          <n-popconfirm @positive-click="generateSchoolYear()">
-            <template #activator>
-              <n-button type="warning">Generate New</n-button>
-            </template>
-            Generate new School Year? {{ previewSchoolYear() }}
-          </n-popconfirm>
-        </template>
-        <n-space>
-          <n-button :disabled="!has_instructors" type="primary" @click.prevent="visitCreateClassroom()">New
-            Classroom</n-button>
-          <n-tag v-if="!has_instructors" :bordered="false">No Instructors registered</n-tag>
-        </n-space>
-      </n-page-header>
-      <n-layout-content content-style="padding: 24px;">
-        <n-data-table :single-line="false" :bordered="false" :columns="classroomTableColumns" :data="classroomData" />
-      </n-layout-content>
-    </n-layout-header>
-  </n-layout>
-  <n-modal v-model:show="showConfirmDeleteModal" preset="dialog"
-    :content="`Are you sure you want to delete classroom ${confirmDeleteSection}?`" positive-text="Confirm"
-    negative-text="Cancel" @positive-click="confirmDeleteSectionPositive" />
-</template>
-
 <script>
 import dayjs from 'dayjs'
 import { h, ref } from 'vue'
@@ -45,6 +17,7 @@ import {
   NModal,
 } from 'naive-ui'
 import { Trash as TrashIcon } from '@vicons/tabler'
+import { pXS } from '@/styles'
 import { formatSchoolYear, formatName, formatTime } from '@/utils'
 import Layout from '@/Components/Layouts/AdminLayout.vue'
 
@@ -130,7 +103,6 @@ export default {
         }
       }
     ]
-    console.log(classrooms)
     const classroomData = classrooms.map(({ _id, section, instructor, room, time_start, time_end, day }) => ({
       'key': _id,
       'section': section,
@@ -158,6 +130,7 @@ export default {
     }
 
     return {
+      pXS,
       showConfirmDeleteModal,
       confirmDeleteSection,
       confirmDeleteSectionPositive,
@@ -172,3 +145,50 @@ export default {
 }
 </script>
 
+<template lang="pug">
+n-layout
+  n-layout-header
+    n-page-header(:title="`School Year: ${showCurrentSchoolYear}`")
+      template(#subtitle)
+        n-popconfirm(@positive-click.prevent="() => generateSchoolYear()")
+          template(#activator)
+            n-button(type="warning") Generate New
+          |Generate New School Year? {{previewSchoolYear()}}
+          if school_year != null
+            br
+            |Doing so will archive the current School Year
+      n-space(align="baseline")
+        n-button(
+          :disabled="!has_instructors || school_year == null",
+          type="primary",
+          @click.prevent="() => visitCreateClassroom()"
+        ) New Classroom
+        n-tag(
+          v-if="school_year == null", 
+          :bordered="false", 
+          type="warning"
+        )
+          |No School Year generated
+        n-tag(
+          v-if="!has_instructors", 
+          :bordered="false", 
+          type="warning"
+        )
+          |No Instructor registered
+
+  n-layout-content(:content-style="pXS")
+    n-data-table(
+      :single-line="false",
+      :bordered="false",
+      :columns="classroomTableColumns",
+      :data="classroomData"
+    )
+n-modal(
+  v-model:show="showConfirmDeleteModal",
+  preset="dialog",
+  :content="`Are you sure you want to delete classroom ${confirmDeleteSection}?`",
+  negative-text="Cancel",
+  positive-text="Confirm",
+  @positive-click="() => confirmDeleteSectionPositive()"
+)
+</template>

@@ -1,5 +1,6 @@
 import vue from "@vitejs/plugin-vue";
 import laravel from "laravel-vite-plugin";
+import vuePugPlugin from "vue-pug-plugin";
 import path from "path";
 import { defineConfig } from "vite";
 
@@ -8,7 +9,15 @@ export default defineConfig({
     target: 'es2015',
   },
   plugins: [
-    vue(),
+    vue({
+      template: {
+        preprocessOptions: {
+          plugins: [
+            vuePugPlugin
+          ]
+        }
+      }
+    }),
     laravel({
       input: ["resources/js/app.js"],
     }),

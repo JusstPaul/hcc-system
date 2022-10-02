@@ -1,25 +1,3 @@
-<template>
-  <n-layout has-sider style="height: 100%;">
-    <n-layout-sider bordered collapse-mode="width" :collapsed-width="64" :width="240" :collapsed="collapsed"
-      show-trigger @collapse="collapsed = true" @expand="collapsed = false">
-      <n-layout style="height: 100%;">
-        <n-layout-content>
-          <n-menu :value="currentRouteKey()" :options="routes" style="padding-top: 24px;" :collapsed="collapsed"
-            :collapsed-width="64" :collapsed-icon-size="22" />
-        </n-layout-content>
-        <n-layout-footer position="absolute" bordered style="padding: 24px;">
-          <n-button v-if="!collapsed" @click="logout">Logout</n-button>
-        </n-layout-footer>
-      </n-layout>
-    </n-layout-sider>
-    <n-layout>
-      <n-layout-content content-style="padding: 24px;">
-        <slot />
-      </n-layout-content>
-    </n-layout>
-  </n-layout>
-</template>
-
 <script>
 import { h, ref } from 'vue'
 import { Link } from '@inertiajs/inertia-vue3'
@@ -31,36 +9,17 @@ import {
   NMenu,
   NButton,
   NNotificationProvider,
+  NSpace,
 } from 'naive-ui'
-import { logout } from '@/utils'
+import {
+  Users as UsersIcon,
+  UserCircle as UserCircleIcon,
+  School as SchoolIcon,
+  Logout as LogoutIcon,
+} from '@vicons/tabler'
+import { pXS, ptXS } from '@/styles'
+import { logout, renderIcon } from '@/utils'
 import Layout from './BaseLayout.vue'
-
-const routes = [
-  {
-    label: () => h(Link, {
-      href: route('admin.index'),
-    }, {
-      default: () => 'Users'
-    }),
-    key: 'admin-index'
-  },
-  {
-    label: () => h(Link, {
-      href: route('admin.classrooms'),
-    }, {
-      default: () => 'Classrooms'
-    }),
-    key: 'admin-classrooms'
-  },
-  {
-    label: () => h(Link, {
-      href: route('admin.profile'),
-    }, {
-      default: () => 'Profile'
-    }),
-    key: 'admin-profile'
-  }
-]
 
 export default {
   layout: Layout,
@@ -72,8 +31,52 @@ export default {
     NLayoutFooter,
     NButton,
     NNotificationProvider,
+    NSpace,
   },
   setup() {
+    const routes = [
+      {
+        label: () => h(Link, {
+          href: route('admin.index'),
+        }, {
+          default: () => 'Users'
+        }),
+        key: 'admin-index',
+        icon: renderIcon(UsersIcon),
+      },
+      {
+        label: () => h(Link, {
+          href: route('admin.classrooms'),
+        }, {
+          default: () => 'Classrooms'
+        }),
+        key: 'admin-classrooms',
+        icon: renderIcon(SchoolIcon),
+      },
+    ]
+
+    const footerRoutes = [
+      /*
+      {
+        label: () => h(Link, {
+          href: route('admin.profile')
+        }, {
+          default: () => 'Profile',
+        }),
+        key: 'admin-profile',
+        icon: renderIcon(UserCircleIcon),
+      },
+      */
+      {
+        label: () => h('a', {
+          onClick: () => logout(),
+        }, {
+          default: () => 'Logout',
+        }),
+        key: 'admin-logout',
+        icon: renderIcon(LogoutIcon),
+      }
+    ]
     function currentRouteKey() {
       switch (route().current()) {
         case 'admin.index':
@@ -93,16 +96,44 @@ export default {
     return {
       logout,
       routes,
+      footerRoutes,
       currentRouteKey,
       collapsed: ref(false),
+      pXS,
+      ptXS,
     }
   }
 }
 </script>
 
-<style scoped>
-.content {
-  padding: 1rem;
-}
-</style>
-
+<template lang="pug">
+n-layout.h-full(has-sider)
+  n-layout-sider(
+    bordered,
+    show-trigger,
+    collapse-mode="width",
+    :collapsed-width="64",
+    :width="180", 
+    :collapsed="collapsed",
+    @collapse="() => collapsed = true",
+    @expand="() => collapsed = false"
+  )
+    n-layout.h-full
+      n-layout-content(:content-style="ptXS")
+        n-menu.pt-xs(
+          :value="currentRouteKey()",
+          :options="routes", 
+          :collapsed="collapsed",
+          :collapsed-width="64",
+          :collapsed-icon-size="22"
+        )
+      n-layout-footer.pt-xs(bordered, position="absolute")
+        n-menu(
+          :options="footerRoutes", 
+          :collapsed="collapsed",
+          :collapsed-width="64",
+          :collapsed-icon-size="22"
+        )
+  n-layout(:content-style="pXS")
+    slot
+</template>

@@ -1,9 +1,3 @@
-<template>
-  <n-layout>
-    <slot />
-  </n-layout>
-</template>
-
 <script>
 import { NLayout, } from 'naive-ui'
 
@@ -14,6 +8,7 @@ export default {
 }
 </script>
 
-<style scoped>
-
-</style>
+<template lang="pug">
+n-layout
+  slot
+</template>

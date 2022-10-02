@@ -1,26 +1,3 @@
-<template>
-  <n-notification-provider placement="top">
-    <div class="content">
-      <div class="form-content">
-        <n-form @submit.prevent="loginForm.post(route('post.login'), {
-          onError: () => notifyLoginError()
-        })" :model="loginForm">
-          <n-form-item label="Username" :required="true" path="username">
-            <n-input v-model:value="loginForm.username" />
-          </n-form-item>
-          <n-form-item label="Password" :required="true" path="password">
-            <n-input type="password" show-password-on="click" v-model:value="loginForm.password" />
-          </n-form-item>
-          <n-form-item>
-            <n-button type="primary" block attr-type="submit" :loading="loginForm.processing">Login</n-button>
-          </n-form-item>
-        </n-form>
-      </div>
-    </div>
-  </n-notification-provider>
-</template>
-
-
 <script>
 import { useForm } from '@inertiajs/inertia-vue3';
 import {
@@ -28,7 +5,6 @@ import {
   NFormItem,
   NInput,
   NButton,
-  NNotificationProvider,
   useNotification,
 } from 'naive-ui'
 import Layout from '@/Components/Layouts/BaseLayout.vue'
@@ -40,7 +16,6 @@ export default {
     NFormItem,
     NInput,
     NButton,
-    NNotificationProvider,
   },
   setup() {
     const loginForm = useForm({
@@ -75,3 +50,42 @@ export default {
   max-width: 320px;
 }
 </style>
+
+<template lang="pug">
+.content
+  .form-content
+    n-form(
+      @submit.prevent=`() => loginForm.post(route('post.login'), {
+        onError: () => notifyLoginError(),
+      })`,
+      :model="loginForm"
+    )
+      // Username field
+      n-form-item(
+        required,
+        label="Username",
+        path="username"
+      )
+        n-input(v-model:value="loginForm.username")
+
+      // Password field
+      n-form-item(
+        required,
+        label="Password",
+        path="password"
+      )
+        n-input(
+          v-model:value="loginForm.password",
+          type="password",
+          show-password-on="click"
+        )
+
+      // Submit button
+      n-form-item
+        n-button(
+          block,
+          type="primary",
+          attr-type="submit",
+          :loading="loginForm.processing"
+      ) Login
+</template>

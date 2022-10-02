@@ -1,58 +1,3 @@
-<template>
-  <n-layout>
-    <n-layout-header>
-      <n-page-header title="Create Classroom" :subtitle="`School Year: ${showCurrentSchoolYear}`"
-        @back="() => backLink()" style="overflow: hidden;" />
-    </n-layout-header>
-    <n-layout-content content-style="padding: 24px;">
-
-      <!-- Format the time before submitting for validation. -->
-      <n-form @submit.prevent="classroomForm.transform((data) => ({
-        ...data,
-        timeStart: formatTime(data.timeStart),
-        timeEnd: formatTime(data.timeEnd),
-            })).post(route('post.admin.create_classroom'), {
-        onError: (error) => createUserError(error),
-      })" :model="classroomForm" label-placement="left" require-mark-placement="right-hanging" label-width="120"
-        style="max-width: 400px;">
-        <n-form-item label="Section" path="section" required>
-          <n-input v-model:value="classroomForm.section" />
-        </n-form-item>
-        <n-form-item label="Day" path="day" required>
-          <n-select v-model:value="classroomForm.day" :options="daySelect" />
-        </n-form-item>
-        <n-form-item label="Room" path="room" required>
-          <n-input v-model:value="classroomForm.room" />
-        </n-form-item>
-        <n-form-item label="Time" path="timeStart" required>
-          <n-time-picker v-model:value="classroomForm.timeStart" format="h:mm a"
-            @confirm="(value) => generateTimeEnd(value)" />
-          <template v-if="classroomForm.timeEnd">
-            <span class="time-end-show">to</span>
-            <n-time :time="classroomForm.timeEnd" format="h:mm a" />
-          </template>
-        </n-form-item>
-        <n-form-item label="Instructor" path="instructor" required>
-          <n-select v-model:value="classroomForm.instructor" :options="instructorSelect" />
-        </n-form-item>
-        <n-form-item label-placement="top" label="Select students" required>
-          <n-space vertical style="width: 100%;">
-            <n-input placeholder="Search students" v-model:value="studentSearch" />
-            <n-data-table :columns="studentsTableColumns" :data="studentsData()" :rowKey="studentsRowKey"
-              @update:checked-row-keys="selectStudent" />
-          </n-space>
-        </n-form-item>
-        <n-form-item>
-          <n-button type="primary" attr-type="submit" :loading="classroomForm.processing" :style="{
-              marginRight: 0,
-              marginLeft: 'auto'
-          }">Submit</n-button>
-        </n-form-item>
-      </n-form>
-    </n-layout-content>
-  </n-layout>
-</template>
-
 <script>
 import dayjs from 'dayjs'
 import { ref, reactive } from 'vue'
@@ -76,6 +21,7 @@ import {
   useNotification,
 } from 'naive-ui'
 import { useForm } from '@inertiajs/inertia-vue3'
+import { pXS, wFull, wMax, mxAuto, mlAuto, mr } from '@/styles'
 import { formatName, formatSchoolYear, formatTime } from '@/utils'
 import Layout from '@/Components/Layouts/AdminLayout.vue'
 
@@ -108,16 +54,6 @@ export default {
 
     const showCurrentSchoolYear = formatSchoolYear(school_year)
 
-    const classroomForm = useForm({
-      section: '',
-      day: '',
-      room: '',
-      timeStart: null,
-      timeEnd: null,
-      instructor: '',
-      students: []
-    })
-
     const daySelect = [
       {
         label: 'MW',
@@ -132,6 +68,16 @@ export default {
         value: 'fs',
       },
     ]
+
+    const classroomForm = useForm({
+      section: '',
+      day: daySelect[0].value,
+      room: '',
+      timeStart: null,
+      timeEnd: null,
+      instructor: null,
+      students: []
+    })
 
     function generateTimeEnd(value) {
       classroomForm.timeEnd = dayjs(value).add(dayjs.duration({
@@ -205,7 +151,7 @@ export default {
     }
 
     function createUserError(error) {
-      console.log(error)
+      console.error(error)
       notification.error({
         title: 'Failed to create classroom',
         content: 'Please check entered data'
@@ -217,6 +163,13 @@ export default {
     }
 
     return {
+      pXS,
+      wFull,
+      wMax,
+      mxAuto,
+      mlAuto,
+      mr,
+      wFull,
       formatTime,
       createUserError,
       backLink,
@@ -242,3 +195,82 @@ export default {
 }
 </style>
 
+<template lang="pug">
+n-layout
+  n-layout-header
+    n-page-header.overflow-hidden(
+      title="Create Classroom",
+      :subtitle="`School Year: ${showCurrentSchoolYear}`"
+      @back.prevent="() => backLink()"
+    )
+  n-layout-content(:content-style="pXS")
+    n-space.w-full(justify="center", :item-style="wFull")
+      n-form(
+        @submit.prevent=`classroomForm.transform((data) => ({
+          ...data,
+          timeStart: formatTime(data.timeStart),
+          timeEnd: formatTime(data.timeEnd),
+            })).post(route('post.admin.create_classroom'), {
+          onError: (error) => createUserError(error),
+        })`,
+        :model="classroomForm",
+        label-placement="left",
+        require-mark-placement="right-hanging",
+        label-width="120",
+        :style=`{
+          ...wMax(500),
+          ...mxAuto,
+        }`
+      )
+        n-form-item(label="Section" path="section" required)
+          n-input(v-model:value="classroomForm.section")
+
+        n-form-item(label="Day" path="day" required)
+          n-select(v-model:value="classroomForm.day", :options="daySelect")
+
+        n-form-item(label="Room" path="room" required)
+          n-input(v-model:value="classroomForm.room")
+
+        n-form-item(label="Time" path="time" required)
+          n-time-picker(
+            v-model:value="classroomForm.timeStart",
+            format="h:mm a",
+            @confirm="(value) => generateTimeEnd(value)"
+          )
+          if classroomForm.timeEnd
+            span.time-end-show to
+            n-time(:tile="classroomForm.timeEnd" format="h:mm a")
+
+        n-form-item(label="Instructor" path="instructor" required)
+          n-select(
+            v-model:value="classroomForm.instructor",
+            :options="instructorSelect",
+            placeholder="Select Instructor"
+          )
+
+        n-form-item(
+          required,,
+          label="Select students",
+          label-placement="top"
+        )
+          n-space(vertical, :style="wFull")
+            n-input(
+              placeholder="Search students",
+              v-model:value="studentSearch"
+            )
+            //- TODO: Pagination
+            n-data-table(
+              :columns="studentsTableColumns",
+              :data="studentsData()",
+              :rowKey="studentsRowKey",
+              @update:checked-row-keys="selectStudent"
+            )
+
+        n-form-item
+          n-button(
+            type="primary",
+            attr-type="submit",
+            :loading="classroomForm.processing",
+            :style="{...mlAuto, ...mr(0)}"
+          ) Create
+</template>
