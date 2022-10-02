@@ -115,7 +115,7 @@ export default {
         }, {
           default: () => 'Logout',
         }),
-        key: 'admin-logout',
+        key: 'instructor-logout',
         icon: renderIcon(LogoutIcon),
       }
     ]

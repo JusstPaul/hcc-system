@@ -1,8 +1,8 @@
 <template>
-  <n-space vertical justify="center">
-    <n-space>
+  <n-space justify="center" item-style="width: 100%;">
+    <n-space item-style="width: 100%;">
       <n-form :model="answerForm" label-placement="left" require-mark-placement="right-hanging" label-width="120"
-        style="max-width: 1080px;">
+        style="width: 100%; max-width: 1080px; margin-left: auto; margin-right: auto;">
 
         <n-alert title="Instructions">
           {{ generalDirection }}
