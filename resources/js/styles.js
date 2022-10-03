@@ -3,6 +3,11 @@ export const mxAuto = {
   marginRight: 'auto',
 }
 
+export const mxHalfRem = {
+  marginLeft: '0.5rem',
+  marginRight: '0.5rem',
+}
+
 export const mlAuto = {
   marginLeft: 'auto',
 }

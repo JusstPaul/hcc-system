@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Activities;
 use App\Models\Announcement;
+use MongoDB\BSON\ObjectId;
 
 class InstructorController extends Controller
 {
@@ -22,9 +23,12 @@ class InstructorController extends Controller
 
   public function classroom_page(String $classroom_id)
   {
+    $classroom = Classroom::find($classroom_id);
+
     return Inertia::render('Auth/Instructor/Classroom', [
       'classroom_id' => $classroom_id,
-      'announcements' => fn () => Classroom::find($classroom_id)->announcements,
+      'announcements' => fn () => $classroom->announcements,
+      'activities' => fn () => $classroom->activities,
     ]);
   }
 
@@ -108,7 +112,7 @@ class InstructorController extends Controller
       return $item;
     }, $request->questions);
 
-    Activities::create([
+    Classroom::find($classroom_id)->activities()->create([
       'title' => $request->title,
       'start' => $request->start,
       'deadline' => $request->deadline,
@@ -121,5 +125,70 @@ class InstructorController extends Controller
     return redirect()->route('instructor.classroom', [
       'classroom_id' => $classroom_id,
     ]);
+  }
+
+  public function submits_page(String $classroom_id, String $activity_id)
+  {
+    return Inertia::render('Auth/Instructor/Submits', [
+      'classroom_id' => fn () => $classroom_id,
+      'activity' => fn () => Activities::where('_id', $activity_id)
+        ->project([
+          'title' => 1,
+          'start' => 1,
+          'deadline' => 1,
+          'lock_after_end' => 1,
+          'created_at' => 1,
+        ])->first(),
+      'submits' => fn () => Activities::raw(function ($collection) use ($activity_id) {
+        return $collection->aggregate([
+          [
+            '$match' => [
+              '_id' => new ObjectId($activity_id)
+            ],
+          ],
+          [
+            '$unwind' => [
+              'path' => '$answers'
+            ],
+          ],
+          [
+            '$addFields' => [
+              'student_id' => [
+                '$toObjectId' => '$answers.student_id'
+              ],
+            ],
+          ],
+          [
+            '$lookup' => [
+              'from' => 'users',
+              'localField' => 'student_id',
+              'foreignField' => '_id',
+              'as' => 'student',
+              'pipeline' => [
+                [
+                  '$project' => [
+                    '_id' => 1,
+                    'username' => 1,
+                    'profile' => 1
+                  ],
+                ],
+              ],
+            ],
+          ],
+          [
+            '$project' => [
+              'student' => [
+                '$first' => '$student'
+              ],
+              'created_at' => 1
+            ],
+          ]
+        ]);
+      }),
+    ]);
+  }
+
+  public function answers_page(String $classroom_id, String $activity_id, String $answer_id)
+  {
   }
 }

@@ -2,10 +2,15 @@
   <n-space justify="center" item-style="width: 100%;">
     <n-space item-style="width: 100%;">
       <n-form :model="answerForm" label-placement="left" require-mark-placement="right-hanging" label-width="120"
-        style="width: 100%; max-width: 1080px; margin-left: auto; margin-right: auto;">
+        style="width: 100%; max-width: 1080px; margin-left: auto; margin-right: auto;" @submit.prevent="() => answerForm.transform((data) => transformAnswers(data)).post(route('post.student.activity', {
+            student_id: student_id,
+            activity_id: activity_id,
+        }), {
+              _method: 'put'
+        })">
 
         <n-alert title="Instructions">
-          <div v-html="convertDeltaContent(generalDirection)"/>
+          <div v-html="convertDeltaContent(generalDirection)" />
         </n-alert>
 
         <template v-for="({ id, values }, index) in answerForm.answers" :key="id">
@@ -203,6 +208,14 @@
           </n-form-item>
         </template>
 
+        <n-form-item>
+          <n-space justify="end">
+            <n-button type="primary" attr-type="submit" :loading="answerForm.processing" :style="{
+                marginRight: 0,
+                marginLeft: 'auto'
+            }">Submit</n-button>
+          </n-space>
+        </n-form-item>
       </n-form>
 
     </n-space>
@@ -211,6 +224,7 @@
 
 <script>
 import { useAsyncState } from '@vueuse/core'
+import { isUndefined } from 'lodash'
 import { nanoid } from 'nanoid'
 import { useForm, usePage } from '@inertiajs/inertia-vue3'
 import {
@@ -280,7 +294,7 @@ export default {
     student_id: String,
     activity: Object,
   },
-  setup({ activity }) {
+  setup({ activity, student_id }) {
     const { questions, general_directions, } = activity
 
     const token = usePage().props.value.user.token
@@ -399,17 +413,15 @@ export default {
     function snapshot(ref, parentIndex, childIndex, idx = -1) {
       const node = document.getElementById(ref)
 
-      toPng(node).then(function (url) {
+      toPng(node).then(function (blob) {
         if (idx === -1) {
           answerForm.answers[parentIndex].values[childIndex].value.push({
             id: nanoid(10),
-            file: url,
+            file: blob,
             description: '',
           })
           resetState(parentIndex, childIndex)
           answerForm.answers[parentIndex].values[childIndex].progress.current += 1
-
-
         }
       }).catch((err) => {
         alert('Snapshot failed')
@@ -605,6 +617,48 @@ export default {
         .attr('stroke', 'black')
     }
 
+    function transformAnswers(data) {
+      const nAnswers = data.answers.map((section) => {
+        const values = section.values.map((answer) => {
+          if (!isUndefined(answer.state)) {
+            const value = answer.value.map((val) => {
+              const today = new Date().valueOf()
+              const file = new File(
+                [val.file],
+                `hcc-${today}.png`,
+                {
+                  type: 'image/png',
+                  lastModified: today,
+                }
+              )
+
+              return {
+                id: val.id,
+                description: val.description,
+                file,
+              }
+            })
+
+            return {
+              id: answer.id,
+              value,
+            }
+          }
+          return answer
+        })
+
+        return {
+          id: section.id,
+          values,
+        }
+      })
+
+      console.log(nAnswers)
+      return {
+        ...data,
+        answers: nAnswers,
+      }
+    }
 
     return {
       answerForm,
@@ -619,6 +673,9 @@ export default {
       hccCharacteristics,
       hccAddCharacteristic,
       convertDeltaContent,
+      activity_id: activity._id,
+      student_id,
+      transformAnswers,
     }
   }
 }

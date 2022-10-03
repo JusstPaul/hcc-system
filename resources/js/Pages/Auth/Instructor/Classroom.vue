@@ -1,5 +1,6 @@
 <script>
 import dayjs from 'dayjs'
+import { isUndefined } from 'lodash'
 import { Inertia } from '@inertiajs/inertia'
 import { useForm, usePage } from '@inertiajs/inertia-vue3'
 import {
@@ -20,6 +21,7 @@ import {
   NButtonGroup,
   NTabs,
   NTabPane,
+  NStatistic,
 } from 'naive-ui'
 import { QuillEditor } from '@vueup/vue-quill'
 import { Upload as UploadIcon } from '@vicons/tabler'
@@ -53,15 +55,16 @@ export default {
     NTime,
     NTabs,
     NTabPane,
+    NStatistic,
     UploadIcon,
     QuillEditor,
   },
   props: {
     classroom_id: String,
     announcements: Object,
+    activities: Array,
   },
-  setup({ }) {
-
+  setup({ activities, classroom_id }) {
     const token = usePage().props.value.user.token
 
     const anForm = useForm({
@@ -91,6 +94,20 @@ export default {
       return arr[len - 1]
     }
 
+    function getNumberOfSubmits(val) {
+      if (isUndefined(val)) {
+        return 0
+      }
+      return val.length
+    }
+
+    function viewSubmits(activity_id) {
+      Inertia.get(route('instructor.activity.submits', {
+        classroom_id,
+        activity_id,
+      }))
+    }
+
     return {
       wMax,
       wFull,
@@ -103,6 +120,9 @@ export default {
       strDateToMil,
       downloadFile,
       getFileName,
+      activities,
+      getNumberOfSubmits,
+      viewSubmits,
     }
   },
 }
@@ -180,6 +200,17 @@ n-layout
                     n-space(vertical)
                       for file in val.fileContents
                         n-button(quaternary, @click="downloadFile(file)") {{ getFileName(file) }}
-      //- n-tab-pane(name="activities", tab="Activities")
+      n-tab-pane(name="activities", tab="Activities")
+        n-space(vertical, :item-style="wFull")
+          for act in activities
+            n-card(:key="act._id", :style="{...wFull, ...wMax(800), ...mxAuto}")
+              template(#header)
+                n-button(
+                  text,
+                  @click="() => viewSubmits(act._id)"
+                ) {{ act.title }}
+              template(#header-extra)
+                n-time(:tile="strDateToMil(act.created_at)")
+              n-statistic(label="Number of submits", :value="getNumberOfSubmits(act.answers)")
 </template>
 

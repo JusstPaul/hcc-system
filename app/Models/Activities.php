@@ -7,17 +7,27 @@ use Jenssegers\Mongodb\Eloquent\Model;
 
 class Activities extends Model
 {
-    use HasFactory;
+  use HasFactory;
 
-    protected $fillable = [
-        'title',
-        'start',
-        'deadline',
-        'lock_after_end',
-        'general_directions',
-        'questions',
-        'target',
-    ];
+  protected $fillable = [
+    'title',
+    'start',
+    'deadline',
+    'lock_after_end',
+    'general_directions',
+    'questions',
+    'target',
+  ];
 
-    protected $casts = [];
+  protected $casts = [];
+
+  public function classroom()
+  {
+    return $this->belongsTo(Classroom::class);
+  }
+
+  public function answers()
+  {
+    return $this->embedsMany(Answer::class);
+  }
 }

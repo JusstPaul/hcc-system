@@ -393,6 +393,8 @@ n-layout
                             v-model:value="question.answer",
                             :name="`answer-${section.id}-${question.id}`"
                           )
+                            n-radio(:value="true", label="True")
+                            n-radio(:value="false", label="False")
 
                         if section.type === QUESTION_TYPES[2]
                           n-select(

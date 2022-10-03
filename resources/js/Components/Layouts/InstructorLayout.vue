@@ -36,6 +36,7 @@ export default {
       switch (route().current()) {
         case 'instructor.index':
           return 'instructor-index'
+        case 'instructor.activity.submits':
         case 'instructor.classroom':
           return 'instructor-classroom'
         case 'instructor.create_activity':
@@ -68,6 +69,7 @@ export default {
         case 'instructor.create_activity':
         case 'instructor.classroom':
         case 'instructor.students':
+        case 'instructor.activity.submits':
           defaultRoutes.push.apply(defaultRoutes, [
             {
               key: "divider-1",

@@ -30,6 +30,11 @@ function storeAnnouncement($file, String $classroom_id)
     ->put("classroom/$classroom_id/announcements/$hash/$original", $file);
 }
 
+function storeAnswer($file, String $classroom_id, String $activity_id)
+{
+  return storeFile($file, "classroom/$classroom_id/answers/$activity_id");
+}
+
 function fileExists(String $key)
 {
   return Storage::disk(env('STORAGE', 'public'))->exists($key);

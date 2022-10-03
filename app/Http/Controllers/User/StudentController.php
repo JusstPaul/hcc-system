@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Activities;
+use App\Models\Answer;
 use App\Models\User;
 use App\Models\Classroom;
 use MongoDB\BSON\ObjectId;
@@ -98,6 +99,41 @@ class StudentController extends Controller
 
         return $activity;
       }
+    ]);
+  }
+
+  public function activity_store(Request $request, String $student_id, String $activity_id)
+  {
+    $request->validate([
+      'answers.*' => 'required'
+    ]);
+
+
+    $activity = Activities::find($activity_id);
+    $classroom_id = $activity->classroom->_id;
+
+    $answers = array_map(function ($section) use ($classroom_id, $activity_id) {
+      $section['values'] = array_map(function ($question) use ($classroom_id, $activity_id) {
+        if (is_array($question['value'])) {
+          $question['value'] = array_map(function ($snap) use ($classroom_id, $activity_id) {
+            $snap['file'] = storeAnswer($snap['file'], $classroom_id, $activity_id);
+            return $snap;
+          }, $question['value']);
+        }
+
+        return $question;
+      }, $section['values']);
+
+      return $section;
+    }, $request->answers);
+
+    $activity->answers()->create([
+      'student_id' => $student_id,
+      'answers' => $answers,
+    ]);
+
+    return redirect()->route('student.index', [
+      'student_id' => $student_id,
     ]);
   }
 }

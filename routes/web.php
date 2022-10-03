@@ -56,6 +56,7 @@ Route::group(['middleware' => ['auth', 'role:instructor']], function () {
   Route::get('/instructor/classroom/{classroom_id}', [UserGroup\InstructorController::class, 'classroom_page'])->name('instructor.classroom');
   Route::get('/instructor/classroom/{classroom_id}/students', [UserGroup\InstructorController::class, 'students_page'])->name('instructor.students');
   Route::get('/instructor/classroom/{classroom_id}/create_task', [UserGroup\InstructorController::class, 'create_activity_page'])->name('instructor.create_activity');
+  Route::get('/instructor/classroom/{classroom_id}/activity/{activity_id}/submits', [UserGroup\InstructorController::class, 'submits_page'])->name('instructor.activity.submits');
 
   Route::post('/instructor/classroom/{classroom_id}/create_task', [UserGroup\InstructorController::class, 'create_activity_store'])->name('post.instructor.create_activity');
   Route::post('/instructor/classroom/{classroom_id}/announcement', [UserGroup\InstructorController::class, 'create_announcement_store'])->name('post.instructor.create_announcement');
@@ -65,4 +66,6 @@ Route::group(['middleware' => ['auth', 'role:student']], function () {
   Route::get('/student/{student_id}', [UserGroup\StudentController::class, 'index'])->name('student.index');
   Route::get('/student/{student_id}/activity/{activity_id}', [UserGroup\StudentController::class, 'activity_page'])->name('student.activity');
   Route::get('/student/{student_id}/students', [UserGroup\StudentController::class, 'students_page'])->name('student.students');
+
+  Route::post('/student/{student_id}/activity/{activity_id}', [UserGroup\StudentController::class, 'activity_store'])->name('post.student.activity');
 });
