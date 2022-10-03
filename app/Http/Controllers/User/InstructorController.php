@@ -78,7 +78,7 @@ class InstructorController extends Controller
       'start' => 'required|numeric',
       'deadline' => 'required|numeric|gt:start',
       'lockAfterEnd' => 'required|boolean',
-      'generalDirections' => 'required|string',
+      'generalDirections' => 'required',
       'questions' => 'required',
       'questions.*' => 'required|array:id,type,values,instruction',
       'questions.*.values.*' => 'required|array:id,instruction,content,answer,score',

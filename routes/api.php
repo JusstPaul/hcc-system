@@ -37,3 +37,15 @@ Route::get('/file', function (Request $request) {
     ], 500);
   }
 })->name('api.file');
+
+Route::get('/file_preview', function (Request $request) {
+  if (fileExists($request->key)) {
+    return  response()->json([
+      'file' => urlFile($request->key)
+    ], 200);
+  } else {
+    return response()->json([
+      'file' => 'missing!'
+    ], 500);
+  }
+})->name('api.file_preview');

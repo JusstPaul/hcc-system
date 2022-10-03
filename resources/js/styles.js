@@ -21,6 +21,14 @@ export const mtHalfRem = {
   marginTop: '0.5rem',
 }
 
+export const mbNone = {
+  marginBottom: '0'
+}
+
+export const mbHalfRem = {
+  marginBottom: '0.5rem',
+}
+
 export const ptXS = {
   paddingTop: '24px',
 }
@@ -31,6 +39,10 @@ export const pXS = {
 
 export const pxXS = {
   padding: '0 24px 0 24px',
+}
+
+export const pbXS = {
+  paddingBottom: '24px',
 }
 
 export const tCaps = {

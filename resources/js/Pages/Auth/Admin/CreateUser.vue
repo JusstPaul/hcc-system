@@ -98,7 +98,6 @@ n-layout
       n-space.w-full(justify="center", :item-style="wFull")
         n-form(
           @submit.prevent="() => userForm.post(route('post.admin.create_user'))",
-          label-placement="left",
           require-mark-placement="right-hanging",
           label-width="120",
           :model="userForm",

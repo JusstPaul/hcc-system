@@ -39,3 +39,9 @@ function getFile(String $key)
 {
   return Storage::disk(env('STORAGE', 'public'))->get($key);
 }
+
+function urlFile(String $key)
+{
+  return Storage::disk(env('STORAGE', 'public'))
+    ->temporaryUrl($key, now()->addHour(2));
+}

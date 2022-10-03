@@ -5,7 +5,7 @@
         style="width: 100%; max-width: 1080px; margin-left: auto; margin-right: auto;">
 
         <n-alert title="Instructions">
-          {{ generalDirection }}
+          <div v-html="convertDeltaContent(generalDirection)"/>
         </n-alert>
 
         <template v-for="({ id, values }, index) in answerForm.answers" :key="id">
@@ -125,21 +125,34 @@
                                       <n-space item-style="border-style: solid; border-width: 0.75px;"
                                         :size="answerForm.answers[index].values[idx].state.gap">
                                         <div style="overflow: hidden;">
-                                          <n-image width="350" object-fit="contain"
-                                            :src="answerForm.answers[index].values[idx].files.questioned" :style="{
-                                                transform: `scale(${answerForm.answers[index].values[idx].state.zoom.left})`,
-                                              filter: filterToCSS(answerForm.answers[index].values[idx].state.filter.left),
-                                              opacity: answerForm.answers[index].values[idx].state.opacity.left,
-                                            }" />
+                                          <template
+                                            v-if="answerForm.answers[index].values[idx].files.questioned.isLoading">
+                                            <n-skeleton height="100px" width="350px" />
+                                          </template>
+                                          <template v-else>
+                                            <n-image width="350" object-fit="contain"
+                                              :src="answerForm.answers[index].values[idx].files.questioned.state"
+                                              :style="{
+                                                  transform: `scale(${answerForm.answers[index].values[idx].state.zoom.left})`,
+                                                filter: filterToCSS(answerForm.answers[index].values[idx].state.filter.left),
+                                                opacity: answerForm.answers[index].values[idx].state.opacity.left,
+                                              }" />
+                                          </template>
                                         </div>
                                         <div style="overflow: hidden;">
-                                          <n-image width="350" object-fit="contain"
-                                            :src="answerForm.answers[index].values[idx].files.samples[answerForm.answers[index].values[idx].progress.current]"
-                                            :style="{
-                                                transform: `scale(${answerForm.answers[index].values[idx].state.zoom.right})`,
-                                              filter: filterToCSS(answerForm.answers[index].values[idx].state.filter.right),
-                                              opacity: answerForm.answers[index].values[idx].state.opacity.right,
-                                            }" />
+                                          <template
+                                            v-if="answerForm.answers[index].values[idx].files.samples[answerForm.answers[index].values[idx].progress.current].isLoading">
+                                            <n-skeleton height="100px" width="350px" />
+                                          </template>
+                                          <template v-else>
+                                            <n-image width="350" object-fit="contain"
+                                              :src="answerForm.answers[index].values[idx].files.samples[answerForm.answers[index].values[idx].progress.current].state"
+                                              :style="{
+                                                  transform: `scale(${answerForm.answers[index].values[idx].state.zoom.right})`,
+                                                filter: filterToCSS(answerForm.answers[index].values[idx].state.filter.right),
+                                                opacity: answerForm.answers[index].values[idx].state.opacity.right,
+                                              }" />
+                                          </template>
                                         </div>
                                       </n-space>
                                     </n-space>
@@ -197,6 +210,7 @@
 </template>
 
 <script>
+import { useAsyncState } from '@vueuse/core'
 import { nanoid } from 'nanoid'
 import { useForm, usePage } from '@inertiajs/inertia-vue3'
 import {
@@ -222,11 +236,18 @@ import {
   NSwitch,
   NSelect,
   NTooltip,
+  NSkeleton,
 } from 'naive-ui'
 import { toPng } from 'html-to-image'
 import Layout from '@/Components/Layouts/StudentLayout.vue'
 import { QUESTION_TYPES } from '@/constants'
-import { requestFile } from '@/utils'
+import { requestFile, convertDeltaContent } from '@/utils'
+
+async function keyToJpeg(token, key) {
+  const response = await requestFile(token, key)
+  const url = URL.createObjectURL(response)
+  return url
+}
 
 export default {
   layout: Layout,
@@ -253,6 +274,7 @@ export default {
     NSwitch,
     NSelect,
     NTooltip,
+    NSkeleton,
   },
   props: {
     student_id: String,
@@ -264,18 +286,15 @@ export default {
     const token = usePage().props.value.user.token
 
     const answerForm = useForm({
-      'answers': questions.map((val, index) => {
+      'answers': questions.map((val) => {
         if (val.type === QUESTION_TYPES[4]) {
+
           return {
             id: val.id,
-            values: val.values.map(({ id, content }, idx) => {
-              requestFile(token, content.questioned, (res) => {
-                answerForm.answers[index].values[idx].files.questioned = res
-              })
-              content.samples.map((v) => {
-                requestFile(token, v, (res) => {
-                  answerForm.answers[idx].values[idx].files.samples.push(res)
-                })
+            values: val.values.map(({ id, content }) => {
+              const questioned = useAsyncState(keyToJpeg(token, content.questioned))
+              const samples = content.samples.map((val) => {
+                return useAsyncState(keyToJpeg(token, val))
               })
 
               return {
@@ -298,8 +317,8 @@ export default {
                   gap: 20,
                 },
                 files: {
-                  questioned: null,
-                  samples: [],
+                  questioned: questioned,
+                  samples: samples,
                 },
                 value: [],
                 progress: {
@@ -319,6 +338,7 @@ export default {
         }
       })
     })
+
 
     function checkModeL(parentIndex, childIndex) {
       return answerForm.answers[parentIndex].values[childIndex].state.mode === 'l'
@@ -585,6 +605,7 @@ export default {
         .attr('stroke', 'black')
     }
 
+
     return {
       answerForm,
       matchQuestion,
@@ -597,6 +618,7 @@ export default {
       addImaginaryLine,
       hccCharacteristics,
       hccAddCharacteristic,
+      convertDeltaContent,
     }
   }
 }

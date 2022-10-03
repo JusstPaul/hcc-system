@@ -1,151 +1,3 @@
-<template>
-  <n-layout>
-    <n-layout-header>
-      <n-page-header title="Create Task" @back="() => backLink()" style="overflow: hidden;" />
-    </n-layout-header>
-    <n-layout-content content-style="padding: 24px;">
-      <n-form @submit.prevent="() => activityForm.transform((data) => ({
-          ...data,
-          start: data.start ? data.start : dayjs().millisecond(),
-      })).post(route('post.instructor.create_activity', {
-          classroom_id,
-      }), {
-          _method: 'PUT',
-      })" label-placement="left" require-mark-placement="right-hanging" label-width="120" :model="activityForm"
-        style="max-width: 500px;">
-        <n-form-item label="Title" path="title" required>
-          <n-input v-model:value="activityForm.title" />
-        </n-form-item>
-        <n-form-item label="Start" path="start">
-          <template v-if="activityForm.start == null" #feedback>
-            <n-tag type="warning" style="margin-bottom: 0.5rem;">
-              Leaving time to start blank immediatetly starts the task.
-            </n-tag>
-          </template>
-          <n-date-picker v-model:value="activityForm.start" type="datetime" format="MM-dd-yyyy - hh:mm a" clearable />
-        </n-form-item>
-        <n-form-item label="Deadline" path="deadline" required>
-          <n-date-picker v-model:value="activityForm.deadline" type="datetime" format="MM-dd-yyyy - hh:mm a"
-            clearable />
-        </n-form-item>
-        <n-form-item label="Lock after deadline" path="lockAfterEnd">
-          <n-switch v-model:value="activityForm.lockAfterEnd" />
-        </n-form-item>
-        <n-form-item label="General Instruction" path="generalDirections">
-          <n-input v-model:value="activityForm.generalDirections" type="textarea" />
-        </n-form-item>
-
-        <template v-for="({ id, type, values }, index) in activityForm.questions" :key="id">
-
-          <n-divider />
-
-          <n-form-item label="Type" :path="`activityForm.questions[${index}].type`">
-            <n-select :options="questionOptions" v-model:value="activityForm.questions[index].type" />
-          </n-form-item>
-          <n-form-item label="Section Instruction">
-            <n-input type="textarea" v-model:value="activityForm.questions[index].instruction" />
-          </n-form-item>
-
-          <n-form-item v-for="({ id: childId }, idx) in values" :key="childId">
-            <n-card closable @close="() => removeQuestion(index, idx)">
-              <template #header>
-                <n-input v-model:value="activityForm.questions[index].values[idx].score" :allow-input="allowNumberOnly"
-                  placeholder="Score" style="margin-bottom: 1rem;" />
-              </template>
-
-              <n-input v-model:value="activityForm.questions[index].values[idx].instruction"
-                placeholder="Instructions" />
-
-              <n-layout>
-                <n-layout-content content-style="margin-top: 1rem; margin-left: 1rem;">
-
-                  <template v-if="type === QUESTION_TYPES[2]">
-                    <n-dynamic-input v-model:value="activityForm.questions[index].values[idx].content" :min="2" />
-                  </template>
-
-                  <template v-if="type === QUESTION_TYPES[4]">
-                    <div style="margin-bottom: 1.5rem;">
-                      <span>Questioned</span>
-                      <n-upload list-type="image-card" :name="`upload-${id}-${childId}-questioned`"
-                        @change="({ fileList }) => setQuestionedImg(fileList, index, idx)" />
-                    </div>
-
-                    <div>
-                      <span>Samples</span>
-                      <n-upload list-type="image-card" :name="`upload-${id}-${childId}-samples`" multiple :min="6"
-                        :max="10" @change="({fileList}) => setSamplesImgList(fileList, index, idx)" />
-                    </div>
-
-                  </template>
-
-                </n-layout-content>
-              </n-layout>
-
-              <div style="margin-top: 1rem;">
-                <template v-if="type === QUESTION_TYPES[1]">
-                  <n-space vertical :size="1">
-                    <span>Answer</span>
-                    <n-radio-group v-model:value="activityForm.questions[index].values[idx].answer"
-                      :name="`answer-${id}-${childId}`">
-                      <n-space>
-                        <n-radio :value="true" label="True" />
-                        <n-radio :value="false" label="False" />
-                      </n-space>
-                    </n-radio-group>
-                  </n-space>
-                </template>
-                <template v-if="type === QUESTION_TYPES[2]">
-                  <n-select v-model:value="activityForm.questions[index].values[idx].answer"
-                    :options="choicesToOptions(activityForm.questions[index].values[index].content)"
-                    placeholder="Answer" />
-                </template>
-                <template v-if="type !== QUESTION_TYPES[4] && type !== QUESTION_TYPES[1] && type !== QUESTION_TYPES[2]">
-                  <n-input v-model:value="activityForm.questions[index].values[idx].answer" placeholder="Answer" />
-                </template>
-              </div>
-
-            </n-card>
-          </n-form-item>
-
-          <n-form-item>
-            <n-layout>
-              <n-space justify="center">
-                <n-button @click="() => addQuestion(index)" attry-type="button" type="primary" tertiary block>Add
-                  Question
-                </n-button>
-                <n-button @click="() => removeSection(index)" attr-type="button" type="error" tertiary block>Remove
-                  Question
-                </n-button>
-              </n-space>
-            </n-layout>
-          </n-form-item>
-        </template>
-
-        <n-form-item>
-          <n-layout>
-            <n-space justify="center" item-style="width: 100%;">
-              <n-button @click="() => addSection()" attr-type="button" dashed block>
-                Add Section</n-button>
-            </n-space>
-          </n-layout>
-        </n-form-item>
-
-        <n-form-item>
-          <n-button type="primary" attr-type="submit" :loading="activityForm.processing" :style="{
-              marginRight: 0,
-              marginLeft: 'auto'
-          }">
-            Post Task
-          </n-button>
-        </n-form-item>
-      </n-form>
-    </n-layout-content>
-  </n-layout>
-  <n-modal v-model:show="showPreviewRef" preset="card" stype="width: 600px;" title="Show Uploaded Image">
-    <img :src="previewImgRef" style="width: 100%;" />
-  </n-modal>
-</template>
-
 <script>
 import dayjs from 'dayjs'
 import { isString, first } from 'lodash'
@@ -156,7 +8,6 @@ import {
   NLayout,
   NLayoutContent,
   NLayoutHeader,
-  NH2,
   NButton,
   NButtonGroup,
   NPageHeader,
@@ -177,10 +28,24 @@ import {
   NDynamicInput,
   NRadio,
   NRadioGroup,
+  NGrid,
+  NGridItem,
+  useNotification,
 } from 'naive-ui'
+import { QuillEditor } from '@vueup/vue-quill'
 import { nanoid } from 'nanoid'
 
 import { allowNumberOnly } from '@/utils'
+import {
+  pXS,
+  wMax,
+  mxAuto,
+  mbHalfRem,
+  wFull,
+  mtHalfRem,
+  mlAuto,
+  mr,
+} from '@/styles'
 import { QUESTION_TYPES } from '@/constants'
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
 
@@ -190,7 +55,6 @@ export default {
     NLayout,
     NLayoutContent,
     NLayoutHeader,
-    NH2,
     NButton,
     NButtonGroup,
     NPageHeader,
@@ -211,12 +75,17 @@ export default {
     NDynamicInput,
     NRadio,
     NRadioGroup,
+    NGrid,
+    NGridItem,
+    QuillEditor,
   },
   props: {
     classroom_id: String,
   },
   setup(props) {
     const { classroom_id } = props
+
+    const notif = useNotification()
 
     function backLink() {
       Inertia.get(route('instructor.classroom', {
@@ -327,7 +196,7 @@ export default {
       const content = activityForm.questions[parentIndex].values[childIndex].content
       if (content == null || isString(content)) {
         activityForm.questions[parentIndex].values[childIndex].content = {
-          samples: null,
+          samples: [],
           questioned: first(fileList),
         }
       } else {
@@ -353,12 +222,20 @@ export default {
       setQuestionedImg,
       choicesToOptions,
       trueOrFalseOptions,
+      pXS,
+      wMax,
+      mxAuto,
+      mbHalfRem,
+      mtHalfRem,
+      wFull,
+      mlAuto,
+      mr,
+      notif,
     }
   }
 }
 </script>
 
-<!--
 <template lang="pug">
 n-layout
   n-layout-header
@@ -366,5 +243,200 @@ n-layout
       title="Create Task",
       @back="() => backLink()",
     )
+  n-layout-content(:content-style="pXS")
+    n-space.w-full(justify="center", :item-style="wFull")
+      n-form(
+        require-mark-placement="right-hanging",
+        label-width="120",
+        :style=`{
+          ...wFull,
+          ...wMax(500),
+          ...mxAuto,
+        }`,
+        :model="activityForm",
+        @submit.prevent=`() => activityForm.transform((data) => ({
+          ...data,
+          start: data.start ? data.start : dayjs().valueOf(),
+        })).post(route('post.instructor.create_activity', {
+          classroom_id
+        }), {
+          _method: 'put',
+          onError: () => notif.error({
+            title: 'An Error Occured',
+            content: 'Failed to post activity'
+          })
+        })`
+      )
+        n-form-item(
+          required,
+          label="Title",
+          path="title"
+        )
+          n-input(v-model:value="activityForm.title")
+
+        n-form-item(
+          label="Start",
+          path="start"
+        )
+          n-date-picker.w-full(
+            clearable,
+            v-model:value="activityForm.start",
+            type="datetime",
+            format="MM-dd-yyyy - hh:mm a"
+          )
+            template(#footer, v-if="activityForm.start == null")
+              n-tag(type="warning", :style="mbHalfRem")
+                |Leaving this blank immediatetly starts the task
+
+        n-form-item(required, label="Deadline", path="deadline")
+          n-date-picker.w-full(
+            clearable,
+            v-model:value="activityForm.deadline",
+            type="datetime",
+            format="MM-dd-yyyy - hh:mm a"
+          )
+
+        n-form-item(
+          required,
+          label="Lock after deadline",
+          path="lockAfterEnd"
+        )
+          n-switch(v-model:value="activityForm.lockAfterEnd")
+
+        n-form-item(
+          required, 
+          label="Generation Instructions",
+          path="generalDirections"
+        )
+          div(:style="{...wFull}")
+            quill-editor(
+              theme="snow",
+              toolbar="minimal",
+              v-model:content="activityForm.generalDirections",
+              placeholder="Enter instructions"
+            )
+
+        for section, index in activityForm.questions
+          template(:key="section.id")
+            n-divider
+
+            n-form-item(
+              label="Type",
+              :path="`questions[${index}].type`"
+            )
+              n-select(
+                :options="questionOptions",
+                v-model:value="section.type"
+              )
+
+            n-form-item(
+              label="Instruction",
+              :path="`questions[${index}].instruction`"
+            )
+              div(:style="{...wFull}")
+                quill-editor(
+                  theme="snow",
+                  toolbar="minimal",
+                  v-model:content="section.instruction",
+                  placeholder="Enter instructions"
+                )
+
+            for question, idx in section.values
+              n-form-item(:key="question.id")
+                n-card(closable, @close="() => removeQuestion(index, idx)")
+                  template(#header)
+                    n-form-item(label="Score", :show-feedback="false")
+                      n-input(
+                        v-model:value="question.score",
+                        :allow-input="allowNumberOnly",
+                        placeholder="Score"
+                      )
+                  n-form-item(label="Instruction")
+                    n-input(
+                      v-model:value="question.instruction",
+                      placeholder="Instruction"
+                    )
+
+                  n-layout
+                    n-layout-content(:content-style="mtHalfRem")
+                      if section.type === QUESTION_TYPES[2]
+                        n-dynamic-input(
+                          v-model:value="question.content"
+                          :min="2"
+                        )
+
+                      if section.type === QUESTION_TYPES[4]
+                        n-form-item(
+                          label="Questioned",
+                        )
+                          n-upload(
+                            list-type="image-card",
+                            :name="`upload-${section.id}-${question.id}-questioned`",
+                            @change="({ fileList }) => setQuestionedImg(fileList, index, idx)"
+                          )
+                        n-form-item(
+                          label="Samples",
+                        )
+                          n-upload(
+                            multiple,
+                            list-type="image-card",
+                            :name="`upload-${section.id}-${question.id}-samples`",
+                            :min="6",
+                            :max="10",
+                            @change="({ fileList }) => setSamplesImgList(fileList, index, idx)"
+                          )
+
+                    if section.type !== QUESTION_TYPES[4]
+                      n-form-item(label="Answer")
+                        if section.type === QUESTION_TYPES[1] 
+                          n-radio-group(
+                            v-model:value="question.answer",
+                            :name="`answer-${section.id}-${question.id}`"
+                          )
+
+                        if section.type === QUESTION_TYPES[2]
+                          n-select(
+                            v-model:value="question.answer",
+                            :options="choicesToOptions(question.content)",
+                            placeholder="Select Answer"
+                          )
+
+                        if section.type !== QUESTION_TYPES[1] && section.type !== QUESTION_TYPES[2]
+                          n-input(v-model:value="question.answer")
+
+            n-grid(:cols="2", :x-gap="5")
+              n-grid-item
+                n-button(
+                  dashed,
+                  block,
+                  type="warning",
+                  attr-type="button",
+                  @click="() => addQuestion(index)",
+                ) Add Question
+              n-grid-item
+                n-button(
+                  dashed,
+                  block,
+                  type="error",
+                  attr-type="button",
+                  @click="() => removeSection(index)"
+                ) Remove Section
+
+        n-form-item
+          div.w-full
+            n-button(
+              dashed,
+              block,
+              type="primary",
+              attr-type="button",
+              @click="() => addSection()"
+            ) Add Section
+
+        n-form-item
+          n-button(
+            type="primary",
+            attr-type="submit",
+            :loading="activityForm.processing",
+            :style="{...mlAuto, ...mr(0)}"
+          ) Post
 </template>
--->

@@ -214,7 +214,6 @@ n-layout
           onError: (error) => createUserError(error),
         })`,
         :model="classroomForm",
-        label-placement="left",
         require-mark-placement="right-hanging",
         label-width="120",
         :style=`{
@@ -232,7 +231,7 @@ n-layout
           n-input(v-model:value="classroomForm.room")
 
         n-form-item(label="Time" path="time" required)
-          n-time-picker(
+          n-time-picker.w-full(
             v-model:value="classroomForm.timeStart",
             format="h:mm a",
             @confirm="(value) => generateTimeEnd(value)"

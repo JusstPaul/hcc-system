@@ -10,6 +10,7 @@ import {
   NButton,
   NSwitch,
   NPageHeader,
+  NDataTable,
   useNotification,
 } from 'naive-ui'
 import { usePage, useForm } from '@inertiajs/inertia-vue3'
@@ -27,6 +28,7 @@ export default {
     NButton,
     NSwitch,
     NPageHeader,
+    NDataTable,
   },
   props: {
     profile: Object,
@@ -53,6 +55,24 @@ export default {
       nPassword: '',
     })
 
+    const columns = [
+      {
+        title: 'Username',
+        key: 'username'
+      },
+      {
+        title: 'Role',
+        key: 'role'
+      }
+    ]
+
+    const data = [
+      {
+        username: user.username,
+        role: user.role
+      }
+    ]
+
     return {
       pXS,
       wFull,
@@ -61,9 +81,9 @@ export default {
       mlAuto,
       mr,
       profileForm,
-      role: user.role,
-      username: user.username,
       id: user._id,
+      columns,
+      data,
       notifyError,
     }
   }
@@ -83,7 +103,6 @@ n-layout
           onError: () => notifyError(),
         })`,
         :model="profileForm"
-        label-placement="left",
         require-mark-placement="right-hanging",
         label-width="120",
         :style=`{
@@ -91,8 +110,9 @@ n-layout
           ...mxAuto,
         }`
       )
-        n-form-item(label="Username") {{ username }}
-        n-form-item(label="Role") {{ role }}
+
+        n-form-item
+          n-data-table(:columns="columns", :data="data", :single-line="false")
 
         n-form-item(
           required,
