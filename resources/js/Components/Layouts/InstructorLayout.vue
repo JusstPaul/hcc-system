@@ -37,6 +37,7 @@ export default {
         case 'instructor.index':
           return 'instructor-index'
         case 'instructor.activity.submits':
+        case 'instructor.activity.submits.answer':
         case 'instructor.classroom':
           return 'instructor-classroom'
         case 'instructor.create_activity':
@@ -70,6 +71,7 @@ export default {
         case 'instructor.classroom':
         case 'instructor.students':
         case 'instructor.activity.submits':
+        case 'instructor.activity.submits.answer':
           defaultRoutes.push.apply(defaultRoutes, [
             {
               key: "divider-1",

@@ -1,5 +1,8 @@
 <script>
 import dayjs from 'dayjs'
+import { h } from 'vue'
+import { isUndefined } from 'lodash'
+import { isNumeric } from 'lodash-contrib'
 import { Inertia } from '@inertiajs/inertia'
 import {
   NLayout,
@@ -13,14 +16,7 @@ import {
 } from 'naive-ui'
 import {
   pXS,
-  wMax,
-  mxAuto,
   mxHalfRem,
-  mbHalfRem,
-  wFull,
-  mtHalfRem,
-  mlAuto,
-  mr,
 } from '@/styles'
 import { formatName } from '@/utils'
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
@@ -43,9 +39,6 @@ export default {
     submits: Object,
   },
   setup({ activity, submits, classroom_id }) {
-    console.log(submits)
-    console.log(activity)
-
     const submitsColumns = [
       {
         title: 'Student ID',
@@ -60,8 +53,32 @@ export default {
         key: 'created_at',
       },
       {
+        title: 'Score',
+        key: 'score',
+      },
+      {
         title: 'Is Late',
-        key: 'is_late'
+        key: 'is_late',
+      },
+      {
+        title: 'Action',
+        key: 'action',
+        render(row) {
+          return h(NButton, {
+            secondary: true,
+            class: 'w-full',
+            type: 'primary',
+            onClick: () => {
+              Inertia.get(route('instructor.activity.submits.answer', {
+                classroom_id,
+                activity_id: activity._id,
+                answer_id: row.key,
+              }))
+            }
+          }, {
+            default: () => 'View'
+          })
+        }
       }
     ]
 
@@ -75,11 +92,27 @@ export default {
       const deadMill = parseInt(activity.deadline)
       const deadline = dayjs(deadMill)
 
-      const is_late = create.valueOf() < deadline.valueOf()
+      console.log(val.answers.checks)
+      function getScore() {
+        let score_acc = 0
+        let total_acc = 0
+
+        val.answers.checks.flat().map(({ score, total }) => {
+          score_acc += parseInt(score)
+          total_acc += parseInt(total)
+        })
+
+        return `${score_acc}/${total_acc}`
+      }
+
+      const is_late = create.valueOf() > deadline.valueOf()
+      const score = isUndefined(val.answers.checks) ? 'Unchecked' : getScore()
 
       return {
+        key: val.answer_id,
         username,
         name,
+        score,
         is_late: is_late ? 'Yes' : 'No',
         created_at: create.format('MM/DD/YYYY hh:mm A'),
       }

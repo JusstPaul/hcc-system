@@ -116,7 +116,7 @@ class StudentController extends Controller
       $section['values'] = array_map(function ($question) use ($classroom_id, $activity_id) {
         if (is_array($question['value'])) {
           $question['value'] = array_map(function ($snap) use ($classroom_id, $activity_id) {
-            $snap['file'] = storeAnswer($snap['file'], $classroom_id, $activity_id);
+            $snap['fileContent'] = storeAnswer($snap['fileContent'], $classroom_id, $activity_id);
             return $snap;
           }, $question['value']);
         }
@@ -127,10 +127,10 @@ class StudentController extends Controller
       return $section;
     }, $request->answers);
 
-    $activity->answers()->create([
+    $activity->answers()->save(new Answer([
       'student_id' => $student_id,
       'answers' => $answers,
-    ]);
+    ]));
 
     return redirect()->route('student.index', [
       'student_id' => $student_id,

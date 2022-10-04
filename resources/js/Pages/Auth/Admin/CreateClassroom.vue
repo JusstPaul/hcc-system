@@ -231,7 +231,7 @@ n-layout
           n-input(v-model:value="classroomForm.room")
 
         n-form-item(label="Time" path="time" required)
-          n-time-picker.w-full(
+          n-time-picker(
             v-model:value="classroomForm.timeStart",
             format="h:mm a",
             @confirm="(value) => generateTimeEnd(value)"

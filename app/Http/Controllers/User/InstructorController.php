@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Activities;
 use App\Models\Announcement;
+use App\Models\Answer;
 use MongoDB\BSON\ObjectId;
+use Illuminate\Support\Facades\DB;
 
 class InstructorController extends Controller
 {
@@ -156,6 +158,7 @@ class InstructorController extends Controller
               'student_id' => [
                 '$toObjectId' => '$answers.student_id'
               ],
+              'answer_id' => '$answers._id',
             ],
           ],
           [
@@ -180,7 +183,11 @@ class InstructorController extends Controller
               'student' => [
                 '$first' => '$student'
               ],
-              'created_at' => 1
+              'created_at' => 1,
+              'answers' => [
+                'checks' => 1,
+              ],
+              'answer_id' => 1,
             ],
           ]
         ]);
@@ -188,7 +195,98 @@ class InstructorController extends Controller
     ]);
   }
 
-  public function answers_page(String $classroom_id, String $activity_id, String $answer_id)
+  public function answer_page(String $classroom_id, String $activity_id, String $answer_id)
   {
+    return Inertia::render('Auth/Instructor/Answer', [
+      'classroom_id' => $classroom_id,
+      'activity' => fn () => Activities::raw(function ($collection) use ($activity_id, $answer_id) {
+        return $collection->aggregate([
+          [
+            '$match' => [
+              '_id' => new ObjectId($activity_id)
+            ],
+          ],
+          [
+            '$unwind' => [
+              'path' => '$answers'
+            ],
+          ],
+          [
+            '$addFields' => [
+              'student_id' => [
+                '$toObjectId' => '$answers.student_id'
+              ],
+              'answer_id' => '$answers._id'
+            ],
+          ],
+          [
+            '$match' => [
+              'answer_id' => new ObjectId($answer_id)
+            ],
+          ],
+          [
+            '$lookup' => [
+              'from' => 'users',
+              'localField' => 'student_id',
+              'foreignField' => '_id',
+              'as' => 'student',
+              'pipeline' => [
+                [
+                  '$project' => [
+                    '_id' => 1,
+                    'username' => 1,
+                    'profile' => [
+                      '_id' => 1,
+                      'l_name' => 1,
+                      'f_name' => 1,
+                      'm_name' => 1
+                    ],
+                  ],
+                ],
+              ],
+            ],
+          ],
+          [
+            '$project' => [
+              'answers' => [
+                '_id' => 1,
+                'created_at' => 1,
+                'answers' => 1,
+                'checks' => 1,
+              ],
+              'student' => [
+                '$first' => '$student'
+              ],
+              'created_at' => 1,
+              'title' => 1,
+              'deadline' => 1,
+              'questions' => 1,
+              'general_directions' => 1,
+            ]
+          ]
+        ]);
+      })->first(),
+    ]);
+  }
+
+  public function answer_store(Request $request, String $classroom_id, String $activity_id, String $answer_id)
+  {
+    $request->validate([
+      'checks.*' => 'required',
+      'checks.*.*' => 'required',
+      'checks.*.*.id' => 'required|string',
+      'checks.*.*.score' => 'required|numeric',
+      'checks.*.*.total' => 'required|numeric',
+      'checks.*.*.comment' => 'nullable|string',
+    ]);
+
+    $answer = Activities::where('_id', $activity_id)->first()->answers()->where('_id', $answer_id)->first();
+    $answer->checks = $request->checks;
+    $answer->save();
+
+    return redirect()->route('instructor.activity.submits', [
+      'classroom_id' => $classroom_id,
+      'activity_id' => $activity_id,
+    ]);
   }
 }

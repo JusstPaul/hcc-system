@@ -11,7 +11,8 @@ class Answer extends Model
 
   protected $fillable = [
     'student_id',
-    'answers'
+    'answers',
+    'checks',
   ];
 
   protected $dates = [

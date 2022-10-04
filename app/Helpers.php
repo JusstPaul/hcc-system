@@ -32,7 +32,8 @@ function storeAnnouncement($file, String $classroom_id)
 
 function storeAnswer($file, String $classroom_id, String $activity_id)
 {
-  return storeFile($file, "classroom/$classroom_id/answers/$activity_id");
+  return Storage::disk(env('STORAGE', 'public'))
+    ->putFileAs("classroom/$classroom_id/answers/$activity_id", $file, $file->getClientOriginalName());
 }
 
 function fileExists(String $key)

@@ -70,7 +70,7 @@ export async function requestFilePreview(token, key) {
         Authorization: `Bearer ${token}`,
       },
     })
-    return res.data.file
+    return res
   } catch (err) {
     console.error(err)
     return ''

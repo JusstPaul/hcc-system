@@ -9,11 +9,16 @@
               _method: 'put'
         })">
 
-        <n-alert title="Instructions">
+        <n-alert title="General Instructions">
           <div v-html="convertDeltaContent(generalDirection)" />
         </n-alert>
 
-        <template v-for="({ id, values }, index) in answerForm.answers" :key="id">
+        <template v-for="({ id, values, }, index) in answerForm.answers" :key="id">
+          <n-divider style="margin-top: 2rem;" />
+          <n-alert style="margin-top: 2rem;">
+            <div v-html="convertDeltaContent(questions[index].instruction)" />
+          </n-alert>
+
           <n-form-item v-for="({ id: childId }, idx) in values" :key="childId"
             :path="`answerForm.answers[${index}].value[${idx}]`" style="margin-top: 2rem;">
             <n-card>
@@ -24,6 +29,7 @@
               <n-layout>
                 <n-layout-content content-style="margin-top: 1rem; padding-left: 12px; padding-right: 12px;">
                   <!-- Question -->
+
                   <template v-if="matchQuestion(index, 0)">
                     <n-input v-model:value="answerForm.answers[index].values[idx].value" />
                   </template>
@@ -192,7 +198,7 @@
                             v-for="({ file, id: valId, }, i) in answerForm.answers[index].values[idx].value"
                             :key="valId" :title="`Snapshot #${i + 1}`">
                             <n-space vertical>
-                              <n-image :src="file" style="width: 100%" />
+                              <n-image :src="createObjectURL(file)" style="width: 100%" />
                               <n-input type="textarea"
                                 v-model:value="answerForm.answers[index].values[idx].value[i].description" />
                             </n-space>
@@ -251,8 +257,9 @@ import {
   NSelect,
   NTooltip,
   NSkeleton,
+  NDivider,
 } from 'naive-ui'
-import { toPng } from 'html-to-image'
+import { toBlob } from 'html-to-image'
 import Layout from '@/Components/Layouts/StudentLayout.vue'
 import { QUESTION_TYPES } from '@/constants'
 import { requestFile, convertDeltaContent } from '@/utils'
@@ -289,6 +296,7 @@ export default {
     NSelect,
     NTooltip,
     NSkeleton,
+    NDivider,
   },
   props: {
     student_id: String,
@@ -413,11 +421,19 @@ export default {
     function snapshot(ref, parentIndex, childIndex, idx = -1) {
       const node = document.getElementById(ref)
 
-      toPng(node).then(function (blob) {
+      toBlob(node).then(function (blob) {
         if (idx === -1) {
+
+          const today = new Date().valueOf()
+          const id = nanoid(12)
+          const file = new File([blob], `hcc-${today}-${id}.png`, {
+            type: 'image/png',
+            lastModified: today,
+          })
+
           answerForm.answers[parentIndex].values[childIndex].value.push({
             id: nanoid(10),
-            file: blob,
+            file,
             description: '',
           })
           resetState(parentIndex, childIndex)
@@ -622,20 +638,12 @@ export default {
         const values = section.values.map((answer) => {
           if (!isUndefined(answer.state)) {
             const value = answer.value.map((val) => {
-              const today = new Date().valueOf()
-              const file = new File(
-                [val.file],
-                `hcc-${today}.png`,
-                {
-                  type: 'image/png',
-                  lastModified: today,
-                }
-              )
+              const fileContent = val.file
 
               return {
                 id: val.id,
                 description: val.description,
-                file,
+                fileContent,
               }
             })
 
@@ -676,6 +684,7 @@ export default {
       activity_id: activity._id,
       student_id,
       transformAnswers,
+      createObjectURL: URL.createObjectURL,
     }
   }
 }
