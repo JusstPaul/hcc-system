@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import axios from "axios";
 import Quill from 'quill'
+import { saveAs } from 'file-saver'
 import { h } from "vue";
 import { NIcon } from "naive-ui";
 import { Inertia } from "@inertiajs/inertia";
@@ -81,4 +82,16 @@ export function convertDeltaContent(delta) {
   const cont = document.createElement('div');
   (new Quill(cont)).setContents(delta);
   return cont.getElementsByClassName('ql-editor')[0].innerHTML
+}
+
+export function downloadFile(file) {
+  requestFile(token, file, (url) => {
+    saveAs(url)
+  })
+}
+export function getFileName(file) {
+  const arr = file.split('/')
+  const len = arr.length
+
+  return arr[len - 1]
 }

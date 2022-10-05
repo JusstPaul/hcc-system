@@ -34,7 +34,6 @@ createInertiaApp({
     createApp({
       // Notifications
       render: () => h(NNotificationProvider, {
-        placement: 'top'
       }, {
         // Main App
         default: () => h(app, props)

@@ -27,7 +27,13 @@ export default {
     NLayoutFooter,
     NButton,
   },
-  setup() {
+  props: {
+    hasClass: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  setup({ hasClass }) {
     const _id = usePage().props.value.user._id
 
     function currentRouteKey() {
@@ -43,7 +49,7 @@ export default {
       }
     }
 
-    const routes = [
+    let routes = [
       {
         label: () => h(Link, {
           href: route('student.index', {
@@ -55,7 +61,9 @@ export default {
         key: 'student-classroom',
         icon: renderIcon(SchoolIcon),
       },
-      {
+    ]
+    if (hasClass) {
+      routes.push({
         label: () => h(Link, {
           href: route('student.students', {
             student_id: _id,
@@ -65,17 +73,8 @@ export default {
         }),
         key: 'student-students',
         icon: renderIcon(FriendsIcon)
-      }
-      /*
-            {
-              label: () => h('a', {}, {
-                default: () => 'Progress'
-              }),
-              key: 'student-progress',
-              icon: renderIcon(ListDetailsIcon),
-            }
-      */
-    ]
+      })
+    }
 
     const footerRoutes = [
       {

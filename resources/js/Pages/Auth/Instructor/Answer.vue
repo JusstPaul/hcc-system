@@ -1,7 +1,7 @@
 <script>
-import { computed, watch } from 'vue'
+import { computed, } from 'vue'
 import { useAsyncState } from '@vueuse/core'
-import { isArray, has, isUndefined } from 'lodash'
+import { isUndefined } from 'lodash'
 import { Inertia } from '@inertiajs/inertia'
 import { useForm, usePage } from '@inertiajs/inertia-vue3'
 import {
@@ -97,7 +97,7 @@ export default {
 
         return {
           id,
-          score: null,
+          score: 0,
           total: score,
           comment: '',
           extra,

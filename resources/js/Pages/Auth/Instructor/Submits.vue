@@ -2,7 +2,6 @@
 import dayjs from 'dayjs'
 import { h } from 'vue'
 import { isUndefined } from 'lodash'
-import { isNumeric } from 'lodash-contrib'
 import { Inertia } from '@inertiajs/inertia'
 import {
   NLayout,
@@ -19,6 +18,7 @@ import {
   mxHalfRem,
 } from '@/styles'
 import { formatName } from '@/utils'
+import { DATE_FORMAT } from '@/constants'
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
 
 export default {
@@ -121,11 +121,15 @@ export default {
 
     function backLink() {
       Inertia.get(route('instructor.classroom', {
-        classroom_id
+        classroom_id,
+        _query: {
+          tab: 'activities',
+        }
       }))
     }
 
     return {
+      DATE_FORMAT,
       backLink,
       title: activity.title,
       deadline: parseInt(activity.deadline),
@@ -146,9 +150,9 @@ n-layout-header
     @back="() => backLink()"
   )
     template(#subtitle)
-      n-time(:time="start", format="MM/dd/yyyy hh:mm a")
+      n-time(:time="start", :format="DATE_FORMAT")
       span(:style="mxHalfRem") to
-      n-time(:time="deadline", format="MM/dd/yyyy hh:mm a")
+      n-time(:time="deadline", :format="DATE_FORMAT")
   n-layout-content(:content-style="pXS")
     n-data-table(
       :single-line="false",

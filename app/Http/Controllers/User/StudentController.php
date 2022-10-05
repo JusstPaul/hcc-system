@@ -26,41 +26,26 @@ class StudentController extends Controller
           return $classroom->announcements;
         }
       },
-      'activities' => function () use ($student_id) {
-        $activites = User::raw(function ($collection) use ($student_id) {
+      'activities' => function () use ($user) {
+        $activites = Activities::raw(function ($collection) use ($user) {
           return $collection->aggregate([
             [
               '$match' => [
-                '_id' => [
-                  '$eq' => new ObjectId($student_id)
-                ],
-              ],
-            ],
-            [
-              '$lookup' => [
-                'from' => 'activities',
-                'localField' => 'classroom_joined_id',
-                'foreignField' => 'target.value',
-                'as' => 'activities'
-              ],
-            ],
-            [
-              '$match' => [
-                'activities' => [
-                  '$elemMatch' => [
-                    'target' => [
-                      '$elemMatch' => [
-                        'type' => 'classroom'
-                      ],
-                    ],
-                  ],
-                ],
+                'classroom_id' => $user->classroom_joined_id,
               ],
             ],
             [
               '$project' => [
-                'activities' => 1,
-                '_id' => 0
+                'title' => 1,
+                'created_at' => 1,
+                'start' => 1,
+                'lock_after_end' => 1,
+                'created_at' => 1,
+                'answers' => [
+                  '_id' => 1,
+                  'student_id' => 1,
+                  'checks' => 1,
+                ],
               ],
             ],
           ]);
@@ -70,7 +55,7 @@ class StudentController extends Controller
           return [];
         }
 
-        return $activites->first()->activities;
+        return $activites;
       },
     ]);
   }
@@ -107,7 +92,6 @@ class StudentController extends Controller
     $request->validate([
       'answers.*' => 'required'
     ]);
-
 
     $activity = Activities::find($activity_id);
     $classroom_id = $activity->classroom->_id;

@@ -11,3 +11,6 @@ export const SIDER = {
   COLLAPSED_ICON_SIZE: 22,
   WIDTH: 180,
 }
+
+export const TIME_FORMAT = "hh:mm a"
+export const DATE_FORMAT = `MM/dd/yyyy ${TIME_FORMAT}`

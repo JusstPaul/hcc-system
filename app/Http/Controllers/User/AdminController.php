@@ -93,10 +93,10 @@ class AdminController extends Controller
       'mName' => 'nullable|string',
       'fName' => 'required|string',
       'details' => 'required_unless:role,admin|nullable',
-      'details.contact' => 'required_unless:role,admin|nullable|numeric',
+      'details.contact' => 'required_unless:role,admin|nullable|regex:/09[0-9]{9}+/',
       'details.email' => 'required_unless:role,admin|nullable|email',
       'details.contactPerson' => 'required_if:role,student|nullable|string',
-      'details.contactPersonContact' => 'required_if:role,student|nullable|numeric',
+      'details.contactPersonContact' => 'required_if:role,student|nullable|regex:/09[0-9]{9}+/',
     ]);
 
     $user = User::create([

@@ -199,7 +199,7 @@
                             :key="valId" :title="`Snapshot #${i + 1}`">
                             <n-space vertical>
                               <n-image :src="createObjectURL(file)" style="width: 100%" />
-                              <n-input type="textarea"
+                              <n-input type="textarea" placeholder="Conclusion"
                                 v-model:value="answerForm.answers[index].values[idx].value[i].description" />
                             </n-space>
                           </n-card>

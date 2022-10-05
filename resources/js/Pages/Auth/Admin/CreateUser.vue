@@ -13,6 +13,7 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
+  useNotification,
 } from 'naive-ui'
 import { useForm } from '@inertiajs/inertia-vue3'
 import { allowNumberOnly } from '@/utils'
@@ -47,6 +48,8 @@ export default {
     roles: Array
   },
   setup({ roles }) {
+    const notif = useNotification()
+
     const roleOptions = roles.map((value) => ({
       label: value,
       value
@@ -70,6 +73,14 @@ export default {
       Inertia.get(route('admin.index'))
     }
 
+    function onError(errors) {
+      notif.error({
+        title: 'Failed to create user',
+        content: 'Please check the field inputs properly',
+        duration: 5000,
+      });
+    }
+
     return {
       allowNumberOnly,
       userForm,
@@ -82,6 +93,8 @@ export default {
       mxAuto,
       mlAuto,
       mr,
+      notif,
+      onError,
     }
   }
 }
@@ -97,7 +110,9 @@ n-layout
     n-layout-content(:content-style="pXS")
       n-space.w-full(justify="center", :item-style="wFull")
         n-form(
-          @submit.prevent="() => userForm.post(route('post.admin.create_user'))",
+          @submit.prevent=`() => userForm.post(route('post.admin.create_user'), {
+            onError: (errors) => onError(errors)
+          })`,
           require-mark-placement="right-hanging",
           label-width="120",
           :model="userForm",

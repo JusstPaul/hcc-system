@@ -1,8 +1,9 @@
 <script>
 import dayjs from 'dayjs'
+import { computed } from 'vue'
 import { isUndefined } from 'lodash'
 import { Inertia } from '@inertiajs/inertia'
-import { useForm, usePage } from '@inertiajs/inertia-vue3'
+import { useForm, usePage, } from '@inertiajs/inertia-vue3'
 import {
   NLayout,
   NLayoutHeader,
@@ -25,14 +26,13 @@ import {
 } from 'naive-ui'
 import { QuillEditor } from '@vueup/vue-quill'
 import { Upload as UploadIcon } from '@vicons/tabler'
-import { saveAs } from 'file-saver'
 import {
   wMax,
   wFull,
   mxAuto,
   mtHalfRem,
 } from '@/styles'
-import { requestFile, convertDeltaContent } from '@/utils'
+import { getFileName, convertDeltaContent, downloadFile } from '@/utils'
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
 
 export default {
@@ -65,6 +65,8 @@ export default {
     activities: Array,
   },
   setup({ activities, classroom_id }) {
+    const { tab } = route().params;
+
     const token = usePage().props.value.user.token
 
     const anForm = useForm({
@@ -81,19 +83,6 @@ export default {
       return dayjs(date).valueOf()
     }
 
-    function downloadFile(file) {
-      requestFile(token, file, (url) => {
-        saveAs(url)
-      })
-    }
-
-    function getFileName(file) {
-      const arr = file.split('/')
-      const len = arr.length
-
-      return arr[len - 1]
-    }
-
     function getNumberOfSubmits(val) {
       if (isUndefined(val)) {
         return 0
@@ -101,14 +90,8 @@ export default {
       return val.length
     }
 
-    function viewSubmits(activity_id) {
-      Inertia.get(route('instructor.activity.submits', {
-        classroom_id,
-        activity_id,
-      }))
-    }
-
     return {
+      tab: computed(() => isUndefined(tab) ? 'announcements' : tab),
       wMax,
       wFull,
       mxAuto,
@@ -122,7 +105,6 @@ export default {
       getFileName,
       activities,
       getNumberOfSubmits,
-      viewSubmits,
     }
   },
 }
@@ -131,8 +113,11 @@ export default {
 <template lang="pug">
 n-layout
   n-layout-content
-    n-tabs(type="line")
-      n-tab-pane(name="announcements", tab="Announcements")
+    n-tabs(type="line", :default-value="tab")
+      n-tab-pane(
+        name="announcements",
+        tab="Announcements",
+      )
         n-form(
           :model="anForm"
           label-placement="left",
@@ -205,9 +190,11 @@ n-layout
           for act in activities
             n-card(:key="act._id", :style="{...wFull, ...wMax(800), ...mxAuto}")
               template(#header)
-                n-button(
-                  text,
-                  @click="() => viewSubmits(act._id)"
+                i-link.link.cursor-pointer(
+                  :href=`route('instructor.activity.submits', {
+                    classroom_id,
+                    activity_id: act._id,
+                  })`
                 ) {{ act.title }}
               template(#header-extra)
                 n-time(:tile="strDateToMil(act.created_at)")

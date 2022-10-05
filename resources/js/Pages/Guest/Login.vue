@@ -30,6 +30,7 @@ export default {
       notification.error({
         title: 'Login Failed',
         content: 'Invalid user credentials',
+        duration: 5000,
       })
     }
 
