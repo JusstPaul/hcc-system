@@ -34,6 +34,13 @@ class InstructorController extends Controller
     ]);
   }
 
+  public function profile_page()
+  {
+    return Inertia::render('Auth/Instructor/Profile', [
+      'profile' => User::get()->profile,
+    ]);
+  }
+
   public function students_page(String $classroom_id)
   {
     return Inertia::render('Auth/Instructor/Students', [

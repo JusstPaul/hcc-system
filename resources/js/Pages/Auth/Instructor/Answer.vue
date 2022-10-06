@@ -31,15 +31,9 @@ import {
   mlAuto,
   mr,
 } from '@/styles'
-import { convertDeltaContent, requestFile } from '@/utils'
+import { convertDeltaContent, keyToJpeg } from '@/utils'
 import { QUESTION_TYPES } from '@/constants'
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
-
-async function keyToJpeg(token, key) {
-  const response = await requestFile(token, key)
-  const url = URL.createObjectURL(response)
-  return url
-}
 
 export default {
   layout: Layout,

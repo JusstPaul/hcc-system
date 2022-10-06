@@ -72,16 +72,23 @@ class ProfileController extends Controller
    */
   public function update(Request $request, String $id)
   {
+
+    $user = User::get();
+
     $request->validate([
+      'avatar' => 'nullable',
+      'avatar.file' => 'required_with:avatar,image',
       'lName' => 'required|string',
       'mName' => 'nullable|string',
       'fName' => 'required|string',
       'changePassword' => 'required|boolean',
-      'oPassword' => 'required_if:changePassword,1|current_password|string',
-      'nPassword' => 'required_if:changePassword,1|string',
+      'oPassword' => 'nullable|required_if:changePassword,true|current_password|string',
+      'nPassword' => 'nullable|required_if:changePassword,true|string',
+      'details' => [
+        Rule::requiredIf(fn () => !$user->hasRole('admin')),
+        'nullable'
+      ],
     ]);
-
-    $user = User::get();
 
     // TODO: Accomodate other roles
     if ($request->changePassword) {
@@ -90,11 +97,32 @@ class ProfileController extends Controller
       ]);
     }
 
-    $user->profile()->update([
-      'lName' => $request->lName,
-      'mName' => $request->mName,
-      'fName' => $request->fName,
-    ]);
+    $avatar = null;
+    if (!is_null($request->avatar)) {
+      $avatar = storeAvatar($request->avatar['file']);
+    }
+
+    if ($user->hasRole('admin')) {
+      $user->profile->update([
+        'avatar' => $avatar,
+        'l_name' => strtoupper($request->lName),
+        'm_name' => strtoupper($request->mName),
+        'f_name' => strtoupper($request->fName),
+        'details' => null,
+      ]);
+    } else {
+      $details = $request->details;
+      $details['contactPerson'] = strtoupper($details['contactPerson']);
+      $details['email'] = strtoupper($details['email']);
+
+      $user->profile->update([
+        'avatar' => $avatar,
+        'l_name' => strtoupper($request->lName),
+        'm_name' => strtoupper($request->mName),
+        'f_name' => strtoupper($request->fName),
+        'details' => $details,
+      ]);
+    }
 
     return redirect()->back();
   }

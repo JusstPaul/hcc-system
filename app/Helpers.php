@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 /**
  * -----------------------------------------------------------------------
@@ -34,6 +35,12 @@ function storeAnswer($file, String $classroom_id, String $activity_id)
 {
   return Storage::disk(env('STORAGE', 'public'))
     ->putFileAs("classroom/$classroom_id/answers/$activity_id", $file, $file->getClientOriginalName());
+}
+
+function storeAvatar($file)
+{
+  $user_id = User::get()->_id;
+  return storeFile($file, "avatars/$user_id");
 }
 
 function fileExists(String $key)

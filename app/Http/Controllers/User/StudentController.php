@@ -60,6 +60,13 @@ class StudentController extends Controller
     ]);
   }
 
+  public function profile_page(String $student_id)
+  {
+    return Inertia::render('Auth/Student/Profile', [
+      'profile' => User::get()->profile,
+    ]);
+  }
+
   public function students_page(String $student_id)
   {
     return Inertia::render('Auth/Student/Students', [

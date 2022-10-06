@@ -164,7 +164,8 @@ n-layout
             v-if="userForm.role === 'instructor' || userForm.role === 'student'"
             required,
             label="Contact Number",
-            path="details.contact"
+            path="details.contact",
+            :maxlength="11",
           )
             n-input(
               v-model:value="userForm.details.contact",

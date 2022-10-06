@@ -13,6 +13,7 @@ import {
   Friends as FriendsIcon,
   CalendarPlus as CalendarPlusIcon,
   Logout as LogoutIcon,
+  UserCircle as UserCircleIcon,
 } from '@vicons/tabler'
 import { Link } from '@inertiajs/inertia-vue3'
 import { hFull } from '@/styles'
@@ -35,6 +36,7 @@ export default {
     function currentRouteKey() {
       switch (route().current()) {
         case 'instructor.index':
+        case 'instructor.profile':
           return 'instructor-index'
         case 'instructor.activity.submits':
         case 'instructor.activity.submits.answer':
@@ -44,6 +46,7 @@ export default {
           return 'instructor-create_activity'
         case 'instructor.students':
           return 'instructor-students'
+        case 'instructor.profile':
         default:
           alert('InstructorLayout: Invalid route')
           return ''
@@ -65,6 +68,7 @@ export default {
 
       switch (route().current()) {
         case 'instructor.index':
+        case 'instructor.profile':
           return defaultRoutes;
 
         case 'instructor.create_activity':
@@ -113,6 +117,15 @@ export default {
     }
 
     const footerRoutes = [
+      {
+        label: () => h(Link, {
+          href: route('instructor.profile'),
+        }, {
+          default: () => 'Profile'
+        }),
+        key: 'instructor-profile',
+        icon: renderIcon(UserCircleIcon)
+      },
       {
         label: () => h('a', {
           onClick: () => logout(),

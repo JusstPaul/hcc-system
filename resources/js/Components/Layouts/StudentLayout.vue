@@ -7,6 +7,7 @@ import {
   School as SchoolIcon,
   ListDetails as ListDetailsIcon,
   Friends as FriendsIcon,
+  UserCircle as UserCircleIcon,
 } from '@vicons/tabler'
 import {
   hFull,
@@ -40,6 +41,7 @@ export default {
       switch (route().current()) {
         case 'student.index':
         case 'student.activity':
+        case 'student.profile':
           return 'student-classroom'
         case 'student.students':
           return 'student-students'
@@ -77,6 +79,17 @@ export default {
     }
 
     const footerRoutes = [
+      {
+        label: () => h(Link, {
+          href: route('student.profile', {
+            student_id: _id,
+          })
+        }, {
+          default: () => 'Profile',
+        }),
+        key: 'student-profile',
+        icon: renderIcon(UserCircleIcon),
+      },
       {
         label: () => h('a', {
           onClick: () => logout(),

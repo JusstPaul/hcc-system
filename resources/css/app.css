@@ -3,7 +3,11 @@
 }
 
 .underline-hover:hover {
-    text-decoration: underline;
+  text-decoration: underline;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
 }
 
 .overflow-hidden {
@@ -34,6 +38,10 @@
   paddding-top: 24px;
 }
 
+.p-0 {
+  padding: 0;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
@@ -41,4 +49,8 @@
 .link {
   text-decoration: none;
   color: inherit;
+}
+
+.text-center {
+  text-align: center;
 }

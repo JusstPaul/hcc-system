@@ -1,4 +1,9 @@
 <script>
+import { computed, ref } from 'vue'
+import { useAsyncState } from '@vueuse/core'
+import { isUndefined, isString } from 'lodash'
+import { Inertia } from '@inertiajs/inertia'
+import { UserCircle as UserCircleIcon } from '@vicons/tabler'
 import {
   NLayout,
   NLayoutHeader,
@@ -10,11 +15,16 @@ import {
   NButton,
   NSwitch,
   NPageHeader,
-  NDataTable,
+  NCard,
+  NAvatar,
+  NIcon,
+  NUpload,
+  NH2,
   useNotification,
 } from 'naive-ui'
 import { usePage, useForm } from '@inertiajs/inertia-vue3'
 import { pXS, wFull, wMax, mxAuto, mlAuto, mr } from '@/styles'
+import { allowNumberOnly, keyToJpeg } from '@/utils'
 
 export default {
   components: {
@@ -28,7 +38,12 @@ export default {
     NButton,
     NSwitch,
     NPageHeader,
-    NDataTable,
+    NCard,
+    NAvatar,
+    NIcon,
+    NH2,
+    NUpload,
+    UserCircleIcon,
   },
   props: {
     profile: Object,
@@ -38,40 +53,43 @@ export default {
 
     const notif = useNotification()
 
-    function notifyError() {
+    function notifyError(errors) {
       notif.error({
         title: 'Error',
         content: 'Failed to change Profile',
+        duration: 5000,
       })
+      console.error(errors)
     }
 
-    const { l_name, m_name, f_name } = profile
+    const { l_name, m_name, f_name, details, avatar } = profile
     const profileForm = useForm({
+      avatar: avatar,
       lName: l_name,
       mName: m_name,
       fName: f_name,
       changePassword: false,
       oPassword: '',
       nPassword: '',
+      details: details,
     })
 
-    const columns = [
-      {
-        title: 'Username',
-        key: 'username'
-      },
-      {
-        title: 'Role',
-        key: 'role'
-      }
-    ]
+    const avatarIsKey = ref(isString(avatar))
+    const avatarURL = ref(avatarIsKey && useAsyncState(keyToJpeg(user.token, avatar)))
 
-    const data = [
-      {
-        username: user.username,
-        role: user.role
+    function setAvatar(file) {
+      avatarIsKey.value = false
+      profileForm.avatar = file
+    }
+
+    function viewFile(file) {
+      if (isString(file)) {
+        avatarIsKey.value = true
+        avatarURL.value = useAsyncState(keyToJpeg(user.token, file))
+      } else {
+        return URL.createObjectURL(file.file)
       }
-    ]
+    }
 
     return {
       pXS,
@@ -82,9 +100,16 @@ export default {
       mr,
       profileForm,
       id: user._id,
-      columns,
-      data,
       notifyError,
+      role: user.role,
+      username: user.username,
+      allowNumberOnly,
+      Inertia,
+      hasAvatar: computed(() => !(isUndefined(profileForm.avatar) || profileForm.avatar == null)),
+      setAvatar,
+      viewFile,
+      avatarIsKey,
+      avatarURL,
     }
   }
 }
@@ -100,7 +125,9 @@ n-layout
         @submit.prevent=`() => profileForm.post(route('post.profile.update', {
           id,
         }), {
-          onError: () => notifyError(),
+          _method: 'put',
+          onError: (errors) => notifyError(errors),
+          onSuccess: () => Inertia.get('/')
         })`,
         :model="profileForm"
         require-mark-placement="right-hanging",
@@ -111,8 +138,41 @@ n-layout
         }`
       )
 
-        n-form-item
-          n-data-table(:columns="columns", :data="data", :single-line="false")
+        n-form-item(:show-feedback="false", :show-label="false")
+          n-space.w-full.text-center(vertical)
+            n-space.w-full(justify="center")
+              if !hasAvatar
+                n-avatar(round, :size="100")
+                  n-icon 
+                    user-circle-icon
+              else
+                if avatarIsKey
+                  if avatarURL.isLoading
+                    n-avatar(round, :size="100")
+                      n-icon 
+                        user-circle-icon
+                  else
+                    n-avatar(
+                      round,
+                      object-fit="scale-down",
+                      :size="100",
+                      :src="avatarURL.state"
+                    )
+                else
+                  n-avatar(
+                    round,
+                    object-fit="scale-down",
+                    :size="100",
+                    :src="viewFile(profileForm.avatar)"
+                  )
+        n-form-item.text-center(:show-label="false")
+          .text-center.w-full
+            n-h2 {{ username }}
+            span Role: {{ role }}
+
+        n-form-item(:show-label="false")
+          n-upload(@change="({ file }) => setAvatar(file)", :max="1")
+            n-button Change Avatar
 
         n-form-item(
           required,
@@ -132,15 +192,45 @@ n-layout
           required,
           label="Middle Name",
           path="mName"
-          placeholder=""
         )
           n-input(v-model:value="profileForm.mName")
 
         if role === 'instructor' || role === 'student'
-          div Instructor and Student
+          n-form-item(
+            required,
+            label="Contact Number",
+            path="details.contact"
+          )
+            n-input(
+              v-model:value="profileForm.details.contact",
+              :allow-input="allowNumberOnly"
+              :maxlength="11",
+            )
+
+          n-form-item(
+            required,
+            label="Email",
+            path="details.email",
+          )
+            n-input(v-model:value="profileForm.details.email")
 
         if role === 'student'
-          div Student Only
+          n-form-item(
+            required,
+            label="Contact Person",
+            path="details.contactPerson"
+          )
+            n-input(v-model:value="profileForm.details.contactPerson")
+
+          n-form-item(
+            required,
+            label="Contact Number",
+            path="details.contactPersonContact"
+          )
+            n-input(
+              v-model:value="profileForm.details.contactPersonContact",
+              :allow-input="allowNumberOnly"
+            )
 
         n-form-item(label="Change Password")
           n-switch(v-model:value="profileForm.changePassword")

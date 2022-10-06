@@ -95,3 +95,9 @@ export function getFileName(file) {
 
   return arr[len - 1]
 }
+
+export async function keyToJpeg(token, key) {
+  const response = await requestFile(token, key)
+  const url = URL.createObjectURL(response)
+  return url
+}
