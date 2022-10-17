@@ -304,7 +304,7 @@ n-layout
           n-switch(v-model:value="activityForm.lockAfterEnd")
 
         n-form-item(
-          required, 
+          required,
           label="Generation Instructions",
           path="generalDirections"
         )
@@ -386,9 +386,9 @@ n-layout
                             @change="({ fileList }) => setSamplesImgList(fileList, index, idx)"
                           )
 
-                    if section.type !== QUESTION_TYPES[4]
+                    if section.type !== QUESTION_TYPES[4] && section.type !== QUESTION_TYPES[3]
                       n-form-item(label="Answer")
-                        if section.type === QUESTION_TYPES[1] 
+                        if section.type === QUESTION_TYPES[1]
                           n-radio-group(
                             v-model:value="question.answer",
                             :name="`answer-${section.id}-${question.id}`"

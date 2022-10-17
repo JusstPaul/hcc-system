@@ -6,6 +6,7 @@
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^3.1.0",
+        "@volar/vue-language-plugin-pug": "^1.0.8",
         "axios": "^0.27",
         "laravel-vite-plugin": "^0.6.0",
         "lodash": "^4.17.21",

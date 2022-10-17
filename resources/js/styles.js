@@ -30,6 +30,10 @@ export const mbNone = {
   marginBottom: '0'
 }
 
+export const mtTwoRem = {
+  marginTop: '2rem',
+}
+
 export const mbHalfRem = {
   marginBottom: '0.5rem',
 }

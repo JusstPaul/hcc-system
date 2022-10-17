@@ -1,3 +1,4 @@
+<!--
 <template>
   <n-space justify="center" item-style="width: 100%;">
     <n-space item-style="width: 100%;">
@@ -28,13 +29,11 @@
 
               <n-layout>
                 <n-layout-content content-style="margin-top: 1rem; padding-left: 12px; padding-right: 12px;">
-                  <!-- Question -->
 
                   <template v-if="matchQuestion(index, 0)">
                     <n-input v-model:value="answerForm.answers[index].values[idx].value" />
                   </template>
 
-                  <!-- True or false -->
                   <template v-if="matchQuestion(index, 1)">
                     <n-radio-group v-model:value="answerForm.answers[index].values[idx].value"
                       :name="`activity-${id}-${childId}`">
@@ -45,7 +44,6 @@
                     </n-radio-group>
                   </template>
 
-                  <!-- Multiple choice -->
                   <template v-if="matchQuestion(index, 2)">
                     <n-radio-group v-model:value="answerForm.answers[index].values[idx].value" :name="`activity-${id}`">
                       <n-space>
@@ -55,7 +53,6 @@
                     </n-radio-group>
                   </template>
 
-                  <!-- Handwriting Comparator -->
                   <template v-if="matchQuestion(index, 4)">
                     <n-space vertical>
                       <n-layout>
@@ -227,11 +224,13 @@
     </n-space>
   </n-space>
 </template>
+-->
 
 <script>
 import { useAsyncState } from '@vueuse/core'
 import { isUndefined } from 'lodash'
 import { nanoid } from 'nanoid'
+import { Inertia } from '@inertiajs/inertia'
 import { useForm, usePage } from '@inertiajs/inertia-vue3'
 import {
   NSpace,
@@ -258,11 +257,14 @@ import {
   NTooltip,
   NSkeleton,
   NDivider,
+  NPageHeader,
 } from 'naive-ui'
+import { QuillEditor } from '@vueup/vue-quill'
 import { toBlob } from 'html-to-image'
 import Layout from '@/Components/Layouts/StudentLayout.vue'
 import { QUESTION_TYPES } from '@/constants'
 import { requestFile, convertDeltaContent } from '@/utils'
+import { wFull, wMax, mxAuto, pXS, mtTwoRem } from '@/styles'
 
 async function keyToJpeg(token, key) {
   const response = await requestFile(token, key)
@@ -297,6 +299,8 @@ export default {
     NTooltip,
     NSkeleton,
     NDivider,
+    NPageHeader,
+    QuillEditor,
   },
   props: {
     student_id: String,
@@ -668,6 +672,8 @@ export default {
       }
     }
 
+    console.log(activity)
+
     return {
       answerForm,
       matchQuestion,
@@ -682,13 +688,96 @@ export default {
       hccAddCharacteristic,
       convertDeltaContent,
       activity_id: activity._id,
+      title: activity.title,
       student_id,
       transformAnswers,
       createObjectURL: URL.createObjectURL,
+      wFull,
+      wMax,
+      mxAuto,
+      pXS,
+      mtTwoRem,
+      Inertia,
     }
   }
 }
 </script>
+
+<template lang="pug">
+n-layout
+  n-layout-header
+    n-page-header.overflow-hidden(
+      :title="title",
+      @back="() => Inertia.get('/')"
+    )
+  n-layout-content(:content-style="pXS")
+    n-space.w-full(justify="center", :item-style="wFull")
+      n-form(
+        require-mark-placement="right-hanging",
+        label-width="120",
+        :style=`{
+          ...wFull,
+          ...wMax(1024),
+          ...mxAuto,
+        }`,
+        :model="answerForm",
+      )
+        n-form-item
+          n-alert.w-full(title="General Instructions")
+            div(v-html="convertDeltaContent(generalDirection)")
+
+        for section, section_index in answerForm.answers
+          n-form-item(:key="section.id")
+            div.w-full
+              n-divider
+              n-alert.w-full(:style="mtTwoRem")
+                div(v-html="convertDeltaContent(questions[section_index].instruction)")
+
+              for answer, answer_index in section.values
+                n-form-item(
+                  :key="answer.id",
+                  :path="`answers[${section_index}].value[${answer_index}]`"
+                )
+                  n-card
+                    n-alert
+                      |{{ questions[section_index].values[answer_index].instruction }}
+
+                    n-form-item
+                      div.w-full
+                        if matchQuestion(section_index, 0)
+                          n-input(v-model:value="answer.value")
+
+                        else if matchQuestion(section_index, 1)
+                          n-radio-group(
+                            v-model:value="answer.value",
+                            :name="`activity-${section.id}-${answer.id}`"
+                          )
+                            n-space
+                              n-radio(label="True", :value="true")
+                              n-radio(label="False", :value="false")
+
+                        else if matchQuestion(section_index, 2)
+                          n-radio-group(
+                            v-model:value="answer.value",
+                            :name="`activity-${section.id}-${answer.id}`"
+                          )
+                            n-space
+                              for choice in questions[section_index].values[answer_index].content
+                                n-radio(
+                                  :key="choice",
+                                  :value="choice",
+                                  :label="choice"
+                                )
+
+                        else if matchQuestion(section_index, 3)
+                          .w-full
+                            quill-editor(
+                              theme="snow",
+                              toolbar="minimal",
+                              v-model:content="answer.value",
+                              placeholder="Answer"
+                            )
+</template>
 
 <style scoped>
 .comparator-container {
@@ -710,4 +799,3 @@ export default {
   left: 0;
 }
 </style>
-

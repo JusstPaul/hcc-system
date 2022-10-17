@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+      "baseUrl": ".",
+      "target": "es5",
+      "paths": {
+          "@/*": ["resources/js/*"]
+      },
+      "isolatedModules": true
+  },
+  "exclude": ["public", "node_modules"],
+  "vueCompilerOptions": {
+      "plugins": ["@volar/vue-language-plugin-pug"]
+  }
+}
