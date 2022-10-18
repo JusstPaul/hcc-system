@@ -105,7 +105,7 @@ class StudentController extends Controller
 
     $answers = array_map(function ($section) use ($classroom_id, $activity_id) {
       $section['values'] = array_map(function ($question) use ($classroom_id, $activity_id) {
-        if (is_array($question['value'])) {
+        if (is_array($question['value']) && array_key_exists('fileContent', $question['value'])) {
           $question['value'] = array_map(function ($snap) use ($classroom_id, $activity_id) {
             $snap['fileContent'] = storeAnswer($snap['fileContent'], $classroom_id, $activity_id);
             return $snap;

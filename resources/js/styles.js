@@ -12,6 +12,10 @@ export const mlAuto = {
   marginLeft: 'auto',
 }
 
+export const mrHalfRem = {
+  marginRight: '0.5rem'
+}
+
 export function mr(px) {
   return {
     marginRight: `${px}px`

@@ -1,235 +1,8 @@
-<!--
-<template>
-  <n-space justify="center" item-style="width: 100%;">
-    <n-space item-style="width: 100%;">
-      <n-form :model="answerForm" label-placement="left" require-mark-placement="right-hanging" label-width="120"
-        style="width: 100%; max-width: 1080px; margin-left: auto; margin-right: auto;" @submit.prevent="() => answerForm.transform((data) => transformAnswers(data)).post(route('post.student.activity', {
-            student_id: student_id,
-            activity_id: activity_id,
-        }), {
-              _method: 'put'
-        })">
-
-        <n-alert title="General Instructions">
-          <div v-html="convertDeltaContent(generalDirection)" />
-        </n-alert>
-
-        <template v-for="({ id, values, }, index) in answerForm.answers" :key="id">
-          <n-divider style="margin-top: 2rem;" />
-          <n-alert style="margin-top: 2rem;">
-            <div v-html="convertDeltaContent(questions[index].instruction)" />
-          </n-alert>
-
-          <n-form-item v-for="({ id: childId }, idx) in values" :key="childId"
-            :path="`answerForm.answers[${index}].value[${idx}]`" style="margin-top: 2rem;">
-            <n-card>
-              <n-alert>
-                {{ questions[index].values[idx].instruction }}
-              </n-alert>
-
-              <n-layout>
-                <n-layout-content content-style="margin-top: 1rem; padding-left: 12px; padding-right: 12px;">
-
-                  <template v-if="matchQuestion(index, 0)">
-                    <n-input v-model:value="answerForm.answers[index].values[idx].value" />
-                  </template>
-
-                  <template v-if="matchQuestion(index, 1)">
-                    <n-radio-group v-model:value="answerForm.answers[index].values[idx].value"
-                      :name="`activity-${id}-${childId}`">
-                      <n-space>
-                        <n-radio label="True" value="true" />
-                        <n-radio label="False" value="false" />
-                      </n-space>
-                    </n-radio-group>
-                  </template>
-
-                  <template v-if="matchQuestion(index, 2)">
-                    <n-radio-group v-model:value="answerForm.answers[index].values[idx].value" :name="`activity-${id}`">
-                      <n-space>
-                        <n-radio v-for="(val, index) in questions[index].values[idx].content" :key="val" :value="val"
-                          :label="val" />
-                      </n-space>
-                    </n-radio-group>
-                  </template>
-
-                  <template v-if="matchQuestion(index, 4)">
-                    <n-space vertical>
-                      <n-layout>
-                        <n-layout-header style="margin-bottom: 0.5rem; padding-bottom: 0.5rem;" bordered>
-                          <n-space align="center">
-                            <div>
-                              <n-button @click="snapshot(`hcc-${id}-${index}-${idx}`, index, idx)" attr-type="button"
-                                type="primary">Snapshot</n-button>
-                            </div>
-                            <div>
-                              <n-switch v-model:value="answerForm.answers[index].values[idx].state.mode"
-                                checked-value="r" unchecked-value="l">
-                                <template #checked>Right</template>
-                                <template #unchecked>Left</template>
-                              </n-switch>
-                            </div>
-                          </n-space>
-                        </n-layout-header>
-                        <n-layout has-sider>
-                          <n-layout-sider bordered width="150">
-                            <n-space vertical item-style="margin-right: 0.5rem;">
-                              <div>
-                                <span>Zoom</span>
-                                <template v-if="checkModeL(index, idx)">
-                                  <n-slider size="small"
-                                    v-model:value="answerForm.answers[index].values[idx].state.zoom.left" :max="2"
-                                    :min="1" :step="0.1" />
-                                </template>
-                                <template v-else>
-                                  <n-slider size="small"
-                                    v-model:value="answerForm.answers[index].values[idx].state.zoom.right" :max="2"
-                                    :min="1" :step="0.1" />
-                                </template>
-                              </div>
-                              <div>
-                                <span>Filters</span>
-                                <template v-if="checkModeL(index, idx)">
-                                  <n-select size="small" :options="filters"
-                                    v-model:value="answerForm.answers[index].values[idx].state.filter.left" />
-                                </template>
-                                <template v-else>
-                                  <n-select size="small" :options="filters"
-                                    v-model:value="answerForm.answers[index].values[idx].state.filter.right" />
-                                </template>
-                              </div>
-                              <div>
-                                <span>Opacity</span>
-                                <template v-if="checkModeL(index, idx)">
-                                  <n-slider size="small"
-                                    v-model:value="answerForm.answers[index].values[idx].state.opacity.left" :max="1"
-                                    :min="0.1" :step="0.1" />
-                                </template>
-                                <template v-else>
-                                  <n-slider size="small"
-                                    v-model:value="answerForm.answers[index].values[idx].state.opacity.right" :max="1"
-                                    :min="0.1" :step="0.1" />
-                                </template>
-                              </div>
-                              <div>
-                                <span>Gap</span>
-                                <n-slider size="small" v-model:value="answerForm.answers[index].values[idx].state.gap"
-                                  :max="20" :min="0" :step="1" />
-                              </div>
-                              <div>
-                                <n-button @click="addImaginaryLine(index, idx, id, childId)" attr-type="button"
-                                  type="primary">Add
-                                  Imaginary Line</n-button>
-                              </div>
-                            </n-space>
-                          </n-layout-sider>
-                          <n-layout-content>
-                            <n-space vertical>
-                              <div :id="`hcc-${id}-${index}-${idx}`"
-                                style="margin: 1rem; padding: 1rem; position: relative; min-width: 850px; max-width: 1080px; min-height: 250px;">
-                                <div style="position: absolute; top: 0; left: 0; width: 100%; height: fit-content;">
-                                  <n-image-group>
-                                    <n-space justify="center">
-                                      <n-space item-style="border-style: solid; border-width: 0.75px;"
-                                        :size="answerForm.answers[index].values[idx].state.gap">
-                                        <div style="overflow: hidden;">
-                                          <template
-                                            v-if="answerForm.answers[index].values[idx].files.questioned.isLoading">
-                                            <n-skeleton height="100px" width="350px" />
-                                          </template>
-                                          <template v-else>
-                                            <n-image width="350" object-fit="contain"
-                                              :src="answerForm.answers[index].values[idx].files.questioned.state"
-                                              :style="{
-                                                  transform: `scale(${answerForm.answers[index].values[idx].state.zoom.left})`,
-                                                filter: filterToCSS(answerForm.answers[index].values[idx].state.filter.left),
-                                                opacity: answerForm.answers[index].values[idx].state.opacity.left,
-                                              }" />
-                                          </template>
-                                        </div>
-                                        <div style="overflow: hidden;">
-                                          <template
-                                            v-if="answerForm.answers[index].values[idx].files.samples[answerForm.answers[index].values[idx].progress.current].isLoading">
-                                            <n-skeleton height="100px" width="350px" />
-                                          </template>
-                                          <template v-else>
-                                            <n-image width="350" object-fit="contain"
-                                              :src="answerForm.answers[index].values[idx].files.samples[answerForm.answers[index].values[idx].progress.current].state"
-                                              :style="{
-                                                  transform: `scale(${answerForm.answers[index].values[idx].state.zoom.right})`,
-                                                filter: filterToCSS(answerForm.answers[index].values[idx].state.filter.right),
-                                                opacity: answerForm.answers[index].values[idx].state.opacity.right,
-                                              }" />
-                                          </template>
-                                        </div>
-                                      </n-space>
-                                    </n-space>
-                                  </n-image-group>
-                                </div>
-                                <svg :id="`hcc-${id}-${index}-${idx}-svg`" class="comparator-svg"></svg>
-                              </div>
-                              <div style="padding-left: 24px; padding-right: 24px;">
-                                <n-space>
-                                  <span>Characteristics: </span>
-
-                                  <n-tooltip v-for="({ header, label, description }, i) in hccCharacteristics" :key="i"
-                                    trigger="hover">
-                                    <template #header>
-                                      {{ header }}
-                                    </template>
-                                    <template #trigger>
-                                      <n-button @click="hccAddCharacteristic(label, index, idx, id, childId)" text>{{
-                                      label }}
-                                      </n-button>
-                                    </template>
-                                    {{ description }}
-                                  </n-tooltip>
-
-                                </n-space>
-                              </div>
-                            </n-space>
-                          </n-layout-content>
-                        </n-layout>
-                        <n-layout-content>
-                          <n-card style="margin-top: 0.5rem;"
-                            v-for="({ file, id: valId, }, i) in answerForm.answers[index].values[idx].value"
-                            :key="valId" :title="`Snapshot #${i + 1}`">
-                            <n-space vertical>
-                              <n-image :src="createObjectURL(file)" style="width: 100%" />
-                              <n-input type="textarea" placeholder="Conclusion"
-                                v-model:value="answerForm.answers[index].values[idx].value[i].description" />
-                            </n-space>
-                          </n-card>
-                        </n-layout-content>
-                      </n-layout>
-                    </n-space>
-                  </template>
-
-                </n-layout-content>
-              </n-layout>
-            </n-card>
-          </n-form-item>
-        </template>
-
-        <n-form-item>
-          <n-space justify="end">
-            <n-button type="primary" attr-type="submit" :loading="answerForm.processing" :style="{
-                marginRight: 0,
-                marginLeft: 'auto'
-            }">Submit</n-button>
-          </n-space>
-        </n-form-item>
-      </n-form>
-
-    </n-space>
-  </n-space>
-</template>
--->
-
 <script>
 import { useAsyncState } from '@vueuse/core'
 import { isUndefined } from 'lodash'
 import { nanoid } from 'nanoid'
+import { stringify as romanStringify } from 'roman-numerals-convert'
 import { Inertia } from '@inertiajs/inertia'
 import { useForm, usePage } from '@inertiajs/inertia-vue3'
 import {
@@ -258,13 +31,26 @@ import {
   NSkeleton,
   NDivider,
   NPageHeader,
+  NH3,
+  NEmpty,
+  NIcon,
 } from 'naive-ui'
 import { QuillEditor } from '@vueup/vue-quill'
+import { CheckupList as CheckupListIcon } from '@vicons/tabler'
 import { toBlob } from 'html-to-image'
 import Layout from '@/Components/Layouts/StudentLayout.vue'
 import { QUESTION_TYPES } from '@/constants'
 import { requestFile, convertDeltaContent } from '@/utils'
-import { wFull, wMax, mxAuto, pXS, mtTwoRem } from '@/styles'
+import {
+  wFull,
+  wMax,
+  mxAuto,
+  pXS,
+  mtTwoRem,
+  mrHalfRem,
+  mlAuto,
+  mr,
+} from '@/styles'
 
 async function keyToJpeg(token, key) {
   const response = await requestFile(token, key)
@@ -300,25 +86,31 @@ export default {
     NSkeleton,
     NDivider,
     NPageHeader,
+    NH3,
+    NProgress,
+    NEmpty,
+    NIcon,
     QuillEditor,
+    CheckupListIcon,
   },
   props: {
     student_id: String,
     activity: Object,
   },
   setup({ activity, student_id }) {
-    const { questions, general_directions, } = activity
+    const { questions, general_directions } = activity
 
     const token = usePage().props.value.user.token
 
     const answerForm = useForm({
-      'answers': questions.map((val) => {
+      answers: questions.map((val) => {
         if (val.type === QUESTION_TYPES[4]) {
-
           return {
             id: val.id,
             values: val.values.map(({ id, content }) => {
-              const questioned = useAsyncState(keyToJpeg(token, content.questioned))
+              const questioned = useAsyncState(
+                keyToJpeg(token, content.questioned),
+              )
               const samples = content.samples.map((val) => {
                 return useAsyncState(keyToJpeg(token, val))
               })
@@ -332,9 +124,9 @@ export default {
                     left: 1,
                     right: 1,
                   },
-                  filter: {
-                    left: 0,
-                    right: 0,
+                  brightness: {
+                    left: 1,
+                    right: 1,
                   },
                   opacity: {
                     left: 1,
@@ -349,10 +141,10 @@ export default {
                 value: [],
                 progress: {
                   current: 0,
-                  total: content.samples.length - 1,
-                }
+                  total: content.samples.length,
+                },
               }
-            })
+            }),
           }
         }
         return {
@@ -360,36 +152,15 @@ export default {
           values: val.values.map(({ id }) => ({
             id,
             value: null,
-          }))
+          })),
         }
-      })
+      }),
     })
 
-
-    function checkModeL(parentIndex, childIndex) {
-      return answerForm.answers[parentIndex].values[childIndex].state.mode === 'l'
-    }
-
-    const _filters = ['none', 'hue', 'sepia', 'saturate', 'grayscale']
-    const filters = _filters.map((val, index) => ({
-      label: val,
-      value: index,
-    }))
-
-    function filterToCSS(index) {
-      switch (_filters[index]) {
-        case 'hue':
-          return 'hue-rotate(180deg)'
-        case 'sepia':
-          return 'sepia(100%)'
-        case 'saturate':
-          return 'saturate(4)'
-        case 'grayscale':
-          return 'grayscale(100%)'
-        case 'none':
-        default:
-          return 'none';
-      }
+    function checkModel(parentIndex, childIndex) {
+      return (
+        answerForm.answers[parentIndex].values[childIndex].state.mode === 'l'
+      )
     }
 
     function resetState(parentIndex, childIndex) {
@@ -405,9 +176,9 @@ export default {
           left: 1,
           right: 1,
         },
-        filter: {
-          left: 0,
-          right: 0,
+        brightness: {
+          left: 1,
+          right: 1,
         },
         opacity: {
           left: 1,
@@ -415,7 +186,6 @@ export default {
         },
         gap: 20,
       }
-
     }
 
     function matchQuestion(index, typeIndex) {
@@ -425,28 +195,31 @@ export default {
     function snapshot(ref, parentIndex, childIndex, idx = -1) {
       const node = document.getElementById(ref)
 
-      toBlob(node).then(function (blob) {
-        if (idx === -1) {
+      toBlob(node)
+        .then(function (blob) {
+          if (idx === -1) {
+            const today = new Date().valueOf()
+            const id = nanoid(12)
+            const file = new File([blob], `hcc-${today}-${id}.png`, {
+              type: 'image/png',
+              lastModified: today,
+            })
 
-          const today = new Date().valueOf()
-          const id = nanoid(12)
-          const file = new File([blob], `hcc-${today}-${id}.png`, {
-            type: 'image/png',
-            lastModified: today,
-          })
-
-          answerForm.answers[parentIndex].values[childIndex].value.push({
-            id: nanoid(10),
-            file,
-            description: '',
-          })
-          resetState(parentIndex, childIndex)
-          answerForm.answers[parentIndex].values[childIndex].progress.current += 1
-        }
-      }).catch((err) => {
-        alert('Snapshot failed')
-        console.error(err)
-      })
+            answerForm.answers[parentIndex].values[childIndex].value.push({
+              id: nanoid(10),
+              file,
+              description: '',
+            })
+            resetState(parentIndex, childIndex)
+            answerForm.answers[parentIndex].values[
+              childIndex
+            ].progress.current += 1
+          }
+        })
+        .catch((err) => {
+          alert('Snapshot failed')
+          console.error(err)
+        })
     }
 
     function getParentDiv(parentIndex, childIndex) {
@@ -455,11 +228,14 @@ export default {
     }
 
     function checkSVGState(parentIndex, childIndex) {
-      if (answerForm.answers[parentIndex].values[childIndex].state.svg == null) {
+      if (
+        answerForm.answers[parentIndex].values[childIndex].state.svg == null
+      ) {
         const id = answerForm.answers[parentIndex].id
         const parentDiv = getParentDiv(parentIndex, childIndex)
 
-        answerForm.answers[parentIndex].values[childIndex].state.svg = d3.select(`#hcc-${id}-${parentIndex}-${childIndex}-svg`)
+        answerForm.answers[parentIndex].values[childIndex].state.svg = d3
+          .select(`#hcc-${id}-${parentIndex}-${childIndex}-svg`)
           .attr('width', parentDiv.clientWidth)
           .attr('height', parentDiv.clientHeight)
       }
@@ -486,125 +262,155 @@ export default {
         .on('dblclick', () => {
           d3.select(`#line-${parentId}-${childId}-${lineId}`).remove()
         })
-        .call(d3.drag().on('start', () => {
-          d3.select(`#line-${parentId}-${childId}-${lineId}`).classed('dragged', true)
-        }).on('drag', () => {
+        .call(
+          d3
+            .drag()
+            .on('start', () => {
+              d3.select(`#line-${parentId}-${childId}-${lineId}`).classed(
+                'dragged',
+                true,
+              )
+            })
+            .on('drag', () => {
+              const line = d3.select(`#line-${parentId}-${childId}-${lineId}`)
 
-          const line = d3.select(`#line-${parentId}-${childId}-${lineId}`)
+              const x1 = parseInt(line.attr('x1')) + d3.event.dx
+              const x2 = parseInt(line.attr('x2')) + d3.event.dx
+              const y1 = parseInt(line.attr('y1')) + d3.event.dy
+              const y2 = parseInt(line.attr('y2')) + d3.event.dy
 
-          const x1 = parseInt(line.attr('x1')) + d3.event.dx
-          const x2 = parseInt(line.attr('x2')) + d3.event.dx
-          const y1 = parseInt(line.attr('y1')) + d3.event.dy
-          const y2 = parseInt(line.attr('y2')) + d3.event.dy
-
-          line.attr('x1', x1)
-            .attr('x2', x2)
-            .attr('y1', y1)
-            .attr('y2', y2)
-        }).on('end', () => {
-          d3.select(`#line-${parentId}-${childId}-${lineId}`).classed('dragged', false)
-        }))
+              line.attr('x1', x1).attr('x2', x2).attr('y1', y1).attr('y2', y2)
+            })
+            .on('end', () => {
+              d3.select(`#line-${parentId}-${childId}-${lineId}`).classed(
+                'dragged',
+                false,
+              )
+            }),
+        )
     }
 
     const hccCharacteristics = [
       {
         label: 'PP',
         header: 'Pen pressure',
-        description: 'The average force with which the pen contracts the paper'
+        description: 'The average force with which the pen contracts the paper',
       },
       {
         label: 'PTCH',
         header: 'Patching',
-        description: 'The retouching or going back over a defective writing stroke.'
+        description:
+          'The retouching or going back over a defective writing stroke.',
       },
       {
         label: 'TR',
         header: 'Tremor',
-        description: 'The irregular shaky stroke.'
+        description: 'The irregular shaky stroke.',
       },
       {
         label: 'STR',
         header: 'Stroke',
-        description: 'These are series of lines or curves within a single letter.'
+        description:
+          'These are series of lines or curves within a single letter.',
       },
       {
         label: 'D',
         header: 'Diacritic',
-        description: 'It is a sign added to a letter or symbol to give it a particular phonetic value.'
+        description:
+          'It is a sign added to a letter or symbol to give it a particular phonetic value.',
       },
       {
         label: 'B',
         header: 'Baseline',
-        description: 'It is the ruled or imaginary line upon which the writing rests.'
+        description:
+          'It is the ruled or imaginary line upon which the writing rests.',
       },
       {
         label: 'A',
         header: 'Alignment',
-        description: 'The relation of parts of the whole line of writing or line of individual letter in words to the baseline.'
+        description:
+          'The relation of parts of the whole line of writing or line of individual letter in words to the baseline.',
       },
       {
         label: 'LQ',
         header: 'Line quality',
-        description: 'Refers to the overall character of the written strokes from the initial to the terminal.'
+        description:
+          'Refers to the overall character of the written strokes from the initial to the terminal.',
       },
       {
         label: 'B',
         header: 'Baseline',
-        description: 'It is the ruled or imaginary line upon which the writing rests.'
+        description:
+          'It is the ruled or imaginary line upon which the writing rests.',
       },
       {
         label: 'LS',
         header: 'Lateral spacing',
-        description: 'The horizontal dimension of writing produced by the width of letters, the space between letters and words, and the width of margins.'
+        description:
+          'The horizontal dimension of writing produced by the width of letters, the space between letters and words, and the width of margins.',
       },
       {
         label: 'NV',
         header: 'Natural variation',
-        description: 'The normal or usual deviation found in repeated specimen of any individual handwriting.'
+        description:
+          'The normal or usual deviation found in repeated specimen of any individual handwriting.',
       },
       {
         label: 'RHY',
         header: 'Rhythm',
-        description: 'The element of the writing movement marked by regular or periodic recurrences. It may be classed as smooth, intermittent, or jerky in its quality.'
+        description:
+          'The element of the writing movement marked by regular or periodic recurrences. It may be classed as smooth, intermittent, or jerky in its quality.',
       },
       {
         label: 'PR',
         header: 'Proportion',
-        description: 'It is the relation of the tall and short letters.'
+        description: 'It is the relation of the tall and short letters.',
       },
       {
         label: 'SLNT',
         header: 'Slant',
-        description: 'The angle or inclination of the axis of letters relative to the baseline.'
+        description:
+          'The angle or inclination of the axis of letters relative to the baseline.',
       },
       {
         label: 'H',
         header: 'Hiatus',
-        description: 'The gap in writing stroke of a letter formed when the instrument leaves the paper. An opening, an interruption in the continuity of a line.'
+        description:
+          'The gap in writing stroke of a letter formed when the instrument leaves the paper. An opening, an interruption in the continuity of a line.',
       },
       {
         label: 'PL',
         header: 'Pen lift',
-        description: 'Is an interruption in stroke caused by removing or lifting the writing instrument from the paper.'
+        description:
+          'Is an interruption in stroke caused by removing or lifting the writing instrument from the paper.',
       },
       {
         label: 'L',
         header: 'Ligature',
-        description: 'It is a group of connected characters treated typographically as a single character, sometimes a stroke or bar connecting two letters.'
+        description:
+          'It is a group of connected characters treated typographically as a single character, sometimes a stroke or bar connecting two letters.',
       },
       {
         label: 'RE',
         header: 'Retracing',
-        description: 'The stroke that goes back over another writing stroke. In natural handwriting there may be many instances in which the pen doubles back over the same course but some retracing in fraudulent signatures represents a reworking of a letter form or stroke.'
+        description:
+          'The stroke that goes back over another writing stroke.\nIn natural handwriting there may be many instances in which the pen doubles back over the same course but some retracing in fraudulent\nsignatures represents a reworking of a letter form or stroke.',
       },
       {
         label: 'WH',
         header: 'Writing habit',
-        description: 'It is persistently repeated element or detail of writing that occurs when the opportunity allows. '
+        description:
+          'It is persistently repeated element or detail of writing that occurs when the opportunity allows. ',
       },
     ]
 
-    function hccAddCharacteristic(label, parentIndex, childIndex, parentId, childId) {
+    function hccAddCharacteristic(
+      label,
+      parentIndex,
+      childIndex,
+      parentId,
+      childId,
+    ) {
       checkSVGState(parentIndex, childIndex)
 
       const parentDiv = getParentDiv(parentIndex, childIndex)
@@ -619,21 +425,26 @@ export default {
         .on('dblclick', () => {
           d3.select(`#ch-${parentId}-${childId}-${id}`).remove()
         })
-        .call(d3.annotation()
-          .editMode(true)
-          .notePadding(15)
-          .type(d3.annotationCallout)
-          .annotations([{
-            note: {
-              title: label,
-              bgPadding: 10,
-            },
-            x: clientWidth * 0.5,
-            y: clientHeight * 0.5,
-            dx: 20,
-            dy: 20,
-            color: 'black',
-          }]))
+        .call(
+          d3
+            .annotation()
+            .editMode(true)
+            .notePadding(15)
+            .type(d3.annotationCallout)
+            .annotations([
+              {
+                note: {
+                  title: label,
+                  bgPadding: 10,
+                },
+                x: clientWidth * 0.5,
+                y: clientHeight * 0.5,
+                dx: 20,
+                dy: 20,
+                color: 'black',
+              },
+            ]),
+        )
         .attr('stroke', 'black')
     }
 
@@ -665,23 +476,27 @@ export default {
         }
       })
 
-      console.log(nAnswers)
       return {
         ...data,
         answers: nAnswers,
       }
     }
 
-    console.log(activity)
+    function stateToCSS(state, direction) {
+      return {
+        transform: `scale(${state.zoom[direction]})`,
+        opacity: state.opacity[direction],
+        filter: `brightness(${state.brightness[direction]})`,
+      }
+    }
 
     return {
       answerForm,
       matchQuestion,
-      checkModeL,
-      filters,
-      filterToCSS,
+      checkModel,
       questions,
       generalDirection: general_directions,
+      stateToCSS,
       snapshot,
       addImaginaryLine,
       hccCharacteristics,
@@ -697,9 +512,13 @@ export default {
       mxAuto,
       pXS,
       mtTwoRem,
+      mrHalfRem,
+      mlAuto,
+      mr,
       Inertia,
+      romanStringify,
     }
-  }
+  },
 }
 </script>
 
@@ -721,16 +540,27 @@ n-layout
           ...mxAuto,
         }`,
         :model="answerForm",
+        @submit.prevent=`() => answerForm.transform((data) => transformAnswers(data))
+          .post(route('post.student.activity', {
+            student_id,
+            activity_id,
+          }), {
+            _method: 'put',
+          })`
       )
         n-form-item
-          n-alert.w-full(title="General Instructions")
+          n-alert.w-full(title="General Instructions", :show-icon="false")
             div(v-html="convertDeltaContent(generalDirection)")
 
         for section, section_index in answerForm.answers
           n-form-item(:key="section.id")
-            div.w-full
+            .w-full
               n-divider
-              n-alert.w-full(:style="mtTwoRem")
+              n-alert.w-full(
+                :style="mtTwoRem",
+                :title="`${romanStringify(section_index + 1)}. ${questions[section_index].type}`",
+                :show-icon="false"
+              )
                 div(v-html="convertDeltaContent(questions[section_index].instruction)")
 
               for answer, answer_index in section.values
@@ -739,11 +569,16 @@ n-layout
                   :path="`answers[${section_index}].value[${answer_index}]`"
                 )
                   n-card
-                    n-alert
-                      |{{ questions[section_index].values[answer_index].instruction }}
+                    if section.values.length == 1
+                      n-alert(:show-icon="false")
+                        |{{ questions[section_index].values[answer_index].instruction }}
+                    else
+                      n-alert(:show-icon="false")
+                        |{{ answer_index + 1 }}.
+                        | {{ questions[section_index].values[answer_index].instruction }}
 
                     n-form-item
-                      div.w-full
+                      .w-full
                         if matchQuestion(section_index, 0)
                           n-input(v-model:value="answer.value")
 
@@ -770,6 +605,7 @@ n-layout
                                 )
 
                         else if matchQuestion(section_index, 3)
+                          //- Essay
                           .w-full
                             quill-editor(
                               theme="snow",
@@ -777,24 +613,222 @@ n-layout
                               v-model:content="answer.value",
                               placeholder="Answer"
                             )
+
+                        else if matchQuestion(section_index, 4)
+                          //- Comparator
+                          n-space(vertical)
+                            div.w-full
+                              n-layout
+                                n-layout-header(bordered)
+                                  n-form-item(:show-label="false")
+                                    n-grid(:cols="2")
+                                      n-grid-item
+                                        n-space(align="center")
+                                          div
+                                            n-button(
+                                              @click="snapshot(`hcc-${section.id}-${section_index}-${answer_index}`, section_index, answer_index)",
+                                              attr-type="button",
+                                              type="primary",
+                                              :disabled="answer.progress.current >= answer.progress.total"
+                                            ) Snapshot
+                                          div
+                                            n-switch(
+                                              v-model:value="answer.state.mode",
+                                              checked-value="r",
+                                              unchecked-value="l",
+                                              :disabled="answer.progress.current >= answer.progress.total"
+                                            )
+                                              template(#checked) Right
+                                              template(#unchecked) Left
+                                      n-grid-item
+                                        n-progress(
+                                          type="line",
+                                          :percentage="Math.round((answer.progress.current / answer.progress.total) * 100)",
+                                          :indicator-placement="'inside'"
+                                        )
+                                          span {{ answer.progress.current }} / {{ answer.progress.total }}
+                                n-layout(has-sider)
+                                  if !(answer.progress.current >= answer.progress.total)
+                                    n-layout-sider(bordered, :width="150")
+                                      n-space.pt-half(vertical, :size="[0,10]" :item-style="mrHalfRem")
+                                        div
+                                          span Zoom
+                                          if checkModel(section_index, answer_index)
+                                            n-slider(
+                                              size="small",
+                                              v-model:value="answer.state.zoom.left",
+                                              :max="2",
+                                              :min="1",
+                                              :step="0.1"
+                                            )
+                                          else
+                                            n-slider(
+                                              size="small",
+                                              v-model:value="answer.state.zoom.right",
+                                              :max="2",
+                                              :min="1",
+                                              :step="0.1"
+                                            )
+
+                                        div
+                                          span Brightness
+                                          if checkModel(section_index, answer_index)
+                                            n-slider(
+                                              size="small",
+                                              v-model:value="answer.state.brightness.left",
+                                              :max="1",
+                                              :min="0.1",
+                                              :step="0.1"
+                                            )
+                                          else
+                                            n-slider(
+                                              size="small",
+                                              v-model:value="answer.state.brightness.right",
+                                              :max="1",
+                                              :min="0.1",
+                                              :step="0.1"
+                                            )
+
+                                        div
+                                          span Opacity
+                                          if checkModel(section_index, answer_index)
+                                            n-slider(
+                                              size="small",
+                                              v-model:value="answer.state.opacity.left",
+                                              :max="1",
+                                              :min="0.1",
+                                              :step="0.1"
+                                            )
+                                          else
+                                            n-slider(
+                                              size="small",
+                                              v-model:value="answer.state.opacity.right",
+                                              :max="1",
+                                              :min="0.1",
+                                              :step="0.1"
+                                            )
+
+                                        div
+                                          span Gap
+                                          n-slider(
+                                            size="small",
+                                            v-model:value="answer.state.gap",
+                                            :max="20",
+                                            :min="-20",
+                                            :step="1"
+                                          )
+
+                                        div
+                                          n-button(
+                                            @click="addImaginaryLine(section_index, answer_index, section.id, answer.id)",
+                                            attr-type="button",
+                                            type="primary"
+                                          ) Add Imaginary Line
+
+                                  n-layout-content.w-full
+                                    if !(answer.progress.current >= answer.progress.total)
+                                      n-space.w-full.pt-half(vertical)
+                                        .comparator-container(:id="`hcc-${section.id}-${section_index}-${answer_index}`")
+                                          .comparator-images
+                                             n-image-group.h-full.w-full
+                                               n-grid.w-full.h-full(
+                                                 :cols="2",
+                                                 :x-gap="answer.state.gap",
+                                               )
+                                                 n-grid-item.comparator-images-item.overflow-hidden
+                                                     n-h3.text-center(style="padding: 0; margin: 0;") Questioned Signature
+                                                     if answer.files.questioned.isLoading
+                                                       n-skeleton(height="100%", width="100%")
+                                                     else
+                                                       img.comparator-image(
+                                                         :src="answer.files.questioned.state",
+                                                         :style="stateToCSS(answer.state, 'left')"
+                                                       )
+
+                                                 n-grid-item.comparator-images-item.overflow-hidden
+                                                   n-h3.text-center(style="padding: 0; margin: 0;") Standard Signature {{ answer.progress.current + 1 }}
+                                                   if answer.files.samples[answer.progress.current].isLoading
+                                                     n-skeleton(height="100%", width="100%")
+                                                   else
+                                                     img.comparator-image(
+                                                       :src="answer.files.samples[answer.progress.current].state",
+                                                       :style="stateToCSS(answer.state, 'right')"
+                                                     )
+                                          svg.comparator-svg(:id="`hcc-${section.id}-${section_index}-${answer_index}-svg`")
+
+                                        n-space.mt-half.w-full(justify="center")
+                                          n-space(justify="center")
+                                            span Characteristics:
+                                            for characteristic, i in hccCharacteristics
+                                              n-tooltip(:key="i", trigger="hover")
+                                                template(#header) {{ characteristic.header }}
+                                                template(#trigger)
+                                                  n-button(
+                                                    text,
+                                                    @click="hccAddCharacteristic(characteristic.label, section_index, answer_index, section.id, answer.id)"
+                                                  ) {{ characteristic.label }}
+                                                p.ws-pre {{ characteristic.description }}
+                                    else
+                                      n-empty(description="Done", size="large")
+                                        template(#icon)
+                                          n-icon(:size="50")
+                                            checkup-list-icon
+                          n-space(vertical)
+                            for snapshot, i in answer.value
+                              div(:key="snapshot.id")
+                                n-divider
+                                n-h3 Snapshot {{ i + 1 }} / {{ answer.progress.total }}
+                                n-space(vertical)
+                                  n-space(justify="center")
+                                    n-image.mx-auto(:src="createObjectURL(snapshot.file)")
+                                  quill-editor(
+                                    theme="snow",
+                                    toolbar="minimal",
+                                    v-model:content="snapshot.description",
+                                    placeholder="Conclusion"
+                                  )
+        n-form-item
+          n-button(
+            type="primary",
+            attr-type="submit",
+            :loading="answerForm.processing",
+            :style="{...mlAuto, ...mr(0)}"
+          ) Submit
 </template>
 
 <style scoped>
 .comparator-container {
-  height: fit-content;
   position: relative;
+  min-height: 250px;
+  width: 100%;
+  height: 100%;
+  background-color: white;
 }
 
-.comparator-top,
-.comparator-bottom {
+.comparator-images {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: 80%;
+  height: 80%;
+}
+
+.comparator-images-item {
+  border-style: solid;
+  border-width: 0.75px;
+}
+
+.comparator-image {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
 }
 
 .comparator-svg {
   width: 100%;
   position: absolute;
+  height: 100%;
   top: 0;
   left: 0;
 }

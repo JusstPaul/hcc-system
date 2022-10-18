@@ -2,6 +2,7 @@
 import { computed, } from 'vue'
 import { useAsyncState } from '@vueuse/core'
 import { isUndefined } from 'lodash'
+import { stringify as romanStringify } from 'roman-numerals-convert'
 import { Inertia } from '@inertiajs/inertia'
 import { useForm, usePage } from '@inertiajs/inertia-vue3'
 import {
@@ -103,6 +104,10 @@ export default {
       return questions[index].type === QUESTION_TYPES[4]
     }
 
+    function isEssay(index) {
+      return questions[index].type === QUESTION_TYPES[3]
+    }
+
     function backLink() {
       Inertia.get(route('instructor.activity.submits', {
         classroom_id: classroom_id,
@@ -126,6 +131,7 @@ export default {
 
     return {
       backLink,
+      romanStringify,
       title,
       deadline,
       generalDirections: computed(() => convertDeltaContent(general_directions)),
@@ -142,6 +148,7 @@ export default {
       checkForm,
       convertDeltaContent,
       isComparator,
+      isEssay,
       mlAuto,
       mr,
       removeExtra,
@@ -174,11 +181,11 @@ n-layout
         @submit.prevent=`() => checkForm.transform((data) => removeExtra(data)).post(route('post.instructor.activity.submits.answer', {
           classroom_id,
           activity_id,
-          answer_id 
+          answer_id
         }))`
       )
         n-form-item(label="General Instructions")
-          n-alert.w-full
+          n-alert.w-full(:show-icon="false")
             div(v-html="generalDirections")
 
         for checks, section in checkForm.checks
@@ -186,8 +193,8 @@ n-layout
             n-form-item
               n-divider
 
-            n-form-item(label="Instructions")
-              n-alert.w-full
+            n-form-item(:label="`${romanStringify(section + 1)}. ${questions[section].type}`")
+              n-alert.w-full(:show-icon="false")
                 div(v-html="convertDeltaContent(questions[section].instruction)")
 
             for item, question in checks
@@ -200,7 +207,7 @@ n-layout
                   )
                     template(#suffix) / {{ item.total }}
                 n-form-item(label="Question")
-                  n-alert.w-full
+                  n-alert.w-full(:show-icon="false")
                     |{{ questions[section].values[question].instruction }}
 
                 n-form-item(label="Answer", :show-feedback="false")
@@ -216,11 +223,15 @@ n-layout
                               object-fit="scale-down",
                               :width="450"
                             )
-                          n-alert.w-full
-                            |{{ comparator.description }}
+                          n-alert.w-full(:show-icon="false")
+                            div(v-html="convertDeltaContent(comparator.description)")
                   else
-                    n-alert.w-full
-                      |{{ answers[section].values[question].value }}
+                    if isEssay(section)
+                      n-alert.w-full(:show-icon="false")
+                        div(v-html="convertDeltaContent(answers[section].values[question].value)")
+                    else
+                      n-alert.w-full(:show-icon="false")
+                        |{{ answers[section].values[question].value }}
 
         n-form-item
           n-button(
