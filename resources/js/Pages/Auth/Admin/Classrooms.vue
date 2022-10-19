@@ -18,7 +18,7 @@ import {
 } from 'naive-ui'
 import { Trash as TrashIcon } from '@vicons/tabler'
 import { pXS } from '@/styles'
-import { formatSchoolYear, formatName, formatTime } from '@/utils'
+import { formatSchoolYear, formatName, } from '@/utils'
 import Layout from '@/Components/Layouts/AdminLayout.vue'
 
 export default {
@@ -164,14 +164,14 @@ n-layout
           @click.prevent="() => visitCreateClassroom()"
         ) New Classroom
         n-tag(
-          v-if="school_year == null", 
-          :bordered="false", 
+          v-if="school_year == null",
+          :bordered="false",
           type="warning"
         )
           |No School Year generated
         n-tag(
-          v-if="!has_instructors", 
-          :bordered="false", 
+          v-if="!has_instructors",
+          :bordered="false",
           type="warning"
         )
           |No Instructor registered

@@ -79,13 +79,119 @@ class AdminController extends Controller
   public function create_user_page()
   {
     return Inertia::render('Auth/Admin/CreateUser', [
-      'roles' => Role::all()->map(fn ($value) => $value->name)
+      'roles' => fn() => Role::all()->map(fn ($value) => $value->name)
     ]);
+  }
+
+  public function edit_user_page(String $user_id)
+  {
+    return Inertia::render('Auth/Admin/EditUser', [
+      'user_edit' => function() use ($user_id) {
+        $user_match = User::raw(function ($collection) use ($user_id) {
+          return $collection->aggregate([
+            [
+              '$match' => [
+                '_id' => new ObjectId($user_id)
+              ],
+            ],
+            [
+              '$addFields' => [
+                'str_role' => [
+                  '$toObjectId' => [
+                    '$first' => '$role_ids'
+                  ],
+                ],
+              ],
+            ],
+            [
+              '$lookup' => [
+                'from' => 'roles',
+                'localField' => 'str_role',
+                'foreignField' => '_id',
+                'as' => 'role_raw'
+              ],
+            ],
+            [
+              '$set' => [
+                'role' => [
+                  '$first' => '$role_raw'
+                ],
+              ],
+            ],
+            [
+              '$set' => [
+                'role' => '$role.name'
+              ],
+            ],
+            [
+              '$project' => [
+                '_id' => 1,
+                'username' => 1,
+                'role' => 1,
+                'profile' => 1
+              ],
+            ],
+          ]);
+        });
+
+        return $user_match->first();
+      },
+      'roles' => fn() => Role::all()->map(fn ($value) => $value->name),
+    ]);
+  }
+
+  public function update_user(Request $request, String $user_id)
+  {
+    //! HACK: role is specified manually
+    $request->validate([
+      'username' => 'required',
+      'role' => 'required|in:admin,instructor,student',
+      'lName' => 'required|string',
+      'mName' => 'nullable|string',
+      'fName' => 'required|string',
+      'details' => 'required_unless:role,admin|nullable',
+      'details.contact' => 'required_unless:role,admin|nullable|regex:/09[0-9]{9}+/',
+      'details.email' => 'required_unless:role,admin|nullable|email',
+      'details.contactPerson' => 'required_if:role,student|nullable|string',
+      'details.contactPersonContact' => 'required_if:role,student|nullable|regex:/09[0-9]{9}+/',
+    ]);
+
+    $user = User::find($user_id);
+    $user->update([
+      'username' => $request->username,
+    ]);
+    $user->assignRole($request->role);
+
+    $l_name = strtoupper($request->lName);
+    $m_name = strlen($request->mName) === 0 ? null : strtoupper($request->mName);
+    $f_name = strtoupper($request->fName);
+
+    if ($request->role === 'admin') {
+      $user->profile->update([
+        'l_name' => $l_name,
+        'm_name' => $m_name,
+        'f_name' => $f_name,
+        'details' => null,
+      ]);
+    } else {
+      $details = $request->details;
+      $details['contactPerson'] = strtoupper($details['contactPerson']);
+      $details['email'] = strtoupper($details['email']);
+
+      $user->profile->update([
+        'l_name' => $l_name,
+        'm_name' => $m_name,
+        'f_name' => $f_name,
+        'details' => $details,
+      ]);
+    }
+
+    return redirect()->route('admin.index');
   }
 
   public function create_user_store(Request $request)
   {
-    // HACK: role is specified manually
+    //! HACK: role is specified manually
     $request->validate([
       'username' => 'required|unique:users,username',
       'role' => 'required|in:admin,instructor,student',
@@ -132,7 +238,13 @@ class AdminController extends Controller
     return redirect()->route('admin.index');
   }
 
-  // TODO: Handle archiving for new school year to start
+  public function user_destroy(String $user_id)
+  {
+    User::destroy($user_id);
+    return redirect()->route('admin.index');
+  }
+
+  //! TODO: Handle archiving for new school year to start
   public function school_year_store()
   {
     SchoolYear::create([
@@ -145,7 +257,7 @@ class AdminController extends Controller
 
   public function classroom_page()
   {
-    // TODO: Prompt to create school year first.
+    //! TODO: Prompt to create school year first.
     $school_year = SchoolYear::latest()->first();
 
     return Inertia::render('Auth/Admin/Classrooms', [

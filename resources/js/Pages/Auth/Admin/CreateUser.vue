@@ -1,4 +1,5 @@
 <script>
+import { computed } from 'vue'
 import { Inertia } from '@inertiajs/inertia'
 import {
   NLayout,
@@ -17,15 +18,7 @@ import {
 } from 'naive-ui'
 import { useForm } from '@inertiajs/inertia-vue3'
 import { allowNumberOnly } from '@/utils'
-import {
-  pXS,
-  wMax,
-  wFull,
-  tCaps,
-  mxAuto,
-  mlAuto,
-  mr,
-} from '@/styles'
+import { pXS, wMax, wFull, tCaps, mxAuto, mlAuto, mr } from '@/styles'
 import Layout from '@/Components/Layouts/AdminLayout.vue'
 
 export default {
@@ -45,15 +38,17 @@ export default {
     NSpace,
   },
   props: {
-    roles: Array
+    roles: Array,
   },
   setup({ roles }) {
     const notif = useNotification()
 
-    const roleOptions = roles.map((value) => ({
-      label: value,
-      value
-    }))
+    const roleOptions = computed(() =>
+      roles.map((value) => ({
+        label: value,
+        value,
+      })),
+    )
 
     const userForm = useForm({
       username: '',
@@ -74,11 +69,12 @@ export default {
     }
 
     function onError(errors) {
+      console.error(errors)
       notif.error({
         title: 'Failed to create user',
         content: 'Please check the field inputs properly',
         duration: 5000,
-      });
+      })
     }
 
     return {
@@ -96,7 +92,7 @@ export default {
       notif,
       onError,
     }
-  }
+  },
 }
 </script>
 

@@ -37,20 +37,30 @@ export default {
   setup() {
     const routes = [
       {
-        label: () => h(Link, {
-          href: route('admin.index'),
-        }, {
-          default: () => 'Users'
-        }),
+        label: () =>
+          h(
+            Link,
+            {
+              href: route('admin.index'),
+            },
+            {
+              default: () => 'Users',
+            },
+          ),
         key: 'admin-index',
         icon: renderIcon(UsersIcon),
       },
       {
-        label: () => h(Link, {
-          href: route('admin.classrooms'),
-        }, {
-          default: () => 'Classrooms'
-        }),
+        label: () =>
+          h(
+            Link,
+            {
+              href: route('admin.classrooms'),
+            },
+            {
+              default: () => 'Classrooms',
+            },
+          ),
         key: 'admin-classrooms',
         icon: renderIcon(SchoolIcon),
       },
@@ -58,28 +68,39 @@ export default {
 
     const footerRoutes = [
       {
-        label: () => h(Link, {
-          href: route('admin.profile')
-        }, {
-          default: () => 'Profile',
-        }),
+        label: () =>
+          h(
+            Link,
+            {
+              href: route('admin.profile'),
+            },
+            {
+              default: () => 'Profile',
+            },
+          ),
         key: 'admin-profile',
         icon: renderIcon(UserCircleIcon),
       },
       {
-        label: () => h('a', {
-          onClick: () => logout(),
-        }, {
-          default: () => 'Logout',
-        }),
+        label: () =>
+          h(
+            'a',
+            {
+              onClick: () => logout(),
+            },
+            {
+              default: () => 'Logout',
+            },
+          ),
         key: 'admin-logout',
         icon: renderIcon(LogoutIcon),
-      }
+      },
     ]
     function currentRouteKey() {
       switch (route().current()) {
         case 'admin.index':
         case 'admin.create_user':
+        case 'admin.edit_user':
           return 'admin-index'
         case 'admin.classrooms':
         case 'admin.create_classroom':
@@ -102,7 +123,7 @@ export default {
       ptXS,
       SIDER,
     }
-  }
+  },
 }
 </script>
 
@@ -113,7 +134,7 @@ n-layout.h-full(has-sider)
     show-trigger,
     collapse-mode="width",
     :collapsed-width="SIDER.COLLAPSED_WIDTH",
-    :width="SIDER.WIDTH", 
+    :width="SIDER.WIDTH",
     :collapsed="collapsed",
     @collapse="() => collapsed = true",
     @expand="() => collapsed = false"
@@ -122,14 +143,14 @@ n-layout.h-full(has-sider)
       n-layout-content(:content-style="ptXS")
         n-menu.pt-xs(
           :value="currentRouteKey()",
-          :options="routes", 
+          :options="routes",
           :collapsed="collapsed",
           :collapsed-width="SIDER.COLLAPSED_WIDTH",
           :collapsed-icon-size="SIDER.COLLAPSED_ICON_SIZE"
         )
       n-layout-footer.pt-xs(bordered, position="absolute")
         n-menu(
-          :options="footerRoutes", 
+          :options="footerRoutes",
           :collapsed="collapsed",
           :collapsed-width="SIDER.COLLAPSED_WIDTH",
           :collapsed-icon-size="SIDER.COLLAPSED_ICON_SIZE"
