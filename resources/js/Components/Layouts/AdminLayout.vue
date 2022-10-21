@@ -104,6 +104,7 @@ export default {
           return 'admin-index'
         case 'admin.classrooms':
         case 'admin.create_classroom':
+        case 'admin.edit_classroom':
           return 'admin-classrooms'
         case 'admin.profile':
           return 'admin-profile'

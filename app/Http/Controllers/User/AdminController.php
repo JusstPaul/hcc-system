@@ -349,7 +349,7 @@ class AdminController extends Controller
       ->where('_id', $classroom->instructor_id)
       ->push('classroom_handled_ids', $classroom->id);
 
-    // NOTE: Needs testing for relationships.
+    //? NOTE: Needs testing for relationships.
     DB::collection('users')
       ->whereIn('_id', $classroom->student_ids)
       ->update([
@@ -357,6 +357,77 @@ class AdminController extends Controller
       ], [
         'upsert' => true,
       ]);
+
+    return redirect()->route('admin.classrooms');
+  }
+
+  public function edit_classroom_page(String $classroom_id)
+  {
+    return Inertia::render('Auth/Admin/EditClassroom', [
+      'classroom' => fn() => Classroom::find($classroom_id)->first(), //* HACK: Why does this return an array?
+      'added_students' => fn() => User::where('classroom_joined_id', $classroom_id)
+        ->project([
+          '_id' => 1,
+          'username' => 1,
+          'profile' => 1,
+        ])
+        ->get(),
+      'instructors' => fn () => User::role('instructor')->get(),
+      'available_students' => fn() => User::role('student')
+        ->whereNull('classroom_joined_id')
+        ->get()
+    ]);
+  }
+
+  public function update_classroom(Request $request, String $classroom_id)
+  {
+    $request->validate([
+      'section' => 'required|string',
+      'day' => 'required|in:mw,tth,fs',
+      'room' => 'required|string',
+      'timeStart' => 'required|date_format:h:i A',
+      'timeEnd' => 'required|date_format:h:i A|after:timeStart',
+      'instructor' => 'required|string',
+      'studentsToRemove' => 'nullable|array|min:0',
+      'studentsToRemove.*' => 'required|string|distinct',
+      'studentsToAdd' => 'nullable|array|min:0',
+      'studentsToAdd.*' => 'required|string|distinct',
+    ]);
+
+    //TODO Only make a single request to DB
+    $classroom = Classroom::find($classroom_id);
+
+    // Update instructor first
+    User::find($classroom->instructor_id)->pull('classroom_handled_ids', $classroom_id);
+    User::find($request->instructor)->push('classroom_handled_ids', $classroom_id);
+
+    // Update joined students
+    DB::collection('users')
+      ->whereIn('_id', $request->studentsToRemove)
+      ->unset('classroom_joined_id');
+
+    // Add students
+    DB::collection('users')
+      ->whereIn('_id', $request->studentsToAdd)
+      ->update([
+        'classroom_joined_id' => $classroom_id,
+      ], [ 'upsert' => true ]);
+
+    // Finally update classroom details
+    $classroom->update([
+      'day' => $request->day,
+      'room' => $request->room,
+      'time_start' => $request->timeStart,
+      'time_end' => $request->timeEnd,
+      'instructor_id' => $request->instructor,
+      'section' => $request->section,
+    ]);
+    $classroom->pull('student_ids', $request->studentsToRemove);
+    $classroom->push('student_ids', [
+        'student_ids' => [
+            '$each' => $request->studentsToAdd
+        ]
+    ]);
 
     return redirect()->route('admin.classrooms');
   }

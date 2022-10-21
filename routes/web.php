@@ -55,6 +55,8 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
 	->name('admin.classrooms');
   Route::get('/admin/create_classroom', [UserGroup\AdminController::class, 'create_classroom_page'])
 	->name('admin.create_classroom');
+  Route::get('/admin/edit_classroom/{classroom_id}', [UserGroup\AdminController::class, 'edit_classroom_page'])
+    ->name('admin.edit_classroom');
   Route::get('/admin/profile', [UserGroup\AdminController::class, 'profile_page'])
 	->name('admin.profile');
 
@@ -68,6 +70,8 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
 	->name('post.admin.school_year');
   Route::post('/admin/create_classroom', [UserGroup\AdminController::class, 'create_classroom_store'])
 	->name('post.admin.create_classroom');
+  Route::post('/admin/update_classroom/{classroom_id}', [UserGroup\AdminController::class, 'update_classroom'])
+    ->name('post.admin.edit_classroom');
   Route::post('/admin/delete_classroom/{classroom_id}', [UserGroup\AdminController::class, 'classroom_destroy'])
 	->name('post.delete_classroom');
 });

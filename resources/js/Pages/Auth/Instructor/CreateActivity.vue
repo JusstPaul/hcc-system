@@ -88,9 +88,11 @@ export default {
     const notif = useNotification()
 
     function backLink() {
-      Inertia.get(route('instructor.classroom', {
-        classroom_id,
-      }))
+      Inertia.get(
+        route('instructor.classroom', {
+          classroom_id,
+        }),
+      )
     }
 
     const activityForm = useForm({
@@ -99,18 +101,20 @@ export default {
       deadline: null,
       lockAfterEnd: false,
       generalDirections: '',
-      questions: [{
-        id: nanoid(),
-        type: QUESTION_TYPES[0],
-        instruction: '',
-        values: []
-      }],
+      questions: [
+        {
+          id: nanoid(),
+          type: QUESTION_TYPES[0],
+          instruction: '',
+          values: [],
+        },
+      ],
       target: [
         {
           type: 'classroom',
           value: classroom_id,
         },
-      ]
+      ],
     })
 
     const questionOptions = QUESTION_TYPES.map((val) => ({
@@ -119,13 +123,16 @@ export default {
     }))
 
     function addQuestion(index) {
-      const score = activityForm.questions[index].values.length === 0 ?
-        '1' :
-        activityForm.questions[index].values[activityForm.questions[index].values.length - 1].score
+      const score =
+        activityForm.questions[index].values.length === 0
+          ? '1'
+          : activityForm.questions[index].values[
+              activityForm.questions[index].values.length - 1
+            ].score
 
-      let answer = null;
+      let answer = null
       if (activityForm.questions[index].type === QUESTION_TYPES[1]) {
-        answer = true;
+        answer = true
       }
 
       activityForm.questions[index].values.push({
@@ -142,7 +149,7 @@ export default {
         id: nanoid(10),
         type: QUESTION_TYPES[0],
         instruction: '',
-        values: []
+        values: [],
       })
     }
     function removeSection(index) {
@@ -181,26 +188,31 @@ export default {
       showPreviewRef.value = true
     }
     function setSamplesImgList(fileList, parentIndex, childIndex) {
-      const content = activityForm.questions[parentIndex].values[childIndex].content
+      const content =
+        activityForm.questions[parentIndex].values[childIndex].content
       if (content == null || isString(content)) {
         activityForm.questions[parentIndex].values[childIndex].content = {
           samples: fileList,
           questioned: null,
         }
       } else {
-        activityForm.questions[parentIndex].values[childIndex].content.samples = fileList
+        activityForm.questions[parentIndex].values[childIndex].content.samples =
+          fileList
       }
     }
 
     function setQuestionedImg(fileList, parentIndex, childIndex) {
-      const content = activityForm.questions[parentIndex].values[childIndex].content
+      const content =
+        activityForm.questions[parentIndex].values[childIndex].content
       if (content == null || isString(content)) {
         activityForm.questions[parentIndex].values[childIndex].content = {
           samples: [],
           questioned: first(fileList),
         }
       } else {
-        activityForm.questions[parentIndex].values[childIndex].content.questioned = first(fileList)
+        activityForm.questions[parentIndex].values[
+          childIndex
+        ].content.questioned = first(fileList)
       }
     }
 
@@ -232,7 +244,7 @@ export default {
       mr,
       notif,
     }
-  }
+  },
 }
 </script>
 

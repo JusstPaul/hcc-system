@@ -16,9 +16,9 @@ import {
   NSpace,
   NModal,
 } from 'naive-ui'
-import { Trash as TrashIcon } from '@vicons/tabler'
+import { Trash as TrashIcon, Edit as EditIcon } from '@vicons/tabler'
 import { pXS } from '@/styles'
-import { formatSchoolYear, formatName, } from '@/utils'
+import { formatSchoolYear, formatName } from '@/utils'
 import Layout from '@/Components/Layouts/AdminLayout.vue'
 
 export default {
@@ -43,7 +43,6 @@ export default {
     has_instructors: Boolean,
   },
   setup({ classrooms, school_year }) {
-
     const showConfirmDeleteModal = ref(false)
     const confirmDeleteSection = ref('')
     const confirmDeleteSectionId = ref('')
@@ -53,12 +52,24 @@ export default {
       showConfirmDeleteModal.value = true
     }
     function confirmDeleteSectionPositive() {
-      Inertia.post(route('post.delete_classroom', {
-        classroom_id: confirmDeleteSectionId.value,
-      }), undefined, {
-        onFinish: () => location.reload(),
-        preserveScroll: true,
-      })
+      Inertia.post(
+        route('post.delete_classroom', {
+          classroom_id: confirmDeleteSectionId.value,
+        }),
+        undefined,
+        {
+          onFinish: () => location.reload(),
+          preserveScroll: true,
+        },
+      )
+    }
+
+    function editClassroom(id) {
+      Inertia.get(
+        route('admin.edit_classroom', {
+          classroom_id: id,
+        }),
+      )
     }
 
     const classroomTableColumns = [
@@ -80,43 +91,80 @@ export default {
       },
       {
         title: 'Days',
-        key: 'days'
+        key: 'days',
       },
       {
         title: 'Action',
         key: 'action',
         render(row) {
-          return h(NSpace, {}, {
-            default: () => [
-              h(NButton, {
-                quaternary: true,
-                type: 'error',
-                class: 'btn-icon',
-                onClick: () => confirmDelete(row),
-              }, {
-                default: () => h(NIcon, {}, {
-                  default: () => h(TrashIcon)
-                })
-              })
-            ]
-          })
-        }
-      }
+          return h(
+            NSpace,
+            {},
+            {
+              default: () => [
+                h(
+                  NButton,
+                  {
+                    quaternary: true,
+                    type: 'primary',
+                    class: 'btn-icon',
+                    onClick: () => editClassroom(row.key),
+                  },
+                  {
+                    default: () =>
+                      h(
+                        NIcon,
+                        {},
+                        {
+                          default: () => h(EditIcon),
+                        },
+                      ),
+                  },
+                ),
+                h(
+                  NButton,
+                  {
+                    quaternary: true,
+                    type: 'error',
+                    class: 'btn-icon',
+                    onClick: () => confirmDelete(row),
+                  },
+                  {
+                    default: () =>
+                      h(
+                        NIcon,
+                        {},
+                        {
+                          default: () => h(TrashIcon),
+                        },
+                      ),
+                  },
+                ),
+              ],
+            },
+          )
+        },
+      },
     ]
-    const classroomData = classrooms.map(({ _id, section, instructor, room, time_start, time_end, day }) => ({
-      'key': _id,
-      'section': section,
-      'instructor': formatName(instructor.profile.l_name, instructor.profile.m_name, instructor.profile.f_name),
-      'room': room,
-      'time': `${time_start} to ${time_end}`,
-      'days': day.toUpperCase(),
-    }))
-
+    const classroomData = classrooms.map(
+      ({ _id, section, instructor, room, time_start, time_end, day }) => ({
+        key: _id,
+        section: section,
+        instructor: formatName(
+          instructor.profile.l_name,
+          instructor.profile.m_name,
+          instructor.profile.f_name,
+        ),
+        room: room,
+        time: `${time_start} to ${time_end}`,
+        days: day.toUpperCase(),
+      }),
+    )
 
     const showCurrentSchoolYear = formatSchoolYear(school_year)
 
     function previewSchoolYear() {
-      return `${dayjs().year()} to ${dayjs().add(1, 'y').year()}`;
+      return `${dayjs().year()} to ${dayjs().add(1, 'y').year()}`
     }
 
     function generateSchoolYear() {
@@ -126,7 +174,7 @@ export default {
     }
 
     function visitCreateClassroom() {
-      Inertia.get(route('admin.create_classroom'));
+      Inertia.get(route('admin.create_classroom'))
     }
 
     return {
@@ -141,7 +189,7 @@ export default {
       generateSchoolYear,
       visitCreateClassroom,
     }
-  }
+  },
 }
 </script>
 
