@@ -22,7 +22,6 @@ import {
   NSpace,
   NDivider,
   NCard,
-  NModal,
   NUpload,
   NTag,
   NDynamicInput,
@@ -30,6 +29,12 @@ import {
   NRadioGroup,
   NGrid,
   NGridItem,
+  NModal,
+  NH3,
+  NPagination,
+  NTime,
+  NImage,
+  NImageGroup,
   useNotification,
 } from 'naive-ui'
 import { QuillEditor } from '@vueup/vue-quill'
@@ -47,6 +52,7 @@ import {
   mr,
 } from '@/styles'
 import { QUESTION_TYPES } from '@/constants'
+import { convertDeltaContent } from '@/utils'
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
 
 export default {
@@ -69,7 +75,6 @@ export default {
     NSpace,
     NDivider,
     NCard,
-    NModal,
     NUpload,
     NTag,
     NDynamicInput,
@@ -78,6 +83,12 @@ export default {
     NGrid,
     NGridItem,
     QuillEditor,
+    NModal,
+    NH3,
+    NPagination,
+    NTime,
+    NImage,
+    NImageGroup,
   },
   props: {
     classroom_id: String,
@@ -96,11 +107,11 @@ export default {
     }
 
     const activityForm = useForm({
-      title: '',
+      title: null,
       start: null,
       deadline: null,
       lockAfterEnd: false,
-      generalDirections: '',
+      generalDirections: null,
       questions: [
         {
           id: nanoid(),
@@ -216,6 +227,42 @@ export default {
       }
     }
 
+    const showConfirm = ref(false)
+    const confirmIndex = ref(1)
+    function submitActivity() {
+      activityForm
+        .transform((data) => ({
+          ...data,
+          start: data.start ? data.start : dayjs().valueOf(),
+        }))
+        .post(
+          route('post.instructor.create_activity', {
+            classroom_id,
+          }),
+          {
+            _method: 'put',
+            onError: () =>
+              notif.error({
+                title: 'An Error Occured',
+                content: 'Failed to post activity',
+              }),
+          },
+        )
+    }
+
+    function validEntries() {
+      const most =
+        activityForm.title &&
+        activityForm.deadline &&
+        activityForm.generalDirections &&
+        activityForm.questions.length > 0
+
+      if (most) {
+        return activityForm.questions[0].values.length > 0
+      }
+      return false
+    }
+
     return {
       dayjs,
       allowNumberOnly,
@@ -234,6 +281,7 @@ export default {
       setQuestionedImg,
       choicesToOptions,
       trueOrFalseOptions,
+      showConfirm,
       pXS,
       wMax,
       mxAuto,
@@ -242,7 +290,13 @@ export default {
       wFull,
       mlAuto,
       mr,
+      convertDeltaContent,
       notif,
+      showConfirm,
+      confirmIndex,
+      validEntries,
+      createURL: URL.createObjectURL,
+      submitActivity,
     }
   },
 }
@@ -266,18 +320,11 @@ n-layout
           ...mxAuto,
         }`,
         :model="activityForm",
-        @submit.prevent=`() => activityForm.transform((data) => ({
-          ...data,
-          start: data.start ? data.start : dayjs().valueOf(),
-        })).post(route('post.instructor.create_activity', {
-          classroom_id
-        }), {
-          _method: 'put',
-          onError: () => notif.error({
-            title: 'An Error Occured',
-            content: 'Failed to post activity'
-          })
-        })`
+        @submit.prevent=`() => {
+          if (validEntries()) {
+            showConfirm = !showConfirm
+          }
+        }`
       )
         n-form-item(
           required,
@@ -451,6 +498,86 @@ n-layout
             type="primary",
             attr-type="submit",
             :loading="activityForm.processing",
-            :style="{...mlAuto, ...mr(0)}"
+            :style="{...mlAuto, ...mr(0)}",
+            :disabled="!validEntries()"
           ) Post
+n-modal(v-model:show="showConfirm", on-update:page="(page) => confirmIndex = page")
+  n-card(
+    style="max-width: 48rem;",
+    title="Confirm Activity",
+    role="dialog",
+    aria-modal="true"
+  )
+    n-form-item(label="Title")
+      n-h3 {{ activityForm.title }}
+
+    n-form-item(label="Start")
+      if activityForm.start == null
+        n-time(:time="dayjs().valueOf()", format="MM/dd/yyyy hh:mm a")
+      else
+        n-time(:time="activityForm.start", format="MM/dd/yyyy hh:mm a")
+    n-form-item(label="End")
+      n-time(:time="activityForm.deadline")
+    n-form-item(label="Lock after")
+      if activityForm.lockAfterEnd
+        span Yes
+      else
+        span No
+    n-form-item(label="General Instructions")
+      div(v-html="convertDeltaContent(activityForm.generalDirections)")
+
+    n-divider
+
+    n-form-item
+      div
+        n-form-item(label="Type")
+          span {{ activityForm.questions[confirmIndex - 1].type }}
+
+        n-form-item(label="Instruction")
+          div(v-html="convertDeltaContent(activityForm.questions[confirmIndex - 1].instruction)")
+
+        for question, idx in activityForm.questions[confirmIndex - 1].values
+          div(:key="question.id")
+            n-form-item(label="Score")
+              span {{ question.score }}
+
+            n-form-item(label="Instruction")
+              span {{ question.instruction }}
+
+            n-layout
+              n-layout-content(:content-style="mtHalfRem")
+                if activityForm.questions[confirmIndex - 1].type === QUESTION_TYPES[2]
+                  for choice, i in question.content
+                    div(:key="i") {{ choice }}
+
+                if activityForm.questions[confirmIndex - 1].type === QUESTION_TYPES[4]
+                  n-form-item(label="Questioned")
+                    n-image(:src="createURL(question.content.questioned.file)", :width="100")
+
+                  n-form-item(label="Samples")
+                    n-image-group
+                      n-space(size="small")
+                        for sample, i in question.content.samples
+                          n-image(:src="createURL(sample.file)", :key="i", :width="100")
+
+
+                if activityForm.questions[confirmIndex - 1].type !== QUESTION_TYPES[4]
+                  n-form-item(label="Answer")
+                    span {{ question.answer }}
+
+    n-pagination(v-model:page="confirmIndex", :page-count="activityForm.questions.length")
+
+    n-form-item
+      n-space.w-full(size="small", justify="end")
+        n-button(
+          type="error",
+          @click="showConfirm = !showConfirm"
+        ) Cancel
+        n-button(
+          type="primary",
+          @click=`() => {
+            showConfirm = !showConfirm
+            submitActivity()
+          }`
+        ) Confirm
 </template>
