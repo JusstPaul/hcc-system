@@ -1,5 +1,5 @@
 <script>
-import { computed, } from 'vue'
+import { computed } from 'vue'
 import { useAsyncState } from '@vueuse/core'
 import { isUndefined } from 'lodash'
 import { stringify as romanStringify } from 'roman-numerals-convert'
@@ -23,15 +23,7 @@ import {
   NInputNumber,
   NImage,
 } from 'naive-ui'
-import {
-  pXS,
-  mxHalfRem,
-  wFull,
-  wMax,
-  mxAuto,
-  mlAuto,
-  mr,
-} from '@/styles'
+import { pXS, mxHalfRem, wFull, wMax, mxAuto, mlAuto, mr } from '@/styles'
 import { convertDeltaContent, keyToJpeg } from '@/utils'
 import { QUESTION_TYPES } from '@/constants'
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
@@ -61,43 +53,46 @@ export default {
     activity: Object,
   },
   setup({ classroom_id, activity }) {
-
     const token = usePage().props.value.user.token
 
-    const { questions, title, general_directions, } = activity
+    const { questions, title, general_directions } = activity
     const deadline = parseInt(activity.deadline)
     const answers = activity.answers.answers
     const checks = activity.answers.checks
 
     const checkForm = useForm({
-      'checks': isUndefined(checks) ? questions.map((section, index) => section.values.map(({
-        id,
-        score,
-      }, idx) => {
-        let extra;
-        if (questions[index].type === QUESTION_TYPES[4]) {
-          extra = answers[index].values[idx].value.map(({
-            fileContent,
-            description,
-            id
-          }) => {
-            const f = useAsyncState(keyToJpeg(token, fileContent))
-            return {
-              file: f,
-              description,
-              id,
-            }
-          })
-        }
+      checks: isUndefined(checks)
+        ? questions.map((section, index) =>
+            section.values.map(({ id, score }, idx) => {
+              let extra
+              if (questions[index].type === QUESTION_TYPES[4]) {
+                const snapshots = answers[index].values[
+                  idx
+                ].value.snapshots.map(({ fileContent, description, id }) => {
+                  const f = useAsyncState(keyToJpeg(token, fileContent))
+                  return {
+                    file: f,
+                    description,
+                    id,
+                  }
+                })
 
-        return {
-          id,
-          score: 0,
-          total: score,
-          comment: '',
-          extra,
-        }
-      })) : checks,
+                extra = {
+                  snapshots,
+                  conclusion: answers[index].values[idx].value.conclusion,
+                }
+              }
+
+              return {
+                id,
+                score: 0,
+                total: score,
+                comment: '',
+                extra,
+              }
+            }),
+          )
+        : checks,
     })
 
     function isComparator(index) {
@@ -109,19 +104,23 @@ export default {
     }
 
     function backLink() {
-      Inertia.get(route('instructor.activity.submits', {
-        classroom_id: classroom_id,
-        activity_id: activity._id,
-      }))
+      Inertia.get(
+        route('instructor.activity.submits', {
+          classroom_id: classroom_id,
+          activity_id: activity._id,
+        }),
+      )
     }
 
     function removeExtra(data) {
-      const checks = data.checks.map((v) => v.map(({ id, score, total, comment }) => ({
-        id,
-        score,
-        total,
-        comment,
-      })))
+      const checks = data.checks.map((v) =>
+        v.map(({ id, score, total, comment }) => ({
+          id,
+          score,
+          total,
+          comment,
+        })),
+      )
 
       return {
         ...data,
@@ -134,7 +133,9 @@ export default {
       romanStringify,
       title,
       deadline,
-      generalDirections: computed(() => convertDeltaContent(general_directions)),
+      generalDirections: computed(() =>
+        convertDeltaContent(general_directions),
+      ),
       questions,
       answers,
       classroom_id,
@@ -153,7 +154,7 @@ export default {
       mr,
       removeExtra,
     }
-  }
+  },
 }
 </script>
 
@@ -212,19 +213,25 @@ n-layout
 
                 n-form-item(label="Answer", :show-feedback="false")
                   if isComparator(section)
-                    for comparator in item.extra
-                      n-form-item.w-full(:key="comparator.id")
-                        div.w-full(ref="parent")
-                          if (comparator.file.isLoading)
-                            div Loading...
-                          else
-                            n-image.w-full(
-                              :src="comparator.file.state",
-                              object-fit="scale-down",
-                              :width="450"
-                            )
-                          n-alert.w-full(:show-icon="false")
-                            div(v-html="convertDeltaContent(comparator.description)")
+                    n-space(vertical)
+                      for comparator in item.extra.snapshots
+                        n-form-item.w-full(:key="comparator.id")
+                          div.w-full(ref="parent")
+                            if (comparator.file.isLoading)
+                              div Loading...
+                            else
+                              n-image.w-full(
+                                :src="comparator.file.state",
+                                object-fit="scale-down",
+                                :width="450"
+                              )
+                            n-alert.w-full(:show-icon="false")
+                              div(v-html="convertDeltaContent(comparator.description)")
+                      n-form-item.w-full
+                        n-alert.w-full(:show-icon="false")
+                          template(#header)
+                            span Overall conclusion
+                          div(v-html="convertDeltaContent(item.extra.conclusion)")
                   else
                     if isEssay(section)
                       n-alert.w-full(:show-icon="false")

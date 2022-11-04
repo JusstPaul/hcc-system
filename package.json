@@ -31,6 +31,8 @@
         "dayjs": "^1.11.5",
         "file-saver": "^2.0.5",
         "html-to-image": "^1.10.8",
+        "html-to-text": "^8.2.1",
+        "jspdf": "^2.5.1",
         "lodash-contrib": "^4.1200.1",
         "naive-ui": "^2.33.3",
         "nanoid": "^4.0.0",

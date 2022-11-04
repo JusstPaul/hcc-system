@@ -1,10 +1,13 @@
 <script>
+import { ref } from 'vue'
+import { convert } from 'html-to-text'
 import { useAsyncState } from '@vueuse/core'
 import { isUndefined } from 'lodash'
 import { nanoid } from 'nanoid'
 import { stringify as romanStringify } from 'roman-numerals-convert'
 import { Inertia } from '@inertiajs/inertia'
 import { useForm, usePage } from '@inertiajs/inertia-vue3'
+import { jsPDF } from 'jspdf'
 import {
   NSpace,
   NCard,
@@ -34,6 +37,7 @@ import {
   NH3,
   NEmpty,
   NIcon,
+  NModal,
 } from 'naive-ui'
 import { QuillEditor } from '@vueup/vue-quill'
 import { CheckupList as CheckupListIcon } from '@vicons/tabler'
@@ -90,6 +94,7 @@ export default {
     NProgress,
     NEmpty,
     NIcon,
+    NModal,
     QuillEditor,
     CheckupListIcon,
   },
@@ -138,7 +143,10 @@ export default {
                   questioned: questioned,
                   samples: samples,
                 },
-                value: [],
+                value: {
+                  snapshots: [],
+                  conclusion: '',
+                },
                 progress: {
                   current: 0,
                   total: content.samples.length,
@@ -205,7 +213,9 @@ export default {
               lastModified: today,
             })
 
-            answerForm.answers[parentIndex].values[childIndex].value.push({
+            answerForm.answers[parentIndex].values[
+              childIndex
+            ].value.snapshots.push({
               id: nanoid(10),
               file,
               description: '',
@@ -452,7 +462,7 @@ export default {
       const nAnswers = data.answers.map((section) => {
         const values = section.values.map((answer) => {
           if (!isUndefined(answer.state)) {
-            const value = answer.value.map((val) => {
+            const snapshots = answer.value.snapshots.map((val) => {
               const fileContent = val.file
 
               return {
@@ -464,7 +474,10 @@ export default {
 
             return {
               id: answer.id,
-              value,
+              value: {
+                snapshots,
+                conclusion: answer.value.conclusion,
+              },
             }
           }
           return answer
@@ -488,6 +501,47 @@ export default {
         opacity: state.opacity[direction],
         filter: `brightness(${state.brightness[direction]})`,
       }
+    }
+
+    function toPDF(data, conclusion, title) {
+      const doc = new jsPDF({
+        unit: 'in',
+        format: 'letter',
+        orientation: 'portrait',
+      })
+      doc.setFontSize(12)
+
+      data.map(({ file, description }) => {
+        doc.addImage(URL.createObjectURL(file), 'JPEG', 0, 2)
+
+        const html = convertDeltaContent(description)
+        const text = convert(html)
+        doc.text(text, 2, 5)
+
+        doc.addPage('letter')
+      })
+
+      const html = convertDeltaContent(conclusion)
+      const text = convert(html)
+      doc.text(text, 2, 2)
+
+      doc.save(title)
+    }
+
+    const showConfirm = ref(false)
+
+    function submit() {
+      answerForm
+        .transform((data) => transformAnswers(data))
+        .post(
+          route('post.student.activity', {
+            student_id,
+            activity_id: activity._id,
+          }),
+          {
+            _method: 'put',
+          },
+        )
     }
 
     return {
@@ -517,6 +571,9 @@ export default {
       mr,
       Inertia,
       romanStringify,
+      toPDF,
+      showConfirm,
+      submit,
     }
   },
 }
@@ -540,13 +597,7 @@ n-layout
           ...mxAuto,
         }`,
         :model="answerForm",
-        @submit.prevent=`() => answerForm.transform((data) => transformAnswers(data))
-          .post(route('post.student.activity', {
-            student_id,
-            activity_id,
-          }), {
-            _method: 'put',
-          })`
+        @submit.prevent="() => showConfirm = !showConfirm"
       )
         n-form-item
           n-alert.w-full(title="General Instructions", :show-icon="false")
@@ -773,8 +824,10 @@ n-layout
                                         template(#icon)
                                           n-icon(:size="50")
                                             checkup-list-icon
+                                        template(#extra)
+                                          n-button(@click="() => toPDF(answer.value.snapshots, answer.value.conclusion, `${title} ${section_index + 1}.pdf`)") Save
                           n-space(vertical)
-                            for snapshot, i in answer.value
+                            for snapshot, i in answer.value.snapshots
                               div(:key="snapshot.id")
                                 n-divider
                                 n-h3 Snapshot {{ i + 1 }} / {{ answer.progress.total }}
@@ -787,6 +840,16 @@ n-layout
                                     v-model:content="snapshot.description",
                                     placeholder="Conclusion"
                                   )
+
+                            div.w-full
+                              n-divider
+                              n-h3 Overall conclusion
+                              quill-editor(
+                                theme="snow",
+                                toolbar="minimal",
+                                v-model:content="answer.value.conclusion",
+                                placeholder="Conclusion"
+                              )
         n-form-item
           n-button(
             type="primary",
@@ -794,6 +857,15 @@ n-layout
             :loading="answerForm.processing",
             :style="{...mlAuto, ...mr(0)}"
           ) Submit
+n-modal(
+  v-model:show="showConfirm",
+  preset="dialog",
+  title="Confirm",
+  content="Are you sure you want to submit the activity?",
+  positive-text="Submit",
+  negative-text="Cancel",
+  @positive-click="() => submit()"
+)
 </template>
 
 <style scoped>

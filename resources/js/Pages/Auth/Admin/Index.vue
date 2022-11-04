@@ -134,8 +134,6 @@ export default {
       },
     ]
 
-    console.log(props.users)
-
     const userTableData = props.users.map((val) => {
       const { username, role_name } = val
       const { l_name, m_name, f_name } = val.profile

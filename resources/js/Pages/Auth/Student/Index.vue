@@ -1,28 +1,3 @@
-<!--
-<template>
-    <template v-if="joined_class">
-        <n-space vertical>
-            <n-card v-for="(activity, _index) in activities" :key="activity._id.$oid">
-                <template #header>
-                    <n-button @click="visitActivity(activity._id.$oid)" text class="underline-hover">
-                        <n-h4 style="margin-bottom: 0;">{{ activity.title }}</n-h4>
-                    </n-button>
-                </template>
-            </n-card>
-        </n-space>
-    </template>
-    <template v-else>
-        <n-empty size="huge" style="margin: 4rem;">
-            <n-space vertical align="center" :size="0">
-                You haven't joined a classroom yet.
-                <br />
-                Please contact your instructor for notification.
-            </n-space>
-        </n-empty>
-    </template>
-</template>
-  -->
-
 <script>
 import dayjs from 'dayjs'
 import { computed } from 'vue'
@@ -47,11 +22,7 @@ import {
   NIcon,
 } from 'naive-ui'
 import { DeviceDesktopOff as DeviceDesktopOffIcon } from '@vicons/tabler'
-import {
-  wFull,
-  wMax,
-  mxAuto,
-} from '@/styles'
+import { wFull, wMax, mxAuto } from '@/styles'
 import { DATE_FORMAT } from '@/constants'
 import { convertDeltaContent, downloadFile, getFileName } from '@/utils'
 import Layout from '@/Components/Layouts/StudentLayout.vue'
@@ -82,14 +53,17 @@ export default {
     joined_class: Boolean,
     activities: Array,
     announcements: Object,
-  }, setup({ student_id, }) {
+  },
+  setup({ student_id }) {
     const { tab } = route().params
 
     function visitActivity(_id) {
-      Inertia.get(route('student.activity', {
-        student_id,
-        activity_id: _id,
-      }))
+      Inertia.get(
+        route('student.activity', {
+          student_id,
+          activity_id: _id,
+        }),
+      )
     }
 
     function isActivityAnswered(ans) {
@@ -97,7 +71,8 @@ export default {
         return false
       }
 
-      return ans.map(({ student_id: s_id }) => s_id === student_id)
+      return ans
+        .map(({ student_id: s_id }) => s_id === student_id)
         .reduce((acc, val) => acc && val, true)
     }
 
@@ -134,7 +109,7 @@ export default {
       wMax,
       mxAuto,
       visitActivity,
-      tab: computed(() => isUndefined(tab) ? 'activities' : 'announcements'),
+      tab: computed(() => (isUndefined(tab) ? 'activities' : 'announcements')),
       isActivityAnswered,
       getProgress,
       getScore,
@@ -144,7 +119,7 @@ export default {
       downloadFile,
       getFileName,
     }
-  }
+  },
 }
 </script>
 
@@ -164,7 +139,7 @@ layout(:hasClass="joined_class")
                   n-card(
                     :key="activity._id",
                     :style="{...wFull, ...wMax(500), ...mxAuto}"
-                  ) 
+                  )
                     template(#header)
                       if !isActivityAnswered(activity.answers)
                         i-link.link.cursor-pointer(
@@ -173,7 +148,7 @@ layout(:hasClass="joined_class")
                             activity_id: activity._id,
                           })`
                         ) {{ activity.title }}
-                      else 
+                      else
                         span.link.cursor-pointer {{ activity.title }}
                     template(#header-extra)
                       n-time(
@@ -241,4 +216,3 @@ layout(:hasClass="joined_class")
                 n-icon
                   device-desktop-off-icon
 </template>
-
