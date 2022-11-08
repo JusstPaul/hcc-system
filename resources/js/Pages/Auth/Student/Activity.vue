@@ -138,6 +138,7 @@ export default {
                     right: 1,
                   },
                   gap: 20,
+                  collapsed: false,
                 },
                 files: {
                   questioned: questioned,
@@ -145,6 +146,7 @@ export default {
                 },
                 value: {
                   snapshots: [],
+                  conclusionType: null,
                   conclusion: '',
                 },
                 progress: {
@@ -177,6 +179,9 @@ export default {
       const svg = d3.select(`#hcc-${id}-${parentIndex}-${childIndex}-svg`)
       svg.selectAll('*').remove()
 
+      const collapsed =
+        answerForm.answers[parentIndex].values[childIndex].state.collapsed
+
       answerForm.answers[parentIndex].values[childIndex].state = {
         svg: null,
         mode: 'l', // l or r
@@ -193,6 +198,7 @@ export default {
           right: 1,
         },
         gap: 20,
+        collapsed,
       }
     }
 
@@ -477,6 +483,7 @@ export default {
               value: {
                 snapshots,
                 conclusion: answer.value.conclusion,
+                conclusionType: answer.value.conclusionType,
               },
             }
           }
@@ -700,81 +707,91 @@ n-layout
                                           span {{ answer.progress.current }} / {{ answer.progress.total }}
                                 n-layout(has-sider)
                                   if !(answer.progress.current >= answer.progress.total)
-                                    n-layout-sider(bordered, :width="150")
-                                      n-space.pt-half(vertical, :size="[0,10]" :item-style="mrHalfRem")
-                                        div
-                                          span Zoom
-                                          if checkModel(section_index, answer_index)
+                                    n-layout-sider(
+                                      bordered,
+                                      show-trigger,
+                                      collapse-mode="width",
+                                      :collapsed-width="2",
+                                      :width="175",
+                                      :collapsed="answer.state.collapsed",
+                                      @collapse="() => answer.state.collapsed = true",
+                                      @expand="() => answer.state.collapsed = false"
+                                    )
+                                      if !answer.state.collapsed
+                                        n-space.pt-half.pr-xs(vertical, :size="[0,10]" :item-style="mrHalfRem")
+                                          div
+                                            span Zoom
+                                            if checkModel(section_index, answer_index)
+                                              n-slider(
+                                                size="small",
+                                                v-model:value="answer.state.zoom.left",
+                                                :max="2",
+                                                :min="1",
+                                                :step="0.1"
+                                              )
+                                            else
+                                              n-slider(
+                                                size="small",
+                                                v-model:value="answer.state.zoom.right",
+                                                :max="2",
+                                                :min="1",
+                                                :step="0.1"
+                                              )
+
+                                          div
+                                            span Brightness
+                                            if checkModel(section_index, answer_index)
+                                              n-slider(
+                                                size="small",
+                                                v-model:value="answer.state.brightness.left",
+                                                :max="2",
+                                                :min="0.1",
+                                                :step="0.1"
+                                              )
+                                            else
+                                              n-slider(
+                                                size="small",
+                                                v-model:value="answer.state.brightness.right",
+                                                :max="2",
+                                                :min="0.1",
+                                                :step="0.1"
+                                              )
+
+                                          div
+                                            span Opacity
+                                            if checkModel(section_index, answer_index)
+                                              n-slider(
+                                                size="small",
+                                                v-model:value="answer.state.opacity.left",
+                                                :max="1",
+                                                :min="0.1",
+                                                :step="0.1"
+                                              )
+                                            else
+                                              n-slider(
+                                                size="small",
+                                                v-model:value="answer.state.opacity.right",
+                                                :max="1",
+                                                :min="0.1",
+                                                :step="0.1"
+                                              )
+
+                                          div
+                                            span Gap
                                             n-slider(
                                               size="small",
-                                              v-model:value="answer.state.zoom.left",
-                                              :max="2",
-                                              :min="1",
-                                              :step="0.1"
-                                            )
-                                          else
-                                            n-slider(
-                                              size="small",
-                                              v-model:value="answer.state.zoom.right",
-                                              :max="2",
-                                              :min="1",
-                                              :step="0.1"
+                                              v-model:value="answer.state.gap",
+                                              :max="20",
+                                              :min="-20",
+                                              :step="1"
                                             )
 
-                                        div
-                                          span Brightness
-                                          if checkModel(section_index, answer_index)
-                                            n-slider(
-                                              size="small",
-                                              v-model:value="answer.state.brightness.left",
-                                              :max="1",
-                                              :min="0.1",
-                                              :step="0.1"
-                                            )
-                                          else
-                                            n-slider(
-                                              size="small",
-                                              v-model:value="answer.state.brightness.right",
-                                              :max="1",
-                                              :min="0.1",
-                                              :step="0.1"
-                                            )
-
-                                        div
-                                          span Opacity
-                                          if checkModel(section_index, answer_index)
-                                            n-slider(
-                                              size="small",
-                                              v-model:value="answer.state.opacity.left",
-                                              :max="1",
-                                              :min="0.1",
-                                              :step="0.1"
-                                            )
-                                          else
-                                            n-slider(
-                                              size="small",
-                                              v-model:value="answer.state.opacity.right",
-                                              :max="1",
-                                              :min="0.1",
-                                              :step="0.1"
-                                            )
-
-                                        div
-                                          span Gap
-                                          n-slider(
-                                            size="small",
-                                            v-model:value="answer.state.gap",
-                                            :max="20",
-                                            :min="-20",
-                                            :step="1"
-                                          )
-
-                                        div
-                                          n-button(
-                                            @click="addImaginaryLine(section_index, answer_index, section.id, answer.id)",
-                                            attr-type="button",
-                                            type="primary"
-                                          ) Add Imaginary Line
+                                          div
+                                            n-button(
+                                              @click="addImaginaryLine(section_index, answer_index, section.id, answer.id)",
+                                              attr-type="button",
+                                              type="primary"
+                                            ) Add Imaginary Line
 
                                   n-layout-content.w-full
                                     if !(answer.progress.current >= answer.progress.total)
@@ -788,23 +805,25 @@ n-layout
                                                )
                                                  n-grid-item.comparator-images-item.overflow-hidden
                                                      n-h3.text-center(style="padding: 0; margin: 0;") Questioned Signature
-                                                     if answer.files.questioned.isLoading
-                                                       n-skeleton(height="100%", width="100%")
-                                                     else
-                                                       img.comparator-image(
-                                                         :src="answer.files.questioned.state",
-                                                         :style="stateToCSS(answer.state, 'left')"
-                                                       )
+                                                     .overflow-hidden.h-full
+                                                       if answer.files.questioned.isLoading
+                                                         n-skeleton(height="100%", width="100%")
+                                                       else
+                                                         img.comparator-image(
+                                                           :src="answer.files.questioned.state",
+                                                           :style="stateToCSS(answer.state, 'left')",
+                                                         )
 
                                                  n-grid-item.comparator-images-item.overflow-hidden
                                                    n-h3.text-center(style="padding: 0; margin: 0;") Standard Signature {{ answer.progress.current + 1 }}
-                                                   if answer.files.samples[answer.progress.current].isLoading
-                                                     n-skeleton(height="100%", width="100%")
-                                                   else
-                                                     img.comparator-image(
-                                                       :src="answer.files.samples[answer.progress.current].state",
-                                                       :style="stateToCSS(answer.state, 'right')"
-                                                     )
+                                                   .overflow-hidden.h-full
+                                                     if answer.files.samples[answer.progress.current].isLoading
+                                                       n-skeleton(height="100%", width="100%")
+                                                     else
+                                                       img.comparator-image(
+                                                         :src="answer.files.samples[answer.progress.current].state",
+                                                         :style="stateToCSS(answer.state, 'right')"
+                                                       )
                                           svg.comparator-svg(:id="`hcc-${section.id}-${section_index}-${answer_index}-svg`")
 
                                         n-space.mt-half.w-full(justify="center")
@@ -841,15 +860,30 @@ n-layout
                                     placeholder="Conclusion"
                                   )
 
-                            div.w-full
+                            .w-full
                               n-divider
-                              n-h3 Overall conclusion
-                              quill-editor(
-                                theme="snow",
-                                toolbar="minimal",
-                                v-model:content="answer.value.conclusion",
-                                placeholder="Conclusion"
-                              )
+                              n-form-item(:show-label="false")
+                                n-space.w-full(vertical)
+                                  n-select(
+                                    v-model:value="answer.value.conclusionType",
+                                    :options=`[
+                                      {
+                                          label: 'Genuine',
+                                          value: 'Genuine'
+                                      },
+                                      {
+                                          label: 'Forged',
+                                          value: 'Forged'
+                                      }
+                                    ]`,
+                                    placeholder="Overall Conclusion"
+                                  )
+                                  quill-editor(
+                                    theme="snow",
+                                    toolbar="minimal",
+                                    v-model:content="answer.value.conclusion",
+                                    placeholder="Justify your conclusion"
+                                  )
         n-form-item
           n-button(
             type="primary",

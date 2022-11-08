@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import { computed } from 'vue'
 import { isUndefined } from 'lodash'
 import { Inertia } from '@inertiajs/inertia'
-import { useForm, usePage, } from '@inertiajs/inertia-vue3'
+import { useForm, usePage } from '@inertiajs/inertia-vue3'
 import {
   NLayout,
   NLayoutHeader,
@@ -26,12 +26,7 @@ import {
 } from 'naive-ui'
 import { QuillEditor } from '@vueup/vue-quill'
 import { Upload as UploadIcon } from '@vicons/tabler'
-import {
-  wMax,
-  wFull,
-  mxAuto,
-  mtHalfRem,
-} from '@/styles'
+import { wMax, wFull, mxAuto, mtHalfRem } from '@/styles'
 import { getFileName, convertDeltaContent, downloadFile } from '@/utils'
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
 
@@ -65,13 +60,13 @@ export default {
     activities: Array,
   },
   setup({ activities, classroom_id }) {
-    const { tab } = route().params;
+    const { tab } = route().params
 
     const token = usePage().props.value.user.token
 
     const anForm = useForm({
       content: '',
-      fileContents: []
+      fileContents: [],
     })
 
     function handleFormUpload(fileList) {
@@ -91,7 +86,7 @@ export default {
     }
 
     return {
-      tab: computed(() => isUndefined(tab) ? 'announcements' : tab),
+      tab: computed(() => (isUndefined(tab) ? 'announcements' : tab)),
       wMax,
       wFull,
       mxAuto,
@@ -141,7 +136,7 @@ n-layout
           n-form-item(path="content")
             div(:style="{...wFull, ...wMax(800)}")
               quill-editor(
-                theme="snow", 
+                theme="snow",
                 toolbar="minimal",
                 placeholder="Create Announcement"
                 v-model:content="anForm.content"
@@ -160,7 +155,7 @@ n-layout
                       secondary,
                       attr-type="button",
                       @click="handleClick"
-                    ) 
+                    )
                       template(#icon)
                         n-icon
                           upload-icon
@@ -175,7 +170,7 @@ n-layout
         n-space(justify="center", :item-style="wFull")
           n-space(vertical, :item-style="wFull")
             for val in announcements
-              n-card(:key="val._id", :style="{...wFull, ...wMax(800), ...mxAuto}") 
+              n-card(:key="val._id", :style="{...wFull, ...wMax(800), ...mxAuto}")
                 n-time(:time="strDateToMil(val.created_at)")
                 n-alert
                   div(v-html="convertDeltaContent(val.content)")
@@ -197,7 +192,6 @@ n-layout
                   })`
                 ) {{ act.title }}
               template(#header-extra)
-                n-time(:tile="strDateToMil(act.created_at)")
+                n-time(:time="strDateToMil(act.created_at)")
               n-statistic(label="Number of submits", :value="getNumberOfSubmits(act.answers)")
 </template>
-

@@ -80,6 +80,8 @@ export default {
                 extra = {
                   snapshots,
                   conclusion: answers[index].values[idx].value.conclusion,
+                  conclusionType:
+                    answers[index].values[idx].value.conclusionType,
                 }
               }
 
@@ -230,7 +232,7 @@ n-layout
                       n-form-item.w-full
                         n-alert.w-full(:show-icon="false")
                           template(#header)
-                            span Overall conclusion
+                            span Overall conclusion: {{ item.extra.conclusionType }}
                           div(v-html="convertDeltaContent(item.extra.conclusion)")
                   else
                     if isEssay(section)

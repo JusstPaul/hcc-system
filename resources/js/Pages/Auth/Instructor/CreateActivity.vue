@@ -8,6 +8,7 @@ import {
   NLayout,
   NLayoutContent,
   NLayoutHeader,
+  NLayoutSider,
   NButton,
   NButtonGroup,
   NPageHeader,
@@ -35,6 +36,7 @@ import {
   NTime,
   NImage,
   NImageGroup,
+  NScrollbar,
   useNotification,
 } from 'naive-ui'
 import { QuillEditor } from '@vueup/vue-quill'
@@ -51,7 +53,7 @@ import {
   mlAuto,
   mr,
 } from '@/styles'
-import { QUESTION_TYPES } from '@/constants'
+import { QUESTION_TYPES, DATE_FORMAT } from '@/constants'
 import { convertDeltaContent } from '@/utils'
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
 
@@ -61,6 +63,7 @@ export default {
     NLayout,
     NLayoutContent,
     NLayoutHeader,
+    NLayoutSider,
     NButton,
     NButtonGroup,
     NPageHeader,
@@ -89,6 +92,7 @@ export default {
     NTime,
     NImage,
     NImageGroup,
+    NScrollbar,
   },
   props: {
     classroom_id: String,
@@ -297,6 +301,7 @@ export default {
       validEntries,
       createURL: URL.createObjectURL,
       submitActivity,
+      DATE_FORMAT,
     }
   },
 }
@@ -503,69 +508,72 @@ n-layout
           ) Post
 n-modal(v-model:show="showConfirm", on-update:page="(page) => confirmIndex = page")
   n-card(
-    style="max-width: 48rem;",
+    style="max-width: 60rem;",
     title="Confirm Activity",
     role="dialog",
     aria-modal="true"
   )
-    n-form-item(label="Title")
-      n-h3 {{ activityForm.title }}
+    n-layout.h-full(has-sider)
+      n-layout-sider(
+        bordered,
+        :width="250"
+      )
+        n-form-item(label="Title", :show-feedback="false")
+          n-h3 {{ activityForm.title }}
 
-    n-form-item(label="Start")
-      if activityForm.start == null
-        n-time(:time="dayjs().valueOf()", format="MM/dd/yyyy hh:mm a")
-      else
-        n-time(:time="activityForm.start", format="MM/dd/yyyy hh:mm a")
-    n-form-item(label="End")
-      n-time(:time="activityForm.deadline")
-    n-form-item(label="Lock after")
-      if activityForm.lockAfterEnd
-        span Yes
-      else
-        span No
-    n-form-item(label="General Instructions")
-      div(v-html="convertDeltaContent(activityForm.generalDirections)")
+        n-form-item(label="Start")
+          if activityForm.start == null
+            n-time(:time="dayjs().valueOf()", :format="DATE_FORMAT")
+          else
+            n-time(:time="activityForm.start", :format="DATE_FORMAT")
+        n-form-item(label="End")
+          n-time(:time="activityForm.deadline", :format="DATE_FORMAT")
+        n-form-item(label="Lock after")
+          if activityForm.lockAfterEnd
+            span Yes
+          else
+            span No
+        n-form-item(label="General Instructions")
+          div(v-html="convertDeltaContent(activityForm.generalDirections)")
+      n-layout-content.px-xs
+        n-scrollbar(style="max-height: 350px;", trigger="none")
+          n-form-item
+            div
+              n-form-item(label="Type")
+                n-h3 {{ activityForm.questions[confirmIndex - 1].type }}
 
-    n-divider
+              n-form-item(label="Instruction")
+                div(v-html="convertDeltaContent(activityForm.questions[confirmIndex - 1].instruction)")
 
-    n-form-item
-      div
-        n-form-item(label="Type")
-          span {{ activityForm.questions[confirmIndex - 1].type }}
+              for question, idx in activityForm.questions[confirmIndex - 1].values
+                div(:key="question.id")
+                  n-divider
 
-        n-form-item(label="Instruction")
-          div(v-html="convertDeltaContent(activityForm.questions[confirmIndex - 1].instruction)")
+                  n-form-item(label="Instruction")
+                    span {{ question.instruction }}
 
-        for question, idx in activityForm.questions[confirmIndex - 1].values
-          div(:key="question.id")
-            n-form-item(label="Score")
-              span {{ question.score }}
+                  n-layout
+                    n-layout-content(:content-style="mtHalfRem")
+                      if activityForm.questions[confirmIndex - 1].type === QUESTION_TYPES[2]
+                        for choice, i in question.content
+                          div(:key="i") {{ choice }}
 
-            n-form-item(label="Instruction")
-              span {{ question.instruction }}
+                      if activityForm.questions[confirmIndex - 1].type === QUESTION_TYPES[4]
+                        n-form-item(label="Questioned")
+                          n-image(:src="createURL(question.content.questioned.file)", :width="100")
 
-            n-layout
-              n-layout-content(:content-style="mtHalfRem")
-                if activityForm.questions[confirmIndex - 1].type === QUESTION_TYPES[2]
-                  for choice, i in question.content
-                    div(:key="i") {{ choice }}
-
-                if activityForm.questions[confirmIndex - 1].type === QUESTION_TYPES[4]
-                  n-form-item(label="Questioned")
-                    n-image(:src="createURL(question.content.questioned.file)", :width="100")
-
-                  n-form-item(label="Samples")
-                    n-image-group
-                      n-space(size="small")
-                        for sample, i in question.content.samples
-                          n-image(:src="createURL(sample.file)", :key="i", :width="100")
+                        n-form-item(label="Samples")
+                          n-image-group
+                            n-space(size="small")
+                              for sample, i in question.content.samples
+                                n-image(:src="createURL(sample.file)", :key="i", :width="100")
 
 
-                if activityForm.questions[confirmIndex - 1].type !== QUESTION_TYPES[4]
-                  n-form-item(label="Answer")
-                    span {{ question.answer }}
+                      if activityForm.questions[confirmIndex - 1].type !== QUESTION_TYPES[4]
+                        n-form-item(label="Answer")
+                          span {{ question.answer }}
 
-    n-pagination(v-model:page="confirmIndex", :page-count="activityForm.questions.length")
+        n-pagination.pt-2(v-model:page="confirmIndex", :page-count="activityForm.questions.length")
 
     n-form-item
       n-space.w-full(size="small", justify="end")

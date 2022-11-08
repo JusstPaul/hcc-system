@@ -38,6 +38,10 @@
   padding-top: 24px;
 }
 
+.pr-xs {
+  padding-right: 24px;
+}
+
 .p-0 {
   padding: 0;
 }
