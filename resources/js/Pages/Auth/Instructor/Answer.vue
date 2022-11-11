@@ -61,40 +61,44 @@ export default {
     const checks = activity.answers.checks
 
     const checkForm = useForm({
-      checks: isUndefined(checks)
-        ? questions.map((section, index) =>
-            section.values.map(({ id, score }, idx) => {
-              let extra
-              if (questions[index].type === QUESTION_TYPES[4]) {
-                const snapshots = answers[index].values[
-                  idx
-                ].value.snapshots.map(({ fileContent, description, id }) => {
-                  const f = useAsyncState(keyToJpeg(token, fileContent))
-                  return {
-                    file: f,
-                    description,
-                    id,
-                  }
-                })
-
-                extra = {
-                  snapshots,
-                  conclusion: answers[index].values[idx].value.conclusion,
-                  conclusionType:
-                    answers[index].values[idx].value.conclusionType,
+      checks: questions.map((section, index) =>
+        section.values.map(({ id, score }, idx) => {
+          let extra
+          if (questions[index].type === QUESTION_TYPES[4]) {
+            const snapshots = answers[index].values[idx].value.snapshots.map(
+              ({ fileContent, description, id }) => {
+                const f = useAsyncState(keyToJpeg(token, fileContent))
+                return {
+                  file: f,
+                  description,
+                  id,
                 }
-              }
+              },
+            )
 
-              return {
-                id,
-                score: 0,
-                total: score,
-                comment: '',
-                extra,
-              }
-            }),
-          )
-        : checks,
+            extra = {
+              snapshots,
+              conclusion: answers[index].values[idx].value.conclusion,
+              conclusionType: answers[index].values[idx].value.conclusionType,
+            }
+          }
+
+          if (!isUndefined(checks)) {
+            return {
+              ...checks[index][idx],
+              extra,
+            }
+          }
+
+          return {
+            id,
+            score: 0,
+            total: score,
+            comment: '',
+            extra,
+          }
+        }),
+      ),
     })
 
     function isComparator(index) {
@@ -216,24 +220,25 @@ n-layout
                 n-form-item(label="Answer", :show-feedback="false")
                   if isComparator(section)
                     n-space(vertical)
-                      for comparator in item.extra.snapshots
-                        n-form-item.w-full(:key="comparator.id")
-                          div.w-full(ref="parent")
-                            if (comparator.file.isLoading)
-                              div Loading...
-                            else
-                              n-image.w-full(
-                                :src="comparator.file.state",
-                                object-fit="scale-down",
-                                :width="450"
-                              )
-                            n-alert.w-full(:show-icon="false")
-                              div(v-html="convertDeltaContent(comparator.description)")
-                      n-form-item.w-full
-                        n-alert.w-full(:show-icon="false")
-                          template(#header)
-                            span Overall conclusion: {{ item.extra.conclusionType }}
-                          div(v-html="convertDeltaContent(item.extra.conclusion)")
+                      if item.extra
+                        for comparator in item.extra.snapshots
+                          n-form-item.w-full(:key="comparator.id")
+                            div.w-full(ref="parent")
+                              if (comparator.file.isLoading)
+                                div Loading...
+                              else
+                                n-image.w-full(
+                                  :src="comparator.file.state",
+                                  object-fit="scale-down",
+                                  :width="450"
+                                )
+                              n-alert.w-full(:show-icon="false")
+                                div(v-html="convertDeltaContent(comparator.description)")
+                        n-form-item.w-full
+                          n-alert.w-full(:show-icon="false")
+                            template(#header)
+                              span Overall conclusion: {{ item.extra.conclusionType }}
+                            div(v-html="convertDeltaContent(item.extra.conclusion)")
                   else
                     if isEssay(section)
                       n-alert.w-full(:show-icon="false")
