@@ -127,4 +127,14 @@ class StudentController extends Controller
       'student_id' => $student_id,
     ]);
   }
+
+  public function check_page(String $student_id, String $activity_id)
+  {
+    $activity = Activities::find($activity_id);
+
+    return Inertia::render('Auth/Student/Review', [
+        'activity' => $activity,
+        'answer' => fn() => $activity->answers()->where('student_id', $student_id)->first()
+    ]);
+  }
 }

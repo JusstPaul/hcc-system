@@ -1,7 +1,14 @@
 <script>
 import { ref, h } from 'vue'
 import { Link, usePage } from '@inertiajs/inertia-vue3'
-import { NLayoutContent, NLayout, NLayoutSider, NLayoutFooter, NMenu, NButton, } from 'naive-ui'
+import {
+  NLayoutContent,
+  NLayout,
+  NLayoutSider,
+  NLayoutFooter,
+  NMenu,
+  NButton,
+} from 'naive-ui'
 import {
   Logout as LogoutIcon,
   School as SchoolIcon,
@@ -9,11 +16,7 @@ import {
   Friends as FriendsIcon,
   UserCircle as UserCircleIcon,
 } from '@vicons/tabler'
-import {
-  hFull,
-  pXS,
-  ptXS,
-} from '@/styles'
+import { hFull, pXS, ptXS } from '@/styles'
 import { SIDER } from '@/constants'
 import { logout, renderIcon } from '@/utils'
 import Layout from './BaseLayout.vue'
@@ -42,6 +45,7 @@ export default {
         case 'student.index':
         case 'student.activity':
         case 'student.profile':
+        case 'student.check':
           return 'student-classroom'
         case 'student.students':
           return 'student-students'
@@ -53,52 +57,72 @@ export default {
 
     let routes = [
       {
-        label: () => h(Link, {
-          href: route('student.index', {
-            student_id: _id,
-          })
-        }, {
-          default: () => 'Classroom',
-        }),
+        label: () =>
+          h(
+            Link,
+            {
+              href: route('student.index', {
+                student_id: _id,
+              }),
+            },
+            {
+              default: () => 'Classroom',
+            },
+          ),
         key: 'student-classroom',
         icon: renderIcon(SchoolIcon),
       },
     ]
     if (hasClass) {
       routes.push({
-        label: () => h(Link, {
-          href: route('student.students', {
-            student_id: _id,
-          }),
-        }, {
-          default: () => 'Students',
-        }),
+        label: () =>
+          h(
+            Link,
+            {
+              href: route('student.students', {
+                student_id: _id,
+              }),
+            },
+            {
+              default: () => 'Students',
+            },
+          ),
         key: 'student-students',
-        icon: renderIcon(FriendsIcon)
+        icon: renderIcon(FriendsIcon),
       })
     }
 
     const footerRoutes = [
       {
-        label: () => h(Link, {
-          href: route('student.profile', {
-            student_id: _id,
-          })
-        }, {
-          default: () => 'Profile',
-        }),
+        label: () =>
+          h(
+            Link,
+            {
+              href: route('student.profile', {
+                student_id: _id,
+              }),
+            },
+            {
+              default: () => 'Profile',
+            },
+          ),
         key: 'student-profile',
         icon: renderIcon(UserCircleIcon),
       },
       {
-        label: () => h('a', {
-          onClick: () => logout(),
-        }, {
-          default: () => 'Logout',
-        }),
+        label: () =>
+          h(
+            'a',
+            {
+              onClick: () => logout(),
+            },
+            {
+              default: () => 'Logout',
+            },
+          ),
         key: 'student-logout',
         icon: renderIcon(LogoutIcon),
-      }
+      },
     ]
 
     return {
@@ -112,7 +136,7 @@ export default {
       routes,
       footerRoutes,
     }
-  }
+  },
 }
 </script>
 
@@ -123,7 +147,7 @@ n-layout(has-sider, :style="hFull")
     show-trigger,
     collapse-mode="width"
     :collapsed-width="SIDER.COLLAPSED_WIDTH",
-    :width="SIDER.WIDTH", 
+    :width="SIDER.WIDTH",
     :collapsed="collapsed",
     @collapse="() => collapsed = true",
     @expand="() => collapsed = false"
@@ -132,14 +156,14 @@ n-layout(has-sider, :style="hFull")
       n-layout-content(:content-style="ptXS")
         n-menu.pt-xs(
           :value="currentRouteKey()",
-          :options="routes", 
+          :options="routes",
           :collapsed="collapsed",
           :collapsed-width="SIDER.COLLAPSED_WIDTH",
           :collapsed-icon-size="SIDER.COLLAPSED_ICON_SIZE"
         )
       n-layout-footer.pt-xs(bordered, position="absolute")
         n-menu(
-          :options="footerRoutes", 
+          :options="footerRoutes",
           :collapsed="collapsed",
           :collapsed-width="SIDER.COLLAPSED_WIDTH",
           :collapsed-icon-size="SIDER.COLLAPSED_ICON_SIZE"
@@ -153,4 +177,3 @@ n-layout(has-sider, :style="hFull")
   padding: 1rem;
 }
 </style>
-

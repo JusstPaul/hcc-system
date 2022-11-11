@@ -284,7 +284,7 @@ class InstructorController extends Controller
       'checks.*.*.id' => 'required|string',
       'checks.*.*.score' => 'required|numeric',
       'checks.*.*.total' => 'required|numeric',
-      'checks.*.*.comment' => 'nullable|string',
+      'checks.*.*.comment' => 'nullable',
     ]);
 
     $answer = Activities::where('_id', $activity_id)->first()->answers()->where('_id', $answer_id)->first();

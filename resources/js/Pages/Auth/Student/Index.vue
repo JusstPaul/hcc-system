@@ -102,6 +102,15 @@ export default {
       return checks.flat().reduce((acc, val) => acc + parseInt(val.total), 0)
     }
 
+    function viewCheck(activity_id) {
+      Inertia.get(
+        route('student.check', {
+          student_id,
+          activity_id,
+        }),
+      )
+    }
+
     return {
       DATE_FORMAT,
       dayjs,
@@ -118,6 +127,7 @@ export default {
       convertDeltaContent,
       downloadFile,
       getFileName,
+      viewCheck,
     }
   },
 }
@@ -138,7 +148,7 @@ layout(:hasClass="joined_class")
                 for activity in activities
                   n-card(
                     :key="activity._id",
-                    :style="{...wFull, ...wMax(500), ...mxAuto}"
+                    :style="{...wFull, ...wMax(768), ...mxAuto}"
                   )
                     template(#header)
                       if !isActivityAnswered(activity.answers)
@@ -156,7 +166,7 @@ layout(:hasClass="joined_class")
                         :format="`${DATE_FORMAT}`"
                       )
                     if isActivityAnswered(activity.answers)
-                      n-space(justify="center")
+                      n-space(justify="center", vertical)
                         n-steps(:current="getProgress(activity.answers)")
                           n-step(
                             title="Submitted",
@@ -171,6 +181,12 @@ layout(:hasClass="joined_class")
                               n-statistic(:value="getScore(activity.answers)")
                                 template(#suffix)
                                   |/ {{ getTotal(activity.answers) }}
+
+                        n-button(
+                          block,
+                          type="primary"
+                          @click=`() => viewCheck(activity._id)`
+                        ) View
                     else
                       n-button(
                         block,

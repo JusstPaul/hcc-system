@@ -23,6 +23,7 @@ import {
   NInputNumber,
   NImage,
 } from 'naive-ui'
+import { QuillEditor } from '@vueup/vue-quill'
 import { pXS, mxHalfRem, wFull, wMax, mxAuto, mlAuto, mr } from '@/styles'
 import { convertDeltaContent, keyToJpeg } from '@/utils'
 import { QUESTION_TYPES } from '@/constants'
@@ -47,6 +48,7 @@ export default {
     NDivider,
     NInputNumber,
     NImage,
+    QuillEditor,
   },
   props: {
     classroom_id: String,
@@ -94,7 +96,7 @@ export default {
             id,
             score: 0,
             total: score,
-            comment: '',
+            comment: null,
             extra,
           }
         }),
@@ -181,7 +183,7 @@ n-layout
         label-width="120",
         :style=`{
           ...wFull,
-          ...wMax(500),
+          ...wMax(768),
           ...mxAuto,
         }`,
         :model="checkForm",
@@ -205,47 +207,60 @@ n-layout
                 div(v-html="convertDeltaContent(questions[section].instruction)")
 
             for item, question in checks
-              n-card(:key="item.id")
-                n-form-item(label="Score")
-                  n-input-number.w-full(
-                    v-model:value="item.score",
-                    :min="0",
-                    :max="item.total",
-                  )
-                    template(#suffix) / {{ item.total }}
-                n-form-item(label="Question")
-                  n-alert.w-full(:show-icon="false")
-                    |{{ questions[section].values[question].instruction }}
+              template(:key="item.id")
+                n-card
+                  n-form-item(label="Score")
+                    n-input-number.w-full(
+                      v-model:value="item.score",
+                      :min="0",
+                      :max="item.total",
+                    )
+                      template(#suffix) / {{ item.total }}
+                  n-form-item(label="Question")
+                    n-alert.w-full(:show-icon="false")
+                      |{{ questions[section].values[question].instruction }}
 
-                n-form-item(label="Answer", :show-feedback="false")
-                  if isComparator(section)
-                    n-space(vertical)
-                      if item.extra
-                        for comparator in item.extra.snapshots
-                          n-form-item.w-full(:key="comparator.id")
-                            div.w-full(ref="parent")
-                              if (comparator.file.isLoading)
-                                div Loading...
-                              else
-                                n-image.w-full(
-                                  :src="comparator.file.state",
-                                  object-fit="scale-down",
-                                  :width="450"
-                                )
-                              n-alert.w-full(:show-icon="false")
-                                div(v-html="convertDeltaContent(comparator.description)")
-                        n-form-item.w-full
-                          n-alert.w-full(:show-icon="false")
-                            template(#header)
-                              span Overall conclusion: {{ item.extra.conclusionType }}
-                            div(v-html="convertDeltaContent(item.extra.conclusion)")
-                  else
-                    if isEssay(section)
-                      n-alert.w-full(:show-icon="false")
-                        div(v-html="convertDeltaContent(answers[section].values[question].value)")
+                  n-form-item(label="Answer", :show-feedback="false")
+                    if isComparator(section)
+                      n-space(vertical)
+                        if item.extra
+                          for comparator in item.extra.snapshots
+                            n-form-item.w-full(:key="comparator.id")
+                              div.w-full(ref="parent")
+                                if (comparator.file.isLoading)
+                                  div Loading...
+                                else
+                                  n-image.w-full.mx-auto(
+                                    :src="comparator.file.state",
+                                    object-fit="scale-down",
+                                    :width="450"
+                                    :style=`{
+                                    ...mxAuto
+                                    }`
+                                  )
+                                n-alert.w-full(:show-icon="false")
+                                  div(v-html="convertDeltaContent(comparator.description)")
+                          n-form-item.w-full
+                            n-alert.w-full(:show-icon="false")
+                              template(#header)
+                                span Overall conclusion: {{ item.extra.conclusionType }}
+                              div(v-html="convertDeltaContent(item.extra.conclusion)")
                     else
-                      n-alert.w-full(:show-icon="false")
-                        |{{ answers[section].values[question].value }}
+                      if isEssay(section)
+                        n-alert.w-full(:show-icon="false")
+                          div(v-html="convertDeltaContent(answers[section].values[question].value)")
+                      else
+                        n-alert.w-full(:show-icon="false")
+                          |{{ answers[section].values[question].value }}
+
+                  n-form-item(label="Comment")
+                    .w-full
+                      quill-editor(
+                        theme="snow",
+                        toolbar="minimal",
+                        v-model:content="item.comment"
+                        placeholder="Comment"
+                      )
 
         n-form-item
           n-button(

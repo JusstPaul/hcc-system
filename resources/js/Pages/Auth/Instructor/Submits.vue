@@ -13,10 +13,7 @@ import {
   NTime,
   NDataTable,
 } from 'naive-ui'
-import {
-  pXS,
-  mxHalfRem,
-} from '@/styles'
+import { pXS, mxHalfRem } from '@/styles'
 import { formatName } from '@/utils'
 import { DATE_FORMAT } from '@/constants'
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
@@ -64,22 +61,28 @@ export default {
         title: 'Action',
         key: 'action',
         render(row) {
-          return h(NButton, {
-            secondary: true,
-            class: 'w-full',
-            type: 'primary',
-            onClick: () => {
-              Inertia.get(route('instructor.activity.submits.answer', {
-                classroom_id,
-                activity_id: activity._id,
-                answer_id: row.key,
-              }))
-            }
-          }, {
-            default: () => 'View'
-          })
-        }
-      }
+          return h(
+            NButton,
+            {
+              secondary: true,
+              class: 'w-full',
+              type: 'primary',
+              onClick: () => {
+                Inertia.get(
+                  route('instructor.activity.submits.answer', {
+                    classroom_id,
+                    activity_id: activity._id,
+                    answer_id: row.key,
+                  }),
+                )
+              },
+            },
+            {
+              default: () => 'View',
+            },
+          )
+        },
+      },
     ]
 
     const submitsData = submits.map((val) => {
@@ -92,7 +95,6 @@ export default {
       const deadMill = parseInt(activity.deadline)
       const deadline = dayjs(deadMill)
 
-      console.log(val.answers.checks)
       function getScore() {
         let score_acc = 0
         let total_acc = 0
@@ -118,14 +120,15 @@ export default {
       }
     })
 
-
     function backLink() {
-      Inertia.get(route('instructor.classroom', {
-        classroom_id,
-        _query: {
-          tab: 'activities',
-        }
-      }))
+      Inertia.get(
+        route('instructor.classroom', {
+          classroom_id,
+          _query: {
+            tab: 'activities',
+          },
+        }),
+      )
     }
 
     return {
@@ -139,7 +142,7 @@ export default {
       mxHalfRem,
       pXS,
     }
-  }
+  },
 }
 </script>
 

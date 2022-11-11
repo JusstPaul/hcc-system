@@ -109,6 +109,8 @@ Route::group(['middleware' => ['auth', 'role:student']], function () {
 	->name('student.activity');
   Route::get('/student/{student_id}/students', [UserGroup\StudentController::class, 'students_page'])
 	->name('student.students');
+  Route::get('/student/{student_id}/answer/{activity_id}', [UserGroup\StudentController::class, 'check_page'])
+    ->name('student.check');
 
   Route::post('/student/{student_id}/activity/{activity_id}', [UserGroup\StudentController::class, 'activity_store'])
 	->name('post.student.activity');
