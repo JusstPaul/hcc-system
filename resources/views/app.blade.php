@@ -5,10 +5,12 @@
     <meta charset="utf-8" />
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+        content="width=device-width, initial-scale=1.0"
     />
     @routes
-    @vite('resources/js/app.js')
+    @viteReactRefresh
+    @vite('resources/js/app.jsx')
+    @vite('resources/scss/app.scss')
     @inertiaHead
 
     <style>
@@ -20,7 +22,7 @@
     </style>
 </head>
 
-<body>
+<body class="antialiased text-gray-900 bg-gray-50">
     <script src="https://d3js.org/d3.v4.js"></script>
     <script
         src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"

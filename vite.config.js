@@ -1,29 +1,22 @@
-import vue from '@vitejs/plugin-vue'
+import react from '@vitejs/plugin-react'
 import laravel from 'laravel-vite-plugin'
-import vuePugPlugin from 'vue-pug-plugin'
 import path from 'path'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
   build: {
-    target: 'es2015',
+    target: 'es6',
   },
   plugins: [
-    vue({
-      template: {
-        preprocessOptions: {
-          plugins: [vuePugPlugin],
-        },
-      },
-    }),
+    react(),
     laravel({
-      input: ['resources/js/app.js', 'resources/css/app.css'],
+      input: ['resources/js/app.jsx', 'resources/scss/app.scss'],
     }),
   ],
   resolve: {
     alias: {
       ziggy: path.resolve(__dirname, 'vendor/tightenco/ziggy/dist/vue.es.js'),
-      '@': path.resolve(__dirname, 'resources/js'),
+      '@components': path.resolve(__dirname, 'resources/js/components/'),
     },
   },
 })
