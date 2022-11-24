@@ -5,7 +5,8 @@
       "paths": {
           "@components": ["resources/js/components/"]
       },
-      "isolatedModules": true
+      "isolatedModules": true,
+      "moduleResolution": "Node"
   },
   "exclude": ["public", "node_modules"],
   "vueCompilerOptions": {

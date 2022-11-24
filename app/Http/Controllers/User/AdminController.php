@@ -20,7 +20,7 @@ class AdminController extends Controller
   {
     $user_id = User::get()->id();
 
-    return Inertia::render('Auth/Admin/Index', [
+    return Inertia::render('auth/admin/index', [
       'users' => fn () => User::raw(function ($collection) use ($user_id) {
         return $collection->aggregate([
           [

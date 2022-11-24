@@ -28,6 +28,7 @@
         src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"
     ></script>
     @inertia
+    <div id="portal"></div>
 </body>
 
 </html>

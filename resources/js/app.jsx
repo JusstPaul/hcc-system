@@ -3,7 +3,7 @@ import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import duration from 'dayjs/plugin/duration'
 import { StrictMode } from 'react'
-import { HelmetProvider, } from 'react-helmet-async'
+import { HelmetProvider } from 'react-helmet-async'
 import { createRoot } from 'react-dom/client'
 import { createInertiaApp } from '@inertiajs/inertia-react'
 import { InertiaProgress } from '@inertiajs/progress'
@@ -36,7 +36,7 @@ createInertiaApp({
           <Head />
           <App {...props} />
         </HelmetProvider>
-      </StrictMode>
+      </StrictMode>,
     )
   },
 })

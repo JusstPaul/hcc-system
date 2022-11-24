@@ -18,6 +18,7 @@ module.exports = {
       },
       colors: {
         primary: colors.green,
+        error: colors.red,
       },
     },
   },

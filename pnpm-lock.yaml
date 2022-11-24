@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@fontsource/inter': ^4.5.14
+  '@heroicons/react': ^2.0.13
   '@inertiajs/inertia': ^0.11.1
   '@inertiajs/inertia-react': ^0.8.1
   '@inertiajs/progress': ^0.2.7
@@ -33,6 +34,7 @@ specifiers:
 
 dependencies:
   '@fontsource/inter': 4.5.14
+  '@heroicons/react': 2.0.13_react@18.2.0
   '@inertiajs/inertia': 0.11.1
   '@inertiajs/inertia-react': 0.8.1_rklruaqualwo6h75enkiuwrtxm
   '@inertiajs/progress': 0.2.7_@inertiajs+inertia@0.11.1
@@ -374,6 +376,14 @@ packages:
 
   /@fontsource/inter/4.5.14:
     resolution: {integrity: sha512-JDC9AocdPLuGsASkvWw9hS5gtHE7K9dOwL98XLrk5yjYqxy4uVnScG58NUvFMJDVJRl/7c8Wnap6PEs+7Zvj1Q==}
+    dev: false
+
+  /@heroicons/react/2.0.13_react@18.2.0:
+    resolution: {integrity: sha512-iSN5XwmagrnirWlYEWNPdCDj9aRYVD/lnK3JlsC9/+fqGF80k8C7rl+1HCvBX0dBoagKqOFBs6fMhJJ1hOg1EQ==}
+    peerDependencies:
+      react: '>= 16'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@inertiajs/inertia-react/0.8.1_rklruaqualwo6h75enkiuwrtxm:

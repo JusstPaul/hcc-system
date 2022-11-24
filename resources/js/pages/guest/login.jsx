@@ -1,6 +1,7 @@
+import { useEffect } from 'react'
 import { useForm } from '@inertiajs/inertia-react'
 import Container from '@components/container'
-import Form, { TextInput } from '@components/form'
+import Form, { TextInput, PasswordInput } from '@components/form'
 import Button from '@components/button'
 
 const Login = () => {
@@ -21,18 +22,19 @@ const Login = () => {
   }
 
   return (
-    <Container width="max-w-md flex flex-col">
-      <h1 className="text-center py-14 text-2xl font-bold">
-        Handwriting Comparator Ex
-      </h1>
-      <div className="flex">
+    <Container width="max-w-sm relative">
+      <div className="login-position">
         <Form
           legend="Login Form"
-          className="m-auto"
           onSubmit={(_e) => {
-            console.log(data)
+            const target = route('post.login')
+            post(target)
           }}
+          className="w-full"
         >
+          <h1 className="text-center pb-14 text-2xl font-black">
+            Handwriting Comparator Ex
+          </h1>
           <TextInput
             name="username"
             label="Username"
@@ -40,17 +42,18 @@ const Login = () => {
             id="username"
             value={data.username}
             onChange={handleTextChange}
+            error={errors.username}
+            autoFocus
           />
-          <TextInput
+          <PasswordInput
             name="password"
             label="Password"
-            type="password"
             id="password"
             value={data.password}
             onChange={handleTextChange}
           />
 
-          <Button className="mt-4" type="submit">
+          <Button className="mt-4" disabled={processing} type="submit">
             Submit
           </Button>
         </Form>
