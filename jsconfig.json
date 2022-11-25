@@ -3,7 +3,8 @@
       "baseUrl": ".",
       "target": "es6",
       "paths": {
-          "@components": ["resources/js/components/"]
+          "@components": ["resources/js/components/"],
+          "@js": ["resources/js/"]
       },
       "isolatedModules": true,
       "moduleResolution": "Node"

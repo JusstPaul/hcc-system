@@ -1,9 +1,11 @@
-import { Fragment, useMemo } from 'react'
+import { Fragment, useMemo, useState, useEffect, useRef } from 'react'
 import { Link, usePage } from '@inertiajs/inertia-react'
 import {
   ArrowLeftOnRectangleIcon,
   UserCircleIcon,
+  Bars3Icon,
 } from '@heroicons/react/20/solid'
+import { isMdScreen } from '@js/utils'
 
 const NavLink = ({ className, icon: Icon, label, ...props }) => {
   const _className = (() => {
@@ -27,6 +29,54 @@ const NavLink = ({ className, icon: Icon, label, ...props }) => {
 }
 
 const AuthLayout = ({ children, navigation = [] }) => {
+  const [isVisible, setVisible] = useState(false)
+  const isMd = isMdScreen()
+
+  const toggler = useMemo(() => {
+    if (isMd) {
+      setVisible(true)
+      return <></>
+    }
+    setVisible(false)
+    return (
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isVisible}
+        aria-controls="main-sidebar"
+        onClick={() => setVisible(true)}
+        className="p-2 hover:bg-gray-100 rounded-md"
+      >
+        <span className="sr-only">Toggle Navigation Visibility</span>
+        <span aria-hidden="true">
+          <Bars3Icon className="h-6" />
+        </span>
+      </button>
+    )
+  }, [isMd])
+
+  const togglerClassName = useMemo(() => {
+    if (isMd) {
+      return ''
+    }
+    return '-translate-x-full duration-100'
+  }, [isMd])
+
+  const sidebarRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
+        setVisible(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [sidebarRef])
+
   const { user } = usePage().props
 
   const logoutRoute = route('post.logout')
@@ -51,10 +101,18 @@ const AuthLayout = ({ children, navigation = [] }) => {
 
   return (
     <Fragment>
-      <aside className="text-center fixed md:static w-9/12 md:w-60 h-full p-6 border-r text-primary-900 bg-gray-50">
+      <aside
+        id="main-sidebar"
+        className={`text-center fixed md:static w-9/12 md:w-60 h-full px-6 py-2 border-r text-primary-900 bg-gray-50 ${
+          isVisible ? '' : togglerClassName
+        }`}
+        aria-label="Main Sidebar"
+        aria-hidden={!isVisible}
+        ref={sidebarRef}
+      >
         <nav
-          className="flex flex-col justify-between h-full mx-auto md:mx-0"
-          aria-aria-labelledby="main-nav-title"
+          className="flex flex-col justify-between h-full mx-auto md:mx-0 duration-150"
+          aria-labelledby="main-nav-title"
         >
           <h4 className="sr-only" id="main-nav-title">
             Primary Navigation
@@ -80,7 +138,13 @@ const AuthLayout = ({ children, navigation = [] }) => {
           </ul>
         </nav>
       </aside>
-      <main className="px-6 py-10">{children}</main>
+      <main className="px-2 py-2 grow">
+        <header className="flex gap-4 mb-4 py-2 border-b">
+          {toggler}
+          <span id="header" className="p-2"></span>
+        </header>
+        <div className="px-2">{children}</div>
+      </main>
     </Fragment>
   )
 }

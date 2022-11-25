@@ -1,4 +1,5 @@
 import { UserGroupIcon, AcademicCapIcon } from '@heroicons/react/20/solid'
+import Header from '../header'
 import AuthLayout from './auth'
 
 const AdminLayout = ({ children }) => {
@@ -17,7 +18,9 @@ const AdminLayout = ({ children }) => {
         },
       ]}
     >
-      <header>Admin Panel</header>
+      <Header>
+        <h1 className="font-bold text-xl">Admin Panel</h1>
+      </Header>
       {children}
     </AuthLayout>
   )
