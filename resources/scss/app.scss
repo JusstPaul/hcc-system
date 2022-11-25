@@ -6,17 +6,19 @@
 
 @layer base {
   html,
-  body {
-    @apply h-full block;
+  body,
+  #app {
+    @apply h-full;
   }
-}
 
-@layer components {
+  #app {
+    @apply flex relative;
+  }
 }
 
 @layer utilities {
   .login-position {
-    @apply h-fit absolute w-full;
+    @apply h-fit absolute w-full px-2;
     top: 15%;
     bottom: 0;
     left: 0;

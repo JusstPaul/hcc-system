@@ -12,14 +12,6 @@
     @vite('resources/js/app.jsx')
     @vite('resources/scss/app.scss')
     @inertiaHead
-
-    <style>
-        html,
-        body,
-        #app {
-            height: 100%;
-        }
-    </style>
 </head>
 
 <body class="antialiased text-gray-900 bg-gray-50">

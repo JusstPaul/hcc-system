@@ -22,43 +22,45 @@ const Login = () => {
   }
 
   return (
-    <Container width="max-w-sm relative">
-      <div className="login-position">
-        <Form
-          legend="Login Form"
-          onSubmit={(_e) => {
-            const target = route('post.login')
-            post(target)
-          }}
-          className="w-full"
-        >
-          <h1 className="text-center pb-14 text-2xl font-black">
-            Handwriting Comparator Ex
-          </h1>
-          <TextInput
-            name="username"
-            label="Username"
-            type="text"
-            id="username"
-            value={data.username}
-            onChange={handleTextChange}
-            error={errors.username}
-            autoFocus
-          />
-          <PasswordInput
-            name="password"
-            label="Password"
-            id="password"
-            value={data.password}
-            onChange={handleTextChange}
-          />
+    <main className="w-full">
+      <Container width="max-w-sm relative">
+        <div className="login-position">
+          <Form
+            legend="Login Form"
+            onSubmit={(_e) => {
+              const target = route('post.login')
+              post(target)
+            }}
+            className="w-full"
+          >
+            <h1 className="text-center pb-14 text-2xl font-black">
+              Handwriting Comparator Ex
+            </h1>
+            <TextInput
+              name="username"
+              label="Username"
+              type="text"
+              id="username"
+              value={data.username}
+              onChange={handleTextChange}
+              error={errors.username}
+              autoFocus
+            />
+            <PasswordInput
+              name="password"
+              label="Password"
+              id="password"
+              value={data.password}
+              onChange={handleTextChange}
+            />
 
-          <Button className="mt-4" disabled={processing} type="submit">
-            Submit
-          </Button>
-        </Form>
-      </div>
-    </Container>
+            <Button className="mt-4" disabled={processing} type="submit">
+              Submit
+            </Button>
+          </Form>
+        </div>
+      </Container>
+    </main>
   )
 }
 export default Login

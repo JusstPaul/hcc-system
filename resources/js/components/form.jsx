@@ -148,9 +148,9 @@ const PasswordInput = ({
         >
           <span className="sr-only">Toggle Password Visibility</span>
           {show ? (
-            <EyeSlashIcon className="h-6" />
+            <EyeSlashIcon className="h-5" />
           ) : (
-            <EyeIcon className="h-6" />
+            <EyeIcon className="h-5" />
           )}
         </button>
       </span>
