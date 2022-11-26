@@ -59,7 +59,7 @@ const AuthLayout = ({ children, navigation = [] }) => {
     if (isMd) {
       return ''
     }
-    return '-translate-x-full duration-100'
+    return '-translate-x-full'
   }, [isMd])
 
   const sidebarRef = useRef(null)
@@ -103,11 +103,11 @@ const AuthLayout = ({ children, navigation = [] }) => {
     <Fragment>
       <aside
         id="main-sidebar"
-        className={`text-center fixed md:static w-9/12 md:w-60 h-full px-6 py-2 border-r text-primary-900 bg-gray-50 ${
+        className={`text-center fixed md:static w-9/12 md:w-60 h-full px-6 py-2 border-r text-primary-800 bg-gray-50 duration-150 ease-in-out ${
           isVisible ? '' : togglerClassName
         }`}
         aria-label="Main Sidebar"
-        aria-hidden={!isVisible}
+        aria-expanded={isVisible}
         ref={sidebarRef}
       >
         <nav
@@ -138,10 +138,10 @@ const AuthLayout = ({ children, navigation = [] }) => {
           </ul>
         </nav>
       </aside>
-      <main className="px-2 py-2 grow">
+      <main className="px-2 py-1 grow">
         <header className="flex gap-4 mb-4 py-2 border-b">
           {toggler}
-          <span id="header" className="p-2"></span>
+          <span id="header" className="grow p-2 flex gap-4"></span>
         </header>
         <div className="px-2">{children}</div>
       </main>

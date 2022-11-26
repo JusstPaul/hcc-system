@@ -78,7 +78,7 @@ class AdminController extends Controller
 
   public function create_user_page()
   {
-    return Inertia::render('Auth/Admin/CreateUser', [
+    return Inertia::render('auth/admin/create-user', [
       'roles' => fn() => Role::all()->map(fn ($value) => $value->name)
     ]);
   }

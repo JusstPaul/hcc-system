@@ -24,4 +24,8 @@
     left: 0;
     right: 0;
   }
+
+  .btn {
+    @apply rounded bg-primary-500 hover:bg-primary-600 text-gray-50 py-1.5 px-2 font-semibold text-sm focus:outline-none focus:bg-primary-600 focus:border-0 disabled:opacity-75 disabled:hover:bg-primary-500;
+  }
 }

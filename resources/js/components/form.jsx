@@ -1,15 +1,10 @@
 import { useState } from 'react'
-import { isUndefined } from 'lodash'
+import { isUndefined, isNull } from 'lodash'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid'
 
-const Form = ({ children, onSubmit, className, legend, ...props }) => {
-  const _legend = (() => {
-    if (legend) return legend
-    return 'Form'
-  })()
-
+const Form = ({ children, onSubmit, className, ...props }) => {
   const _className = (() => {
-    const c = 'w-full flex flex-col'
+    const c = 'w-full flex flex-col gap-4'
     if (className) return `${c} ${className}`
     return c
   })()
@@ -23,15 +18,36 @@ const Form = ({ children, onSubmit, className, legend, ...props }) => {
       className={_className}
       {...props}
     >
-      <fieldset className="flex flex-col gap-2">
-        <legend className="sr-only">{_legend}</legend>
-        {children}
-      </fieldset>
+      {children}
     </form>
   )
 }
-export default Form
-export { TextInput, PasswordInput, Label }
+
+const Fieldset = ({
+  className,
+  children,
+  legend,
+  isLegendVisible = false,
+  ...props
+}) => {
+  const _className = (() => {
+    const c = 'flex flex-col gap-2'
+    if (className) return `${className} ${c}`
+    return c
+  })()
+
+  const _legendClassName = (() => {
+    if (!isLegendVisible) return 'sr-only'
+    return 'font-semibold'
+  })()
+
+  return (
+    <fieldset className={_className} {...props}>
+      {legend ? <legend className={_legendClassName}>{legend}</legend> : <></>}
+      {children}
+    </fieldset>
+  )
+}
 
 const Label = ({ children, className, ...props }) => {
   const _className = (() => {
@@ -59,7 +75,7 @@ const Error = ({ children, className, ...props }) => {
   )
 }
 
-const TextInput = ({ name, label, className, error, ...props }) => {
+const TextInput = ({ name, label, className, error, id, ...props }) => {
   const _className = (() => {
     const c = 'flex flex-col'
     if (className) return `${c} ${className}`
@@ -67,9 +83,15 @@ const TextInput = ({ name, label, className, error, ...props }) => {
   })()
 
   const _label = () => {
-    if (label) return <Label htmlFor={name}>{label}</Label>
+    if (label) return <Label htmlFor={id}>{label}</Label>
     return <></>
   }
+
+  const _name = (() => {
+    if (name) return name
+    if (id) return id
+    return ''
+  })()
 
   const _error = () => {
     if (error) return <Error id={`${name}-error`}>{error}</Error>
@@ -81,8 +103,9 @@ const TextInput = ({ name, label, className, error, ...props }) => {
       {_label()}
       <input
         name={name}
+        id={id}
         className="rounded py-1 focus:ring-primary-600 focus:border-primary-600"
-        aria-errormessage={`${name}-error`}
+        aria-errormessage={`${_name}-error`}
         aria-invalid={!isUndefined(error)}
         {...props}
       />
@@ -94,6 +117,7 @@ const TextInput = ({ name, label, className, error, ...props }) => {
 const PasswordInput = ({
   name,
   label,
+  id,
   className,
   onFocus,
   onBlur,
@@ -109,7 +133,8 @@ const PasswordInput = ({
   })()
 
   const _label = () => {
-    if (label) return <Label htmlFor={name}>{label}</Label>
+    if (label) return <Label htmlFor={id}>{label}</Label>
+    return <></>
   }
 
   const detectInputFocus = () => {
@@ -125,6 +150,7 @@ const PasswordInput = ({
       <span className="relative">
         <input
           name={name}
+          id={id}
           className="rounded py-1 focus:ring-primary-600 focus:border-primary-600 block w-full"
           type={show ? 'text' : 'password'}
           onFocus={(e) => {
@@ -157,3 +183,104 @@ const PasswordInput = ({
     </p>
   )
 }
+
+const Checkbox = ({ name, label, className, id, ...props }) => {
+  const _className = (() => {
+    const c = 'flex gap-2'
+    if (className) return `${c} ${className}`
+    return c
+  })()
+
+  const _label = () => {
+    if (label) return <Label htmlFor={id}>{label}</Label>
+    return <></>
+  }
+
+  return (
+    <p className={_className}>
+      <input
+        type="checkbox"
+        name={name}
+        id={id}
+        {...props}
+        className="rounded py-1 focus:ring-primary-600 focus:border-primary-600"
+      />
+      {_label()}
+    </p>
+  )
+}
+
+const Select = ({
+  id,
+  label,
+  className,
+  placeholder,
+  value,
+  options,
+  error,
+  ...props
+}) => {
+  const _className = (() => {
+    const c = 'flex flex-col'
+    if (className) return `${c} ${className}`
+    return c
+  })()
+
+  const _label = () => {
+    if (label && id) return <Label htmlFor={id}>{label}</Label>
+  }
+
+  const _placeholder = () => {
+    if (placeholder) {
+      return (
+        <option value="" disabled hidden>
+          {placeholder}
+        </option>
+      )
+    }
+    return <></>
+  }
+
+  const placeholderColor = () => {
+    if (isNull(value) || isUndefined(value) || value === '') {
+      return 'text-gray-600'
+    }
+    return ''
+  }
+
+  const _options = () => {
+    if (options) {
+      return options.map(({ label, value }, i) => (
+        <option key={i} value={value}>
+          {label}
+        </option>
+      ))
+    }
+    return <></>
+  }
+
+  const _error = () => {
+    if (error) return <Error id={`${id}-error`}>{error}</Error>
+    return <></>
+  }
+
+  return (
+    <p className={_className}>
+      {_label()}
+      <select
+        id={id}
+        className={`rounded py-1 focus:ring-primary-600 focus:border-primary-600 ${placeholderColor()}`}
+        value={value}
+        aria-errormessage={`${id}-error`}
+        {...props}
+      >
+        {_placeholder()}
+        {_options()}
+      </select>
+      {_error()}
+    </p>
+  )
+}
+
+export default Form
+export { Fieldset, TextInput, PasswordInput, Label, Checkbox, Select }

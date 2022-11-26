@@ -54,6 +54,14 @@ class HandleInertiaRequests extends Middleware
         'user' => fn () => $user ? $user->only('username', '_id') : null,
         'user.role' => fn () => $user ? $user->getRoleNames()->first() : null,
         'user.token' => fn () => $user ? $user->tokens()->first()->token : null,
+        'prevURL' => function () {
+          $url = url()->previous();
+          if ($url !== route('login') && $url !== '' && $url !== url()->current()) {
+            return $url;
+          } else {
+            return url()->current();
+          }
+        }
       ]);
     }
 
