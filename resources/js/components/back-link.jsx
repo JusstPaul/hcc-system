@@ -4,6 +4,8 @@ import { ArrowLeftIcon } from '@heroicons/react/20/solid'
 const BackLink = () => {
   const { prevURL } = usePage().props
 
+  if (prevURL === '#') return <></>
+
   return (
     <Link href={prevURL} aria-label="Go Back" className="py-1 px-2">
       <span aria-hidden="true">

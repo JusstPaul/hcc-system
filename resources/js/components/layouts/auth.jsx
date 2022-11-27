@@ -9,7 +9,8 @@ import { isMdScreen } from '@js/utils'
 
 const NavLink = ({ className, icon: Icon, label, ...props }) => {
   const _className = (() => {
-    const c = 'inline-flex gap-1 py-2 px-4 w-full rounded hover:bg-primary-200'
+    const c =
+      'inline-flex gap-1 py-2 px-4 w-full rounded hover:bg-primary-500 hover:text-gray-50'
     if (className) return `${c} ${className}`
     return c
   })()
@@ -103,8 +104,8 @@ const AuthLayout = ({ children, navigation = [] }) => {
     <Fragment>
       <aside
         id="main-sidebar"
-        className={`text-center fixed md:static w-9/12 md:w-60 h-full px-6 py-2 border-r text-primary-800 bg-gray-50 duration-150 ease-in-out ${
-          isVisible ? '' : togglerClassName
+        className={`text-center fixed top-0 left-0 h-screen w-9/12 md:w-60 px-6 py-2 border-r bg-gray-50 duration-150 ease-in-out ${
+          isVisible ? 'translate-x-0' : togglerClassName
         }`}
         aria-label="Main Sidebar"
         aria-expanded={isVisible}
@@ -138,7 +139,7 @@ const AuthLayout = ({ children, navigation = [] }) => {
           </ul>
         </nav>
       </aside>
-      <main className="px-2 py-1 grow">
+      <main className="md:ml-60 px-2 py-1 grow">
         <header className="flex gap-4 mb-4 py-2 border-b">
           {toggler}
           <span id="header" className="grow p-2 flex gap-4"></span>

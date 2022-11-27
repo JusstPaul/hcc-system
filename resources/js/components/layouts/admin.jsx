@@ -11,7 +11,7 @@ const AdminLayout = ({ children }) => {
           icon: UserGroupIcon,
         },
         {
-          link: route('admin.create_user'),
+          link: route('admin.classrooms'),
           label: 'Classrooms',
           icon: AcademicCapIcon,
         },

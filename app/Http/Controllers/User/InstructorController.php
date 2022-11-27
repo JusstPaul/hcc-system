@@ -9,9 +9,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Activities;
 use App\Models\Announcement;
-use App\Models\Answer;
 use MongoDB\BSON\ObjectId;
-use Illuminate\Support\Facades\DB;
+use App\Models\SchoolYear;
 
 class InstructorController extends Controller
 {
@@ -19,13 +18,13 @@ class InstructorController extends Controller
   {
     // FIXME: Fix classrooms query relationship.
     return Inertia::render('Auth/Instructor/Index', [
-      'classrooms' => fn () => Classroom::where('instructor_id', User::get()->_id)->get(),
+      'classrooms' => fn () => SchoolYear::latest()->first()->classrooms()->where('instructor_id', User::get()->_id)->get()
     ]);
   }
 
   public function classroom_page(String $classroom_id)
   {
-    $classroom = Classroom::find($classroom_id);
+    $classroom = SchoolYear::latest()->first()->classrooms()->where('_id', $classroom_id)->first();
 
     return Inertia::render('Auth/Instructor/Classroom', [
       'classroom_id' => $classroom_id,

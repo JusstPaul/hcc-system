@@ -58,9 +58,8 @@ class HandleInertiaRequests extends Middleware
           $url = url()->previous();
           if ($url !== route('login') && $url !== '' && $url !== url()->current()) {
             return $url;
-          } else {
-            return url()->current();
           }
+          return '#';
         }
       ]);
     }

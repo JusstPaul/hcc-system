@@ -17,12 +17,7 @@ const Login = () => {
 
   const handleTextChange = (e) => {
     const { name, value } = e.target
-    switch (name) {
-      case 'username':
-      case 'password':
-        setData(name, value)
-        break
-    }
+    setData(name, value)
   }
 
   return (
@@ -30,7 +25,7 @@ const Login = () => {
       <Container width="max-w-sm relative">
         <div className="login-position">
           <Form
-            onSubmit={(_e) => {
+            onSubmit={(_) => {
               const target = route('post.login')
               post(target)
             }}

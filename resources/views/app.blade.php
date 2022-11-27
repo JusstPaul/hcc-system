@@ -15,8 +15,12 @@
 </head>
 
 <body class="antialiased text-gray-900 bg-gray-50">
-    <script src="https://d3js.org/d3.v4.js"></script>
     <script
+        defer
+        src="https://d3js.org/d3.v4.js"
+    ></script>
+    <script
+        defer
         src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"
     ></script>
     @inertia

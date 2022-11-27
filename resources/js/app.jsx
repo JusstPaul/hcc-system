@@ -20,7 +20,9 @@ dayjs.extend(duration)
 dayjs.tz.setDefault('Asia/Manila')
 
 // Loading progress indicator
-InertiaProgress.init()
+InertiaProgress.init({
+  color: '#14b8a6',
+})
 
 // Initialize the system
 createInertiaApp({

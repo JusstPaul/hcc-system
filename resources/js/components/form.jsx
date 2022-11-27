@@ -77,7 +77,7 @@ const Error = ({ children, className, ...props }) => {
 
 const TextInput = ({ name, label, className, error, id, ...props }) => {
   const _className = (() => {
-    const c = 'flex flex-col'
+    const c = 'flex flex-col mb-auto'
     if (className) return `${c} ${className}`
     return c
   })()
@@ -127,7 +127,7 @@ const PasswordInput = ({
   const [focused, setFocused] = useState(false)
 
   const _className = (() => {
-    const c = 'flex flex-col'
+    const c = 'flex flex-col mb-auto'
     if (className) return `${c} ${className}`
     return c
   })()
@@ -186,7 +186,7 @@ const PasswordInput = ({
 
 const Checkbox = ({ name, label, className, id, ...props }) => {
   const _className = (() => {
-    const c = 'flex gap-2'
+    const c = 'flex gap-2 mb-auto'
     if (className) return `${c} ${className}`
     return c
   })()
@@ -221,7 +221,7 @@ const Select = ({
   ...props
 }) => {
   const _className = (() => {
-    const c = 'flex flex-col'
+    const c = 'flex flex-col mb-auto'
     if (className) return `${c} ${className}`
     return c
   })()

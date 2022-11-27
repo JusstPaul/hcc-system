@@ -260,7 +260,7 @@ class AdminController extends Controller
     //! TODO: Prompt to create school year first.
     $school_year = SchoolYear::latest()->first();
 
-    return Inertia::render('Auth/Admin/Classrooms', [
+    return Inertia::render('auth/admin/classrooms', [
       'school_year' => fn () => $school_year,
       'classrooms' => fn () => is_null($school_year) ? [] : $school_year->classrooms()
         ->raw(function ($collection) {

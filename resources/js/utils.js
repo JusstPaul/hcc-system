@@ -1,9 +1,8 @@
 import { useMediaQuery } from 'react-responsive'
 
-export { isMdScreen }
-
 const isMdScreen = () => useMediaQuery({ query: '(min-width: 768px)' })
 
+export { isMdScreen }
 // import dayjs from "dayjs";
 // import axios from "axios";
 // import Quill from 'quill'
