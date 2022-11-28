@@ -4,7 +4,8 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Storage;
+use App\Models\User;
+use App\Models\Profile;
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,7 +23,14 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
         ]);
 
-        // Delete all uploaded files to reduce clutter.
-        Storage::disk(env('STORAGE'))->deleteDirectory('/');
+        /* $students = User::factory(50)->create(); */
+        /* foreach ($students as $student) { */
+        /*   $student->assignRole('student'); */
+        /* } */
+        /**/
+        /* $instructors = User::factory(20)->create(); */
+        /* foreach ($instructors as $instructor) { */
+        /*   $instructor->assignRole('instructor'); */
+        /* } */
     }
 }

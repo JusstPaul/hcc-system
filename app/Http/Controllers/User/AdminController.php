@@ -21,72 +21,87 @@ class AdminController extends Controller
     $user_id = User::get()->id();
 
     return Inertia::render('auth/admin/index', [
-      'users' => fn () => User::raw(function ($collection) use ($user_id) {
-        return $collection->aggregate([
-          [
-            '$match' => [
-              '_id' => [
-                // NOTE: This is not an error.
-                '$ne' => new ObjectId($user_id)
+      'users' => function () use ($user_id) {
+        $page = \Illuminate\Pagination\Paginator::resolveCurrentPage();
+        $total = User::count();
+
+        $collection = User::raw(function ($collection) use ($user_id, $page) {
+          return $collection->aggregate([
+            [
+              '$match' => [
+                '_id' => [
+                  // NOTE: This is not an error.
+                  '$ne' => new ObjectId($user_id)
+                ]
               ]
-            ]
-          ],
-          [
-            '$addFields' => [
-              'role_ids' => [
-                '$toObjectId' => [
-                  '$first' => '$role_ids'
+            ],
+            [
+              '$addFields' => [
+                'role_ids' => [
+                  '$toObjectId' => [
+                    '$first' => '$role_ids'
+                  ],
                 ],
               ],
             ],
-          ],
-          [
-            '$lookup' => [
-              'from' => 'roles',
-              'localField' => 'role_ids',
-              'foreignField' => '_id',
-              'as' => 'role_name'
-            ],
-          ],
-          [
-            '$set' => [
-              'role_name' => [
-                '$first' => '$role_name'
+            [
+              '$lookup' => [
+                'from' => 'roles',
+                'localField' => 'role_ids',
+                'foreignField' => '_id',
+                'as' => 'role_name'
               ],
             ],
-          ],
-          [
-            '$set' => [
-              'role_name' => '$role_name.name'
+            [
+              '$skip' => ($page - 1) * 10
             ],
-          ],
-          [
-            '$project' => [
-              '_id' => 1,
-              'username' => 1,
-              'profile.l_name' => 1,
-              'profile.f_name' => 1,
-              'profile.m_name' => 1,
-              'profile.details' => 1,
-              'role_name' => 1,
+            [
+              '$limit' => 10
             ],
-          ],
+            [
+              '$set' => [
+                'role_name' => [
+                  '$first' => '$role_name'
+                ],
+              ],
+            ],
+            [
+              '$set' => [
+                'role_name' => '$role_name.name'
+              ],
+            ],
+            [
+              '$project' => [
+                '_id' => 1,
+                'username' => 1,
+                'profile.l_name' => 1,
+                'profile.f_name' => 1,
+                'profile.m_name' => 1,
+                'profile.details' => 1,
+                'role_name' => 1,
+              ],
+            ],
+          ]);
+        });
+
+        return new \Illuminate\Pagination\LengthAwarePaginator($collection, $total, 10, $page, [
+          'path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()
         ]);
-      })
+      },
     ]);
   }
 
   public function create_user_page()
   {
     return Inertia::render('auth/admin/create-user', [
-      'roles' => fn() => Role::all()->map(fn ($value) => $value->name)
+      'roles' => fn () => Role::all()->map(fn ($value) => $value->name)
     ]);
   }
 
   public function edit_user_page(String $user_id)
   {
     return Inertia::render('Auth/Admin/EditUser', [
-      'user_edit' => function() use ($user_id) {
+      'user_edit' => function () use ($user_id) {
         $user_match = User::raw(function ($collection) use ($user_id) {
           return $collection->aggregate([
             [
@@ -136,7 +151,7 @@ class AdminController extends Controller
 
         return $user_match->first();
       },
-      'roles' => fn() => Role::all()->map(fn ($value) => $value->name),
+      'roles' => fn () => Role::all()->map(fn ($value) => $value->name),
     ]);
   }
 
@@ -364,8 +379,8 @@ class AdminController extends Controller
   public function edit_classroom_page(String $classroom_id)
   {
     return Inertia::render('Auth/Admin/EditClassroom', [
-      'classroom' => fn() => Classroom::find($classroom_id)->first(), //* HACK: Why does this return an array?
-      'added_students' => fn() => User::where('classroom_joined_id', $classroom_id)
+      'classroom' => fn () => Classroom::find($classroom_id)->first(), //* HACK: Why does this return an array?
+      'added_students' => fn () => User::where('classroom_joined_id', $classroom_id)
         ->project([
           '_id' => 1,
           'username' => 1,
@@ -373,7 +388,7 @@ class AdminController extends Controller
         ])
         ->get(),
       'instructors' => fn () => User::role('instructor')->get(),
-      'available_students' => fn() => User::role('student')
+      'available_students' => fn () => User::role('student')
         ->whereNull('classroom_joined_id')
         ->get()
     ]);
@@ -411,7 +426,7 @@ class AdminController extends Controller
       ->whereIn('_id', $request->studentsToAdd)
       ->update([
         'classroom_joined_id' => $classroom_id,
-      ], [ 'upsert' => true ]);
+      ], ['upsert' => true]);
 
     // Finally update classroom details
     $classroom->update([
@@ -424,9 +439,9 @@ class AdminController extends Controller
     ]);
     $classroom->pull('student_ids', $request->studentsToRemove);
     $classroom->push('student_ids', [
-        'student_ids' => [
-            '$each' => $request->studentsToAdd
-        ]
+      'student_ids' => [
+        '$each' => $request->studentsToAdd
+      ]
     ]);
 
     return redirect()->route('admin.classrooms');

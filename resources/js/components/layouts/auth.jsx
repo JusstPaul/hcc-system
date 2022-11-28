@@ -7,10 +7,17 @@ import {
 } from '@heroicons/react/20/solid'
 import { isMdScreen } from '@js/utils'
 
-const NavLink = ({ className, icon: Icon, label, ...props }) => {
+const NavLink = ({
+  className,
+  icon: Icon,
+  label,
+  isActive = false,
+  ...props
+}) => {
   const _className = (() => {
-    const c =
-      'inline-flex gap-1 py-2 px-4 w-full rounded hover:bg-primary-500 hover:text-gray-50'
+    const c = `inline-flex gap-1 py-2 px-4 w-full rounded ${
+      isActive ? 'bg-primary-500 text-gray-50' : 'hover:text-primary-500'
+    }`
     if (className) return `${c} ${className}`
     return c
   })()
@@ -93,9 +100,9 @@ const AuthLayout = ({ children, navigation = [] }) => {
   }, [user])
 
   const mainNav = useMemo(() => {
-    return navigation.map(({ link, label, icon }, i) => (
+    return navigation.map(({ link, label, icon, isActive }, i) => (
       <li className="py-2" key={i}>
-        <NavLink href={link} label={label} icon={icon} />
+        <NavLink href={link} label={label} icon={icon} isActive={isActive} />
       </li>
     ))
   }, [navigation])
@@ -104,9 +111,9 @@ const AuthLayout = ({ children, navigation = [] }) => {
     <Fragment>
       <aside
         id="main-sidebar"
-        className={`text-center fixed top-0 left-0 h-screen w-9/12 md:w-60 px-6 py-2 border-r bg-gray-50 duration-150 ease-in-out ${
-          isVisible ? 'translate-x-0' : togglerClassName
-        }`}
+        className={`text-center fixed top-0 left-0 h-screen w-9/12 md:w-60 px-6 py-2 border-r bg-gray-50 ${
+          isMd ? '' : 'duration-150 ease-in-out'
+        } ${isVisible ? 'translate-x-0' : togglerClassName}`}
         aria-label="Main Sidebar"
         aria-expanded={isVisible}
         ref={sidebarRef}
@@ -144,7 +151,7 @@ const AuthLayout = ({ children, navigation = [] }) => {
           {toggler}
           <span id="header" className="grow p-2 flex gap-4"></span>
         </header>
-        <div className="px-2">{children}</div>
+        <div className="px-2 py-8">{children}</div>
       </main>
     </Fragment>
   )

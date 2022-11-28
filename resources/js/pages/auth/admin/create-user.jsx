@@ -86,14 +86,10 @@ const CreateUser = ({ roles }) => {
   /** Validate args */
   if (import.meta.env.DEV) {
     useEffect(() => {
-      if (isArray(roles)) {
-        const res = roles.map((v) => isString(v)).reduce((a, v) => a && v)
-        if (!res) {
-          console.error('Props Type: (role.*) is expected to be string')
-        }
-      } else {
-        console.error('Props Type: (role) is expected to be array')
-      }
+      ;(async () => {
+        const joi = (await import('joi')).default
+        joi.array().items(joi.string()).validate(roles)
+      })().catch(console.error)
     }, [roles])
   }
 

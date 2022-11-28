@@ -141,7 +141,7 @@ const PasswordInput = ({
     if (focused) {
       return 'border-primary-600'
     }
-    return 'border-gray-600'
+    return 'border-gray-500'
   }
 
   return (
@@ -203,7 +203,7 @@ const Checkbox = ({ name, label, className, id, ...props }) => {
         name={name}
         id={id}
         {...props}
-        className="rounded py-1 focus:ring-primary-600 focus:border-primary-600"
+        className="rounded py-1 text-primary-500 focus:ring-primary-600 focus:border-primary-600"
       />
       {_label()}
     </p>

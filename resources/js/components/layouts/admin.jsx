@@ -5,16 +5,28 @@ const AdminLayout = ({ children }) => {
   return (
     <AuthLayout
       navigation={[
-        {
-          link: route('admin.index'),
-          label: 'Users',
-          icon: UserGroupIcon,
-        },
-        {
-          link: route('admin.classrooms'),
-          label: 'Classrooms',
-          icon: AcademicCapIcon,
-        },
+        (() => {
+          const link = route('admin.index')
+          const isActive = route().current('admin.index')
+
+          return {
+            link,
+            isActive,
+            label: 'Users',
+            icon: UserGroupIcon,
+          }
+        })(),
+        (() => {
+          const link = route('admin.classrooms')
+          const isActive = route().current('admin.classrooms')
+
+          return {
+            link,
+            isActive,
+            label: 'Classrooms',
+            icon: AcademicCapIcon,
+          }
+        })(),
       ]}
     >
       {children}

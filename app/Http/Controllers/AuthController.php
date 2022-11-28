@@ -37,8 +37,9 @@ class AuthController extends Controller
       'remember' => 'required|boolean',
     ]);
 
+    $remember = $request->remember === 1;
     $credentials = $request->only('username', 'password');
-    if (Auth::attempt($credentials, $request->remember)) {
+    if (Auth::attempt($credentials, $remember)) {
       $request->session()->regenerate();
 
       // Create session token

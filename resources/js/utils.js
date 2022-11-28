@@ -1,8 +1,16 @@
 import { useMediaQuery } from 'react-responsive'
+import { isEmpty } from 'lodash'
 
 const isMdScreen = () => useMediaQuery({ query: '(min-width: 768px)' })
 
-export { isMdScreen }
+const profileToName = ({ l_name: lName, m_name: mName, f_name: fName }) => {
+  if (!mName || isEmpty(mName)) {
+    return `${lName}, ${fName}`
+  }
+  return `${lName}, ${fName} ${mName[0]}`
+}
+
+export { isMdScreen, profileToName }
 // import dayjs from "dayjs";
 // import axios from "axios";
 // import Quill from 'quill'

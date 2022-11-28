@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Jenssegers\Mongodb\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Profile extends Model
 {
+  use HasFactory;
+
   /**
    * Fillable attributes.
    *

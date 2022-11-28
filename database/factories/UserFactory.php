@@ -3,13 +3,17 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use MongoDB\BSON\ObjectId;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
 class UserFactory extends Factory
 {
+    protected $model = User::class;
+
     /**
      * Define the model's default state.
      *
@@ -18,21 +22,16 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'username' => fake()->name(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'remember_token' => Str::random(10),
+          'username' => $this->faker->name,
+          'password' => Hash::make('password'),
+          'profile' => [
+            '_id' => new ObjectId(),
+            'avatar' => null,
+            'l_name' => $this->faker->lastName(),
+            'm_name' => $this->faker->lastName(),
+            'f_name' => $this->faker->firstName(),
+            'details' => null
+          ]
         ];
-    }
-
-    /**
-     * Indicate that the model's email address should be unverified.
-     *
-     * @return static
-     */
-    public function unverified()
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
     }
 }

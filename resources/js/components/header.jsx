@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 
 const Header = ({ children }) => {
@@ -7,10 +7,12 @@ const Header = ({ children }) => {
     setReady(true)
   }, [])
 
-  return isReady ? (
-    ReactDOM.createPortal(children, document.getElementById('header'))
-  ) : (
-    <></>
-  )
+  if (isReady) {
+    return ReactDOM.createPortal(
+      <Fragment>{children}</Fragment>,
+      document.getElementById('header'),
+    )
+  }
+  return <></>
 }
 export default Header
