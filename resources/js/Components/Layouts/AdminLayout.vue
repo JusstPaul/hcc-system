@@ -10,12 +10,14 @@ import {
   NButton,
   NNotificationProvider,
   NSpace,
+  NH1,
 } from 'naive-ui'
 import {
   Users as UsersIcon,
   UserCircle as UserCircleIcon,
   School as SchoolIcon,
   Logout as LogoutIcon,
+  Archive as ArchiveIcon,
 } from '@vicons/tabler'
 import { pXS, ptXS } from '@/styles'
 import { logout, renderIcon } from '@/utils'
@@ -33,6 +35,7 @@ export default {
     NButton,
     NNotificationProvider,
     NSpace,
+    NH1,
   },
   setup() {
     const routes = [
@@ -63,6 +66,20 @@ export default {
           ),
         key: 'admin-classrooms',
         icon: renderIcon(SchoolIcon),
+      },
+      {
+        label: () =>
+          h(
+            Link,
+            {
+              href: route('admin.archive'),
+            },
+            {
+              default: () => 'Archive',
+            },
+          ),
+        key: 'admin-archive',
+        icon: renderIcon(ArchiveIcon),
       },
     ]
 
@@ -108,6 +125,8 @@ export default {
           return 'admin-classrooms'
         case 'admin.profile':
           return 'admin-profile'
+        case 'admin.archive':
+          return 'admin-archive'
         default:
           alert('AdminLayout: Invalid route')
           return ''

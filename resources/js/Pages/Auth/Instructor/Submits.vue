@@ -1,6 +1,7 @@
 <script>
 import dayjs from 'dayjs'
-import { h } from 'vue'
+import mobile from 'is-mobile'
+import { h, onMounted } from 'vue'
 import { isUndefined } from 'lodash'
 import { Inertia } from '@inertiajs/inertia'
 import {
@@ -36,6 +37,12 @@ export default {
     submits: Object,
   },
   setup({ activity, submits, classroom_id }) {
+    onMounted(() => {
+      if (mobile()) {
+        screen.orientation.lock('landscape')
+      }
+    })
+
     const submitsColumns = [
       {
         title: 'Student ID',
@@ -141,6 +148,7 @@ export default {
       submitsData,
       mxHalfRem,
       pXS,
+      mobile,
     }
   },
 }
@@ -161,6 +169,11 @@ n-layout-header
       :single-line="false",
       :bordered="false",
       :columns="submitsColumns",
-      :data="submitsData"
+      :data="submitsData",
+      :pagination=`{
+        pageSize: 10,
+        showQuickJumper: true,
+        simple: mobile()
+      }`
     )
 </template>

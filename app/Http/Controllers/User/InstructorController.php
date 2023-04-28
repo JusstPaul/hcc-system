@@ -55,6 +55,14 @@ class InstructorController extends Controller
     ]);
   }
 
+  public function students_remove(String $classroom_id, String $student_id)
+  {
+    DB::collection('users')
+      ->whereIn('_id', [$student_id])
+      ->unset('classroom_joined_id');
+    return redirect()->back();
+  }
+
   public function create_announcement_store(Request $request, String $classroom_id)
   {
     $request->validate([

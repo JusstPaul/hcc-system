@@ -1,4 +1,5 @@
 <script>
+import mobile from 'is-mobile'
 import { ref } from 'vue'
 import { convert } from 'html-to-text'
 import { useAsyncState } from '@vueuse/core'
@@ -103,6 +104,10 @@ export default {
     activity: Object,
   },
   setup({ activity, student_id }) {
+    if (mobile()) {
+      screen.orientation.lock('landscape')
+    }
+
     const { questions, general_directions } = activity
 
     const token = usePage().props.value.user.token
@@ -503,10 +508,20 @@ export default {
     }
 
     function stateToCSS(state, direction) {
+      if (direction === 'left') {
+        return {
+          transform: `scale(${state.zoom[direction]})`,
+          opacity: state.opacity[direction],
+          filter: `brightness(${state.brightness[direction]})`,
+          marginRight: `${state.gap}px`,
+        }
+      }
+
       return {
         transform: `scale(${state.zoom[direction]})`,
         opacity: state.opacity[direction],
         filter: `brightness(${state.brightness[direction]})`,
+        marginLeft: `${state.gap}px`,
       }
     }
 
@@ -782,7 +797,7 @@ n-layout
                                               size="small",
                                               v-model:value="answer.state.gap",
                                               :max="20",
-                                              :min="-20",
+                                              :min="-100",
                                               :step="1"
                                             )
 
@@ -852,7 +867,7 @@ n-layout
                                 n-h3 Snapshot {{ i + 1 }} / {{ answer.progress.total }}
                                 n-space(vertical)
                                   n-space(justify="center")
-                                    n-image.mx-auto(:src="createObjectURL(snapshot.file)")
+                                    n-image.mx-auto(:src="createObjectURL(snapshot.file)", object-fit="contain", height="300")
                                   quill-editor(
                                     theme="snow",
                                     toolbar="minimal",

@@ -1,4 +1,5 @@
 <script>
+import mobile from 'is-mobile'
 import {
   NLayout,
   NLayoutHeader,
@@ -6,9 +7,7 @@ import {
   NLayoutContent,
   NDataTable,
 } from 'naive-ui'
-import {
-  pXS,
-} from '@/styles'
+import { pXS } from '@/styles'
 import { formatName } from '@/utils'
 import Layout from '@/Components/Layouts/StudentLayout.vue'
 
@@ -25,7 +24,6 @@ export default {
     students: Array,
   },
   setup({ students }) {
-
     const studentsTableColumns = [
       {
         title: 'ID',
@@ -34,7 +32,7 @@ export default {
       {
         title: 'Name',
         key: 'name',
-      }
+      },
     ]
     const studentsTableData = students.map((val) => {
       const { username } = val
@@ -50,8 +48,9 @@ export default {
       pXS,
       studentsTableColumns,
       studentsTableData,
+      mobile,
     }
-  }
+  },
 }
 </script>
 
@@ -64,6 +63,10 @@ n-layout
       :single-line="false",
       :bordered="false",
       :columns="studentsTableColumns",
-      :data="studentsTableData"
+      :data="studentsTableData",
+      :pagination=`{
+        pageSize: 10,
+        simple: mobile()
+      }`
     )
 </template>

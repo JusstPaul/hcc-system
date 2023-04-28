@@ -1,5 +1,6 @@
 <script>
 import { h, ref } from 'vue'
+import mobile from 'is-mobile'
 import {
   NLayoutContent,
   NLayout,
@@ -56,20 +57,25 @@ export default {
     function routes() {
       let defaultRoutes = [
         {
-          label: () => h(Link, {
-            href: route('instructor.index'),
-          }, {
-            default: () => 'Classrooms',
-          }),
+          label: () =>
+            h(
+              Link,
+              {
+                href: route('instructor.index'),
+              },
+              {
+                default: () => 'Classrooms',
+              },
+            ),
           key: 'instructor-index',
-          icon: renderIcon(SchoolIcon)
+          icon: renderIcon(SchoolIcon),
         },
       ]
 
       switch (route().current()) {
         case 'instructor.index':
         case 'instructor.profile':
-          return defaultRoutes;
+          return defaultRoutes
 
         case 'instructor.create_activity':
         case 'instructor.classroom':
@@ -78,38 +84,48 @@ export default {
         case 'instructor.activity.submits.answer':
           defaultRoutes.push.apply(defaultRoutes, [
             {
-              key: "divider-1",
-              type: "divider",
+              key: 'divider-1',
+              type: 'divider',
               props: {
                 style: {
-                  marginLeft: "32px"
-                }
-              }
+                  marginLeft: '32px',
+                },
+              },
             },
             {
-              label: () => h(Link, {
-                href: route('instructor.students', {
-                  classroom_id: route().params.classroom_id,
-                })
-              }, {
-                default: () => 'Students',
-              }),
+              label: () =>
+                h(
+                  Link,
+                  {
+                    href: route('instructor.students', {
+                      classroom_id: route().params.classroom_id,
+                    }),
+                  },
+                  {
+                    default: () => 'Students',
+                  },
+                ),
               key: 'classroom-students',
-              icon: renderIcon(FriendsIcon)
+              icon: renderIcon(FriendsIcon),
             },
             {
-              label: () => h(Link, {
-                href: route('instructor.create_activity', {
-                  classroom_id: route().params.classroom_id,
-                })
-              }, {
-                default: () => 'Create Task'
-              }),
+              label: () =>
+                h(
+                  Link,
+                  {
+                    href: route('instructor.create_activity', {
+                      classroom_id: route().params.classroom_id,
+                    }),
+                  },
+                  {
+                    default: () => 'Create Task',
+                  },
+                ),
               key: 'classroom-create_activity',
-              icon: renderIcon(CalendarPlusIcon)
+              icon: renderIcon(CalendarPlusIcon),
             },
           ])
-          break;
+          break
         default:
           alert('InstructorLayout: Invalid route')
       }
@@ -118,28 +134,38 @@ export default {
 
     const footerRoutes = [
       {
-        label: () => h(Link, {
-          href: route('instructor.profile'),
-        }, {
-          default: () => 'Profile'
-        }),
+        label: () =>
+          h(
+            Link,
+            {
+              href: route('instructor.profile'),
+            },
+            {
+              default: () => 'Profile',
+            },
+          ),
         key: 'instructor-profile',
-        icon: renderIcon(UserCircleIcon)
+        icon: renderIcon(UserCircleIcon),
       },
       {
-        label: () => h('a', {
-          onClick: () => logout(),
-        }, {
-          default: () => 'Logout',
-        }),
+        label: () =>
+          h(
+            'a',
+            {
+              onClick: () => logout(),
+            },
+            {
+              default: () => 'Logout',
+            },
+          ),
         key: 'instructor-logout',
         icon: renderIcon(LogoutIcon),
-      }
+      },
     ]
 
     return {
       logout,
-      collapsed: ref(false),
+      collapsed: ref(mobile()),
       routes,
       footerRoutes,
       currentRouteKey,
@@ -148,7 +174,7 @@ export default {
       ptXS,
       SIDER,
     }
-  }
+  },
 }
 </script>
 
@@ -159,7 +185,7 @@ n-layout(has-sider, :style="hFull")
     show-trigger,
     collapse-mode="width"
     :collapsed-width="SIDER.COLLAPSED_WIDTH",
-    :width="SIDER.WIDTH", 
+    :width="SIDER.WIDTH",
     :collapsed="collapsed",
     @collapse="() => collapsed = true",
     @expand="() => collapsed = false"
@@ -168,14 +194,14 @@ n-layout(has-sider, :style="hFull")
       n-layout-content(:content-style="ptXS")
         n-menu.pt-xs(
           :value="currentRouteKey()",
-          :options="routes()", 
+          :options="routes()",
           :collapsed="collapsed",
           :collapsed-width="SIDER.COLLAPSED_WIDTH",
           :collapsed-icon-size="SIDER.COLLAPSED_ICON_SIZE"
         )
       n-layout-footer.pt-xs(bordered, position="absolute")
         n-menu(
-          :options="footerRoutes", 
+          :options="footerRoutes",
           :collapsed="collapsed",
           :collapsed-width="SIDER.COLLAPSED_WIDTH",
           :collapsed-icon-size="SIDER.COLLAPSED_ICON_SIZE"

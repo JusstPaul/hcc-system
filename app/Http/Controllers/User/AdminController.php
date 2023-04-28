@@ -13,6 +13,7 @@ use Inertia\Inertia;
 use Maklad\Permission\Models\Role;
 use MongoDB\BSON\ObjectId;
 
+use function PHPSTORM_META\map;
 
 class AdminController extends Controller
 {
@@ -20,8 +21,32 @@ class AdminController extends Controller
   {
     $user_id = User::get()->id();
 
+    // $collection = User::raw(function ($collection) use ($user_id) {
+    //     return $collection->aggregate([
+    //       [
+    //         '$match' => [
+    //           '_id' => [
+    //             // NOTE: This is not an error.
+    //             '$ne' => new ObjectId($user_id)
+    //           ]
+    //         ]
+    //       ],
+    //       [
+    //         '$project' => [
+    //           '_id' => 1,
+    //           'username' => 1,
+    //           'profile.l_name' => 1,
+    //           'profile.f_name' => 1,
+    //           'profile.m_name' => 1,
+    //           'profile.details' => 1,
+    //         ],
+    //       ],
+    //     ]);
+    //   });
+
     return Inertia::render('Auth/Admin/Index', [
-      'users' => fn () => User::raw(function ($collection) use ($user_id) {
+      //'users' => fn () => $collection->toQuery()->paginate(10, ['*'], 'page', 1),
+      'users' => fn() => User::raw(function ($collection) use ($user_id) {
         return $collection->aggregate([
           [
             '$match' => [
@@ -32,47 +57,19 @@ class AdminController extends Controller
             ]
           ],
           [
-            '$addFields' => [
-              'role_ids' => [
-                '$toObjectId' => [
-                  '$first' => '$role_ids'
-                ],
-              ],
-            ],
-          ],
-          [
-            '$lookup' => [
-              'from' => 'roles',
-              'localField' => 'role_ids',
-              'foreignField' => '_id',
-              'as' => 'role_name'
-            ],
-          ],
-          [
-            '$set' => [
-              'role_name' => [
-                '$first' => '$role_name'
-              ],
-            ],
-          ],
-          [
-            '$set' => [
-              'role_name' => '$role_name.name'
-            ],
-          ],
-          [
             '$project' => [
               '_id' => 1,
               'username' => 1,
+              'role_ids' => 1,
               'profile.l_name' => 1,
               'profile.f_name' => 1,
               'profile.m_name' => 1,
               'profile.details' => 1,
-              'role_name' => 1,
             ],
           ],
         ]);
-      })
+      }),
+      'roles' => fn () => Role::all()
     ]);
   }
 
@@ -263,7 +260,9 @@ class AdminController extends Controller
     return Inertia::render('Auth/Admin/Classrooms', [
       'school_year' => fn () => $school_year,
       'classrooms' => fn () => is_null($school_year) ? [] : $school_year->classrooms()
-        ->raw(function ($collection) {
+        ->raw(function ($collection) use ($school_year) {
+          $id = $school_year['id'];
+
           return $collection->aggregate([
             [
               '$addFields' => [
@@ -286,6 +285,11 @@ class AdminController extends Controller
                   '$first' => '$instructor_raw'
                 ],
               ],
+            ],
+            [
+                '$match' => [
+                    'school_year_id' => "$id"
+                ]
             ],
             [
               '$project' => [
@@ -443,6 +447,16 @@ class AdminController extends Controller
     Classroom::destroy($classroom_id);
 
     return redirect()->route('admin.classrooms');
+  }
+
+  public function archive_page()
+  {
+    return Inertia::render('Auth/Admin/Archives', [
+        'school_years' => fn () => SchoolYear::all()
+            ->sortBy('created_at', SORT_REGULAR, true)
+            ->skip(1)
+            ->toArray()
+    ]);
   }
 
   public function profile_page()

@@ -57,6 +57,8 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
 	->name('admin.create_classroom');
   Route::get('/admin/edit_classroom/{classroom_id}', [UserGroup\AdminController::class, 'edit_classroom_page'])
     ->name('admin.edit_classroom');
+  Route::get('/admin/archive', [UserGroup\AdminController::class, 'archive_page'])
+    ->name('admin.archive');
   Route::get('/admin/profile', [UserGroup\AdminController::class, 'profile_page'])
 	->name('admin.profile');
 
@@ -92,6 +94,8 @@ Route::group(['middleware' => ['auth', 'role:instructor']], function () {
   Route::get('/instructor/classroom/{classroom_id}/activity/{activity_id}/submit/{answer_id}', [UserGroup\InstructorController::class, 'answer_page'])
 	->name('instructor.activity.submits.answer');
 
+  Route::post('/instructor/classroom/{classroom_id}/students/{student_id}', [UserGroup\InstructorController::class, 'students_remove'])
+    ->name('post.instructor.students_remove');
   Route::post('/instructor/classroom/{classroom_id}/create_task', [UserGroup\InstructorController::class, 'create_activity_store'])
 	->name('post.instructor.create_activity');
   Route::post('/instructor/classroom/{classroom_id}/announcement', [UserGroup\InstructorController::class, 'create_announcement_store'])

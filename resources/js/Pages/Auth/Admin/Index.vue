@@ -12,6 +12,8 @@ import {
   NDataTable,
   NSpace,
   NModal,
+  NInputGroup,
+  NInput,
 } from 'naive-ui'
 import { UserPlus, Trash as TrashIcon, Edit as EditIcon } from '@vicons/tabler'
 import { formatName } from '@/utils'
@@ -30,12 +32,17 @@ export default {
     NIcon,
     NDataTable,
     NModal,
+    NInputGroup,
+    NInput,
     UserPlusIcon: UserPlus,
   },
   props: {
     users: Array,
+    roles: Array,
   },
   setup(props) {
+    const searchContent = ref('')
+
     const showConfirmDeleteModal = ref(false)
     const confirmDeleteUser = ref('')
     const confirmDeleteUserId = ref('')
@@ -134,19 +141,51 @@ export default {
       },
     ]
 
-    const userTableData = props.users.map((val) => {
-      const { username, role_name } = val
-      const { l_name, m_name, f_name } = val.profile
-      const role = role_name.charAt(0).toUpperCase() + role_name.slice(1)
+    const userTableData = () => {
+      if (searchContent.value === '')
+        return props.users.map((val) => {
+          const { username, role_name } = val
+          const { l_name, m_name, f_name } = val.profile
+          const role = props.roles.filter((item) => {
+            return item._id === val.role_ids[0]
+          })[0].name
 
-      return {
-        key: val._id,
-        username,
-        name: formatName(l_name, m_name, f_name),
-        role,
-        action: 'None',
-      }
-    })
+          return {
+            key: val._id,
+            username,
+            name: formatName(l_name, m_name, f_name),
+            role,
+            action: 'None',
+          }
+        })
+
+      const searchRegex = new RegExp(searchContent.value, 'ig')
+      return props.users
+        .filter((val) => {
+          const { l_name, m_name, f_name } = val.profile
+          const name = formatName(l_name, m_name, f_name)
+
+          return !(
+            name.match(searchRegex) === null &&
+            val.username.match(searchRegex) === null
+          )
+        })
+        .map((val) => {
+          const { username, role_name } = val
+          const { l_name, m_name, f_name } = val.profile
+          const role = props.roles.filter((item) => {
+            return item._id === val.role_ids[0]
+          })[0].name
+
+          return {
+            key: val._id,
+            username,
+            name: formatName(l_name, m_name, f_name),
+            role,
+            action: 'None',
+          }
+        })
+    }
 
     function createUserLink() {
       Inertia.get(route('admin.create_user'))
@@ -160,6 +199,9 @@ export default {
       confirmDeleteUser,
       confirmDeleteUserPositive,
       pXS,
+      users: props.users,
+      jumpTo: Inertia.get,
+      searchContent,
     }
   },
 }
@@ -175,12 +217,19 @@ n-layout
             n-icon
               user-plus-icon
           |New User
+      template(#extra)
+        n-input-group
+          n-input(placeholder="Search", v-model:value="searchContent")
   n-layout-content(:content-style="pXS")
     n-data-table(
       :single-line="false",
       :bordered="false",
       :columns="userTableColumns",
-      :data="userTableData",
+      :data="userTableData()",
+      :pagination=`{
+        pageSize: 10,
+        showQuickJumper: true
+      }`
     )
 n-modal(
   v-model:show="showConfirmDeleteModal",

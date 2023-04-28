@@ -15,6 +15,7 @@ import {
   NTag,
   NSpace,
   NModal,
+  NInput,
 } from 'naive-ui'
 import { Trash as TrashIcon, Edit as EditIcon } from '@vicons/tabler'
 import { pXS } from '@/styles'
@@ -36,6 +37,7 @@ export default {
     NTag,
     NSpace,
     NModal,
+    NInput,
   },
   props: {
     school_year: Object,
@@ -43,6 +45,8 @@ export default {
     has_instructors: Boolean,
   },
   setup({ classrooms, school_year }) {
+    const searchContent = ref('')
+
     const showConfirmDeleteModal = ref(false)
     const confirmDeleteSection = ref('')
     const confirmDeleteSectionId = ref('')
@@ -146,20 +150,56 @@ export default {
         },
       },
     ]
-    const classroomData = classrooms.map(
-      ({ _id, section, instructor, room, time_start, time_end, day }) => ({
-        key: _id,
-        section: section,
-        instructor: formatName(
-          instructor.profile.l_name,
-          instructor.profile.m_name,
-          instructor.profile.f_name,
-        ),
-        room: room,
-        time: `${time_start} to ${time_end}`,
-        days: day.toUpperCase(),
-      }),
-    )
+    const classroomData = () => {
+      if (searchContent.value === '')
+        return classrooms.map(
+          ({ _id, section, instructor, room, time_start, time_end, day }) => ({
+            key: _id,
+            section: section,
+            instructor: formatName(
+              instructor.profile.l_name,
+              instructor.profile.m_name,
+              instructor.profile.f_name,
+            ),
+            room: room,
+            time: `${time_start} to ${time_end}`,
+            days: day.toUpperCase(),
+          }),
+        )
+
+      const searchRegex = new RegExp(searchContent.value, 'ig')
+      return classrooms
+        .filter(({ section, instructor, room, time_start, time_end, day }) => {
+          const name = formatName(
+            instructor.profile.l_name,
+            instructor.profile.m_name,
+            instructor.profile.f_name,
+          )
+
+          return !(
+            section.match(searchRegex) === null &&
+            name.match(searchRegex) === null &&
+            room.match(searchRegex) === null &&
+            time_start.match(searchRegex) === null &&
+            time_end.match(searchRegex) === null &&
+            day.match(searchRegex) === null
+          )
+        })
+        .map(
+          ({ _id, section, instructor, room, time_start, time_end, day }) => ({
+            key: _id,
+            section: section,
+            instructor: formatName(
+              instructor.profile.l_name,
+              instructor.profile.m_name,
+              instructor.profile.f_name,
+            ),
+            room: room,
+            time: `${time_start} to ${time_end}`,
+            days: day.toUpperCase(),
+          }),
+        )
+    }
 
     const showCurrentSchoolYear = formatSchoolYear(school_year)
 
@@ -188,6 +228,7 @@ export default {
       previewSchoolYear,
       generateSchoolYear,
       visitCreateClassroom,
+      searchContent,
     }
   },
 }
@@ -205,6 +246,8 @@ n-layout
           if school_year != null
             br
             |Doing so will archive the current School Year
+      template(#extra)
+        n-input(placeholder="Search", v-model:value="searchContent")
       n-space(align="baseline")
         n-button(
           :disabled="!has_instructors || school_year == null",
@@ -229,7 +272,11 @@ n-layout
       :single-line="false",
       :bordered="false",
       :columns="classroomTableColumns",
-      :data="classroomData"
+      :data="classroomData()",
+      :pagination=`{
+        pageSize: 10,
+        showQuickJumper: true
+      }`
     )
 n-modal(
   v-model:show="showConfirmDeleteModal",

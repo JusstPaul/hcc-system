@@ -1,5 +1,5 @@
 <script>
-import { NLayout, } from 'naive-ui'
+import { NLayout } from 'naive-ui'
 
 export default {
   components: {

@@ -1,5 +1,6 @@
 <script>
 import { ref, h } from 'vue'
+import mobile from 'is-mobile'
 import { Link, usePage } from '@inertiajs/inertia-vue3'
 import {
   NLayoutContent,
@@ -126,7 +127,7 @@ export default {
     ]
 
     return {
-      collapsed: ref(false),
+      collapsed: ref(mobile()),
       logout,
       hFull,
       pXS,

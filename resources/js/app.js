@@ -1,5 +1,5 @@
 import { createApp, h } from 'vue'
-import { NNotificationProvider } from 'naive-ui'
+import { NNotificationProvider, NConfigProvider } from 'naive-ui'
 import { createInertiaApp, Head, Link } from '@inertiajs/inertia-vue3'
 import { InertiaProgress } from '@inertiajs/progress'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
@@ -25,6 +25,13 @@ dayjs.tz.setDefault('Asia/Manila')
 // Loading progress indicator
 InertiaProgress.init()
 
+// Theme
+const themeOverrides = {
+  common: {
+    primaryColor: '#14b8a6',
+  },
+}
+
 // Initialize the system
 createInertiaApp({
   resolve: (n) =>
@@ -43,7 +50,19 @@ createInertiaApp({
           {},
           {
             // Main App
-            default: () => h(app, props),
+            default: () =>
+              h(
+                NConfigProvider,
+                {
+                  themeOverrides,
+                  style: {
+                    height: '100%',
+                  },
+                },
+                {
+                  default: () => h(app, props),
+                },
+              ),
           },
         ),
     })
