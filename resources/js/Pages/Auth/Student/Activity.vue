@@ -313,116 +313,170 @@ export default {
 
     const hccCharacteristics = [
       {
-        label: 'PP',
+        label: '1',
         header: 'Pen pressure',
+        abbrev: 'PP',
         description: 'The average force with which the pen contracts the paper',
       },
       {
-        label: 'PTCH',
+        label: '2',
         header: 'Patching',
+        abbrev: 'PCH',
         description:
           'The retouching or going back over a defective writing stroke.',
       },
       {
-        label: 'TR',
+        label: '3',
         header: 'Tremor',
+        abbrev: 'TRM',
         description: 'The irregular shaky stroke.',
       },
       {
-        label: 'STR',
+        label: '4',
         header: 'Stroke',
+        abbrev: 'STR',
         description:
           'These are series of lines or curves within a single letter.',
       },
       {
-        label: 'D',
+        label: '5',
         header: 'Diacritic',
+        abbrev: 'DIA',
         description:
           'It is a sign added to a letter or symbol to give it a particular phonetic value.',
       },
       {
-        label: 'B',
+        label: '6',
         header: 'Baseline',
+        abbrev: 'BA',
         description:
           'It is the ruled or imaginary line upon which the writing rests.',
       },
       {
-        label: 'A',
+        label: '7',
         header: 'Alignment',
+        abbrev: 'AL',
         description:
           'The relation of parts of the whole line of writing or line of individual letter in words to the baseline.',
       },
       {
-        label: 'LQ',
+        label: '8',
         header: 'Line quality',
+        abbrev: 'LQ',
         description:
           'Refers to the overall character of the written strokes from the initial to the terminal.',
       },
       {
-        label: 'B',
-        header: 'Baseline',
-        description:
-          'It is the ruled or imaginary line upon which the writing rests.',
-      },
-      {
-        label: 'LS',
+        label: '9',
         header: 'Lateral spacing',
+        abbrev: 'LS',
         description:
           'The horizontal dimension of writing produced by the width of letters, the space between letters and words, and the width of margins.',
       },
       {
-        label: 'NV',
+        label: '10',
         header: 'Natural variation',
+        abbrev: 'NV',
         description:
           'The normal or usual deviation found in repeated specimen of any individual handwriting.',
       },
       {
-        label: 'RHY',
+        label: '11',
         header: 'Rhythm',
+        abbrev: 'RH',
         description:
           'The element of the writing movement marked by regular or periodic recurrences. It may be classed as smooth, intermittent, or jerky in its quality.',
       },
       {
-        label: 'PR',
+        label: '12',
         header: 'Proportion',
+        abbrev: 'PR',
         description: 'It is the relation of the tall and short letters.',
       },
       {
-        label: 'SLNT',
+        label: '13',
         header: 'Slant',
+        abbrev: 'SLT',
         description:
           'The angle or inclination of the axis of letters relative to the baseline.',
       },
       {
-        label: 'H',
+        label: '14',
         header: 'Hiatus',
+        abbrev: 'HIA',
         description:
           'The gap in writing stroke of a letter formed when the instrument leaves the paper. An opening, an interruption in the continuity of a line.',
       },
       {
-        label: 'PL',
+        label: '15',
         header: 'Pen lift',
+        abbrev: 'PL',
         description:
           'Is an interruption in stroke caused by removing or lifting the writing instrument from the paper.',
       },
       {
-        label: 'L',
+        label: '16',
         header: 'Ligature',
+        abbrev: 'LG',
         description:
           'It is a group of connected characters treated typographically as a single character, sometimes a stroke or bar connecting two letters.',
       },
       {
-        label: 'RE',
+        label: '17',
         header: 'Retracing',
+        abbrev: 'RT',
         description:
           'The stroke that goes back over another writing stroke.\nIn natural handwriting there may be many instances in which the pen doubles back over the same course but some retracing in fraudulent\nsignatures represents a reworking of a letter form or stroke.',
       },
       {
-        label: 'WH',
+        label: '18',
         header: 'Writing habit',
+        abbrev: 'WH',
         description:
           'It is persistently repeated element or detail of writing that occurs when the opportunity allows. ',
       },
+      {
+        label: '19',
+        header: 'Hook or Trough',
+        abbrev: 'HT',
+        description: 'The bend, crook or curve on the inner of the bottom loop or curve of small letter.'
+      },
+      {
+        label: '20',
+        header: 'Hump',
+        abbrev: 'HMP',
+        description: 'The rounded outside of the bend, crook or curve in small letters.'
+      },
+      {
+        label: '21',
+        header: 'Diacritic',
+        abbrev: 'DAT',
+        description: 'An element added to complete certain letters.'
+      },
+      {
+        label: '22',
+        header: 'Eye loop or Eyelet',
+        abbrev: 'EL',
+        description: 'The small loop formed by strokes and extend in divergent direction.'
+      },
+      {
+        label: '23',
+        header: 'Blunt Ending or Beginning',
+        abbrev: 'BLE',
+        description: 'Blunt ending and initial strokes are results of the drawing process in forgery.'
+      },
+      {
+        label: '24',
+        header: 'Buckle Knot',
+        abbrev: 'BK',
+        description: 'The horizontal and looped stokes that are often used to complete such letters.'
+      },
+      {
+        label: '25',
+        header: 'Arc or Arch',
+        abbrev: 'ARC',
+        description: 'Any arcade form in the body of the letter.'
+      }
     ]
 
     function hccAddCharacteristic(
@@ -850,7 +904,7 @@ n-layout
                                                 template(#trigger)
                                                   n-button(
                                                     text,
-                                                    @click="hccAddCharacteristic(characteristic.label, section_index, answer_index, section.id, answer.id)"
+                                                    @click="hccAddCharacteristic(characteristic.abbrev, section_index, answer_index, section.id, answer.id)"
                                                   ) {{ characteristic.label }}
                                                 p.ws-pre {{ characteristic.description }}
                                     else
@@ -872,7 +926,7 @@ n-layout
                                     theme="snow",
                                     toolbar="minimal",
                                     v-model:content="snapshot.description",
-                                    placeholder="Conclusion"
+                                    placeholder="Evaluation"
                                   )
 
                             .w-full
