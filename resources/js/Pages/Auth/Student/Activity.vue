@@ -60,6 +60,8 @@ import {
 async function keyToJpeg(token, key) {
   const response = await requestFile(token, key)
   const url = URL.createObjectURL(response)
+
+  console.log(url)
   return url
 }
 
@@ -904,7 +906,7 @@ n-layout
                                                 template(#trigger)
                                                   n-button(
                                                     text,
-                                                    @click="hccAddCharacteristic(characteristic.abbrev, section_index, answer_index, section.id, answer.id)"
+                                                    @click="hccAddCharacteristic(characteristic.label, section_index, answer_index, section.id, answer.id)"
                                                   ) {{ characteristic.label }}
                                                 p.ws-pre {{ characteristic.description }}
                                     else

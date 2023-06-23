@@ -40,7 +40,6 @@ class StudentController extends Controller
                 'created_at' => 1,
                 'start' => 1,
                 'lock_after_end' => 1,
-                'created_at' => 1,
                 'answers' => [
                   '_id' => 1,
                   'student_id' => 1,

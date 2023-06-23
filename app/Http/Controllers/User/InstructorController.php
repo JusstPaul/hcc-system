@@ -212,6 +212,8 @@ class InstructorController extends Controller
 
   public function answer_page(String $classroom_id, String $activity_id, String $answer_id)
   {
+ 
+
     return Inertia::render('Auth/Instructor/Answer', [
       'classroom_id' => $classroom_id,
       'activity' => fn () => Activities::raw(function ($collection) use ($activity_id, $answer_id) {

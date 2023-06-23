@@ -56,5 +56,5 @@ function getFile(String $key)
 function urlFile(String $key)
 {
   return Storage::disk(env('STORAGE', 'public'))
-    ->temporaryUrl($key, now()->addHour(2));
+    ->temporaryUrl($key, now()->addHour());
 }

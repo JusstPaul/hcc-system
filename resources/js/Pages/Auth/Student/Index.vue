@@ -54,7 +54,7 @@ export default {
     activities: Array,
     announcements: Object,
   },
-  setup({ student_id }) {
+  setup({ student_id, activities }) {
     const { tab } = route().params
 
     function visitActivity(_id) {
@@ -73,7 +73,7 @@ export default {
 
       return ans
         .map(({ student_id: s_id }) => s_id === student_id)
-        .reduce((acc, val) => acc && val, true)
+        .reduce((acc, val) => acc || val, true)
     }
 
     function findAnswer({ student_id: s_id }) {

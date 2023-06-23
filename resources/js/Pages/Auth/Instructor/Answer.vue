@@ -22,6 +22,9 @@ import {
   NDivider,
   NInputNumber,
   NImage,
+  NList,
+  NListItem,
+  NText,
 } from 'naive-ui'
 import { QuillEditor } from '@vueup/vue-quill'
 import { pXS, mxHalfRem, wFull, wMax, mxAuto, mlAuto, mr } from '@/styles'
@@ -48,6 +51,9 @@ export default {
     NDivider,
     NInputNumber,
     NImage,
+    NList,
+    NListItem,
+    NText,
     QuillEditor,
   },
   props: {
@@ -102,6 +108,7 @@ export default {
         }),
       ),
     })
+
 
     function isComparator(index) {
       return questions[index].type === QUESTION_TYPES[4]
@@ -222,7 +229,7 @@ n-layout
 
                   n-form-item(label="Answer", :show-feedback="false")
                     if isComparator(section)
-                      n-space(vertical)
+                      n-space.w-full(vertical)
                         if item.extra
                           for comparator in item.extra.snapshots
                             n-form-item.w-full(:key="comparator.id")
@@ -245,6 +252,84 @@ n-layout
                               template(#header)
                                 span Overall conclusion: {{ item.extra.conclusionType }}
                               div(v-html="convertDeltaContent(item.extra.conclusion)")
+                          n-form-item.w-full
+                            n-alert.w-full(:show-icon="false", title="Legend")
+                              n-list
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 1
+                                  n-text Pen pressure
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 2
+                                  n-text Patching
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 3
+                                  n-text Tremor                              
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 4
+                                  n-text Stroke                             
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 5
+                                  n-text Diacritic                           
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 6
+                                  n-text Baseline                          
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 7
+                                  n-text Alignment
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 8
+                                  n-text Line quality
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 9
+                                  n-text Lateral spacing
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 10
+                                  n-text Natural variation
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 11
+                                  n-text Rhythm
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 12
+                                  n-text Proportion
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 13
+                                  n-text Slant                              
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 14
+                                  n-text Hiatus                              
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 15
+                                  n-text Pen lift                             
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 16
+                                  n-text Ligature                            
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 17
+                                  n-text Retracing
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 18
+                                  n-text Writing habit
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 19
+                                  n-text Hook or Trough
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 20
+                                  n-text Hump
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 21
+                                  n-text Diacritic
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 22
+                                  n-text Eye loop or Eyelet
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 23
+                                  n-text Blunt Ending or Beginning  
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 24
+                                  n-text Buckle Knot                                   
+                                n-list-item
+                                  n-text(strong=true, style="margin-right: 1rem") 25
+                                  n-text Arch or Arch                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
                     else
                       if isEssay(section)
                         n-alert.w-full(:show-icon="false")
