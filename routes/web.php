@@ -97,7 +97,7 @@ Route::group(['middleware' => ['auth', 'role:instructor']], function () {
   Route::post('/instructor/classroom/{classroom_id}/students/{student_id}', [UserGroup\InstructorController::class, 'students_remove'])
     ->name('post.instructor.students_remove');
   Route::post('/instructor/classroom/{classroom_id}/create_task', [UserGroup\InstructorController::class, 'create_activity_store'])
-	->name('post.instructor.create_activity_store');
+	->name('post.instructor.create_activity');
   Route::post('/instructor/classroom/{classroom_id}/announcement', [UserGroup\InstructorController::class, 'create_announcement_store'])
 	->name('post.instructor.create_announcement');
   Route::post('/instructor/classroom/{classroom_id}/activity/{activity_id}/submit/{answer_id}', [UserGroup\InstructorController::class, 'answer_store'])
