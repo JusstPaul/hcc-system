@@ -947,13 +947,13 @@ n-layout
                                           value: 'Forged'
                                       }
                                     ]`,
-                                    placeholder="Overall Conclusion"
+                                    placeholder="Overall Evaluation"
                                   )
                                   quill-editor(
                                     theme="snow",
                                     toolbar="minimal",
                                     v-model:content="answer.value.conclusion",
-                                    placeholder="Justify your conclusion"
+                                    placeholder="Justify your evaluation"
                                   )
         n-form-item
           n-button(
