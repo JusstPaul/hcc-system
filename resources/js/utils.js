@@ -79,15 +79,26 @@ export async function requestFilePreview(token, key) {
 }
 
 export function convertDeltaContent(delta) {
+    delta.ops.forEach(({ insert }, index, arr) => {
+        if (Object.prototype.toString.call(insert) === "[object String]")
+            arr[index] = {
+                insert
+            }
+        else
+            arr[index] = {
+                insert: "\n"
+            }
+    })
+
   const cont = document.createElement('div');
   (new Quill(cont)).setContents(delta);
   return cont.getElementsByClassName('ql-editor')[0].innerHTML
 }
 
-export function downloadFile(file) {
-  requestFile(token, file, (url) => {
-    saveAs(url)
-  })
+export function downloadFile(token, file) {
+    requestFile(token, file).then((url) => {
+        saveAs(url)
+    }).catch(console.error)
 }
 export function getFileName(file) {
   const arr = file.split('/')

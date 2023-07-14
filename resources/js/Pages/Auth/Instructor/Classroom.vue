@@ -179,7 +179,7 @@ n-layout
                     div Attachments:
                     n-space(vertical)
                       for file in val.fileContents
-                        n-button(quaternary, @click="downloadFile(file)") {{ getFileName(file) }}
+                        n-button(quaternary, @click="() => downloadFile(token, file)") {{ getFileName(file) }}
       n-tab-pane(name="activities", tab="Activities")
         n-space(vertical, :item-style="wFull")
           for act in activities

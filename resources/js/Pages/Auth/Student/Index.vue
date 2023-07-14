@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import { computed } from 'vue'
 import { isUndefined } from 'lodash'
 import { Inertia } from '@inertiajs/inertia'
+import { usePage } from '@inertiajs/inertia-vue3'
 import {
   NSpace,
   NCard,
@@ -56,6 +57,8 @@ export default {
   },
   setup({ student_id, activities }) {
     const { tab } = route().params
+
+    const token = usePage().props.value.user.token
 
     function visitActivity(_id) {
       Inertia.get(
@@ -128,6 +131,7 @@ export default {
       downloadFile,
       getFileName,
       viewCheck,
+      token
     }
   },
 }
@@ -222,7 +226,7 @@ layout(:hasClass="joined_class")
                             n-button(
                               quaternary,
                               block,
-                              @click="downloadFile(file)"
+                              @click="() => downloadFile(token, file)"
                             ) {{ getFileName(file) }}
       else
         n-space.h-full(justify="center", :item-style="wFull")

@@ -867,14 +867,16 @@ n-layout
                                   n-layout-content.w-full
                                     if !(answer.progress.current >= answer.progress.total)
                                       n-space.w-full.pt-half(vertical)
-                                        .comparator-container(:id="`hcc-${section.id}-${section_index}-${answer_index}`")
+                                        .comparator-container.overflow-hidden(
+                                          :id="`hcc-${section.id}-${section_index}-${answer_index}`"
+                                        )
                                           .comparator-images
                                              n-image-group.h-full.w-full
                                                n-grid.w-full.h-full(
                                                  :cols="2",
                                                  :x-gap="answer.state.gap",
                                                )
-                                                 n-grid-item.comparator-images-item.overflow-hidden
+                                                 n-grid-item.comparator-images-item
                                                      n-h3.text-center(style="padding: 0; margin: 0;") Questioned Signature
                                                      .overflow-hidden.h-full
                                                        if answer.files.questioned.isLoading
@@ -885,7 +887,7 @@ n-layout
                                                            :style="stateToCSS(answer.state, 'left')",
                                                          )
 
-                                                 n-grid-item.comparator-images-item.overflow-hidden
+                                                 n-grid-item.comparator-images-item
                                                    n-h3.text-center(style="padding: 0; margin: 0;") Standard Signature {{ answer.progress.current + 1 }}
                                                    .overflow-hidden.h-full
                                                      if answer.files.samples[answer.progress.current].isLoading
