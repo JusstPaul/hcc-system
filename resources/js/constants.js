@@ -4,6 +4,7 @@ export const QUESTION_TYPES = [
   "Multiple Choice",
   "Essay",
   "Handwriting Comparator",
+  "File Upload",
 ];
 
 export const SIDER = {

@@ -450,7 +450,10 @@ n-layout
                             @change="({ fileList }) => setSamplesImgList(fileList, index, idx)"
                           )
 
-                    if section.type !== QUESTION_TYPES[4] && section.type !== QUESTION_TYPES[3]
+                    if section.type !== QUESTION_TYPES[5]
+                      n-form-item(label="Upload")
+
+                    if section.type !== QUESTION_TYPES[4] && section.type !== QUESTION_TYPES[3]  && section.type !== QUESTION_TYPES[5]
                       n-form-item(label="Answer")
                         if section.type === QUESTION_TYPES[1]
                           n-radio-group(

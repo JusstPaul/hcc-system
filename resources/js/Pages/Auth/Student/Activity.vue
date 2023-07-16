@@ -39,6 +39,8 @@ import {
   NEmpty,
   NIcon,
   NModal,
+  NUpload,
+  NUploadTrigger,
 } from 'naive-ui'
 import { QuillEditor } from '@vueup/vue-quill'
 import { CheckupList as CheckupListIcon } from '@vicons/tabler'
@@ -98,6 +100,8 @@ export default {
     NEmpty,
     NIcon,
     NModal,
+    NUpload,
+    NUploadTrigger,
     QuillEditor,
     CheckupListIcon,
   },
@@ -622,6 +626,12 @@ export default {
         )
     }
 
+    function handleFileUpload(fileList, section, answer) {
+        console.log(section)
+        console.log(answer)
+        answerForm.answers[section].values[answer].value = fileList
+    }
+
     return {
       answerForm,
       matchQuestion,
@@ -652,6 +662,7 @@ export default {
       toPDF,
       showConfirm,
       submit,
+      handleFileUpload,
     }
   },
 }
@@ -743,10 +754,34 @@ n-layout
                               placeholder="Answer"
                             )
 
+                        else if matchQuestion(section_index, 5)
+                          //- File upload
+                          .w-full
+                            n-upload(
+                              multiple,
+                              abstract,
+                              @change="({ fileList }) => handleFileUpload(fileList, section_index, answer_index)"
+                            )
+                              .w-full
+                                n-alert.mb-half
+                                  template(#header)
+                                    | Attachments: {{ Array.isArray(answer.value) ? answer.value.length : 0 }}
+                                  template(#default)
+                                    n-space(vertical)
+                                      if Array.isArray(answer.value)
+                                        for file in answer.value
+                                          div.mt-half.mb-half {{ file["name"] }}
+                                n-upload-trigger(abstract, #="{ handleClick }")
+                                  n-button(
+                                    secondary,
+                                    attr-type="button",
+                                    @click="handleClick"
+                                  ) Upload
+
                         else if matchQuestion(section_index, 4)
                           //- Comparator
                           n-space(vertical)
-                            div.w-full
+                            .w-full
                               n-layout
                                 n-layout-header(bordered)
                                   n-form-item(:show-label="false")

@@ -63,6 +63,7 @@ export default {
     const { tab } = route().params
 
     const token = usePage().props.value.user.token
+    const reverseActivites = activities.reverse()
 
     const anForm = useForm({
       content: '',
@@ -100,6 +101,7 @@ export default {
       getFileName,
       activities,
       getNumberOfSubmits,
+      reverseActivites
     }
   },
 }
@@ -182,7 +184,7 @@ n-layout
                         n-button(quaternary, @click="() => downloadFile(token, file)") {{ getFileName(file) }}
       n-tab-pane(name="activities", tab="Activities")
         n-space(vertical, :item-style="wFull")
-          for act in activities
+          for act in reverseActivites
             n-card(:key="act._id", :style="{...wFull, ...wMax(800), ...mxAuto}")
               template(#header)
                 i-link.link.cursor-pointer(

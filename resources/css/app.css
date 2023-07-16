@@ -68,6 +68,10 @@ html, body {
   margin-top: 0.5rem;
 }
 
+.mb-half {
+  margin-bottom: 0.5rem;
+}
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;

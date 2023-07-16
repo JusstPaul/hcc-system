@@ -60,6 +60,9 @@ export default {
 
     const token = usePage().props.value.user.token
 
+    const activitiesDesc = activities.reverse()
+    console.log(activitiesDesc)
+
     function visitActivity(_id) {
       Inertia.get(
         route('student.activity', {
@@ -131,7 +134,8 @@ export default {
       downloadFile,
       getFileName,
       viewCheck,
-      token
+      token,
+      activitiesDesc
     }
   },
 }
@@ -149,7 +153,7 @@ layout(:hasClass="joined_class")
           )
             n-space(justify="center", :item-style="wFull")
               n-space(vertical, :item-style="wFull")
-                for activity in activities
+                for activity in activitiesDesc
                   n-card(
                     :key="activity._id",
                     :style="{...wFull, ...wMax(768), ...mxAuto}"

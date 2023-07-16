@@ -28,7 +28,7 @@ import {
 } from 'naive-ui'
 import { QuillEditor } from '@vueup/vue-quill'
 import { pXS, mxHalfRem, wFull, wMax, mxAuto, mlAuto, mr } from '@/styles'
-import { convertDeltaContent, keyToJpeg } from '@/utils'
+import { convertDeltaContent, keyToJpeg, getFileName, downloadFile } from '@/utils'
 import { QUESTION_TYPES } from '@/constants'
 import Layout from '@/Components/Layouts/InstructorLayout.vue'
 
@@ -118,6 +118,10 @@ export default {
       return questions[index].type === QUESTION_TYPES[3]
     }
 
+    function isFileUpload(index) {
+      return questions[index].type === QUESTION_TYPES[5]
+    }
+
     function backLink() {
       Inertia.get(
         route('instructor.activity.submits', {
@@ -165,9 +169,12 @@ export default {
       convertDeltaContent,
       isComparator,
       isEssay,
+      isFileUpload,
       mlAuto,
       mr,
       removeExtra,
+      downloadFile,
+      getFileName,
     }
   },
 }
@@ -334,6 +341,14 @@ n-layout
                       if isEssay(section)
                         n-alert.w-full(:show-icon="false")
                           div(v-html="convertDeltaContent(answers[section].values[question].value)")
+                      else if (isFileUpload(section))
+                        n-alert.w-full.mb-half(:show-icon="false")
+                          n-space(vertical)
+                            for file in answers[section].values[question].value
+                              n-button(
+                                quaternary,
+                                @click="() => downloadFile(token, file)"
+                              ) {{ getFileName(file) }}
                       else
                         n-alert.w-full(:show-icon="false")
                           |{{ answers[section].values[question].value }}

@@ -99,8 +99,10 @@ class StudentController extends Controller
       'answers.*' => 'required'
     ]);
 
+
     $activity = Activities::find($activity_id);
     $classroom_id = $activity->classroom->_id;
+
 
     $answers = array_map(function ($section) use ($classroom_id, $activity_id) {
       $section['values'] = array_map(function ($question) use ($classroom_id, $activity_id) {
@@ -109,6 +111,15 @@ class StudentController extends Controller
             $snap['fileContent'] = storeAnswer($snap['fileContent'], $classroom_id, $activity_id);
             return $snap;
           }, $question['value']['snapshots']);
+        }
+
+        if (is_array($question['value']) && is_array($question['value'])) {
+            // Check first element if file upload
+            if (array_key_exists('file', $question['value'][0])) {
+                $question['value'] = array_map(function ($file) use ($classroom_id, $activity_id) {
+                    return storeAnswer($file['file'], $classroom_id, $activity_id);
+                }, $question['value']);
+            }
         }
 
         return $question;
