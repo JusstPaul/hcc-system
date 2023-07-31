@@ -111,6 +111,8 @@ class StudentController extends Controller
             $snap['fileContent'] = storeAnswer($snap['fileContent'], $classroom_id, $activity_id);
             return $snap;
           }, $question['value']['snapshots']);
+
+          return $question;
         }
 
         if (is_array($question['value']) && is_array($question['value'])) {
