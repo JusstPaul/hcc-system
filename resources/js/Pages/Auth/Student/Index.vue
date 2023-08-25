@@ -1,7 +1,7 @@
 <script>
 import dayjs from 'dayjs'
 import { computed } from 'vue'
-import { isUndefined } from 'lodash'
+import { isUndefined, has } from 'lodash'
 import { Inertia } from '@inertiajs/inertia'
 import { usePage } from '@inertiajs/inertia-vue3'
 import {
@@ -61,7 +61,6 @@ export default {
     const token = usePage().props.value.user.token
 
     const activitiesDesc = activities.reverse()
-    console.log(activitiesDesc)
 
     function visitActivity(_id) {
       Inertia.get(
@@ -92,20 +91,27 @@ export default {
      */
     function getProgress(ans) {
       const answer = ans.find(findAnswer)
-      if (isUndefined(answer.checks)) {
-        return 1
+      if (has(answer, "checks") && isUndefined(answer.checks)) {
+          return 1
       }
       return 3
     }
 
     function getScore(ans) {
+        console.log(ans);
       const { checks } = ans.find(findAnswer)
-      return checks.flat().reduce((acc, val) => acc + parseInt(val.score), 0)
+        if (checks) {
+            return checks.flat().reduce((acc, val) => acc + parseInt(val.score), 0)
+        }
+        return 0
     }
 
     function getTotal(ans) {
       const { checks } = ans.find(findAnswer)
-      return checks.flat().reduce((acc, val) => acc + parseInt(val.total), 0)
+        if (checks) {
+            return checks.flat().reduce((acc, val) => acc + parseInt(val.total), 0)
+        }
+        return 0
     }
 
     function viewCheck(activity_id) {

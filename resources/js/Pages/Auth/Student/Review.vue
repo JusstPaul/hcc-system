@@ -89,7 +89,8 @@ export default {
         snapshots.value.set(id, _files)
         return snapshots.value.get(id)
       },
-      questions: activity.questions,
+        questions: activity.questions,
+        answer,
     }
   },
 }
