@@ -9,50 +9,60 @@ use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
-    //
-    public function index()
-    {
-        $user = User::get();
-        $role = $user->getRoleNames()->first();
+  //
+  public function index()
+  {
+    $user = User::get();
+    $role = (string) $user->getRoleNames()->first();
 
-        if (strcmp($role, 'admin') == 0) {
-            return redirect()->route('admin.index');
-        } else if (strcmp($role, 'instructor') == 0) {
-            return redirect()->route('instructor.index');
-        } else if (strcmp($role, 'student') == 0) {
-            return redirect()->route('student.index', [
-                'student_id' => $user->_id
-            ]);
-        }
-
-        // Invalid role
-        return $this->logout();
+    if (strcmp($role, 'admin') == 0) {
+      return redirect()->route('admin.index');
+    } else if (strcmp($role, 'instructor') == 0) {
+      return redirect()->route('instructor.index');
+    } else if (strcmp($role, 'student') == 0) {
+      return redirect()->route('student.index', [
+        'student_id' => $user->_id
+      ]);
     }
 
-    public function login(Request $request)
-    {
-        $request->validate([
-            'username' => 'required|max:32',
-            'password' => 'required',
-            'remember' => 'required|boolean',
-        ]);
+    // Invalid role
+    return $this->logout();
+  }
 
-        $credentials = $request->only('username', 'password');
-        if (Auth::attempt($credentials, $request->remember)) {
-            $request->session()->regenerate();
-            return redirect()->route('auth.index');
-        }
+  public function login(Request $request)
+  {
+    $request->validate([
+      'username' => 'required|max:32',
+      'password' => 'required',
+      'remember' => 'required|boolean',
+    ]);
 
-        return back()->withErrors([
-            'username' => 'Invalid user credentials'
-        ]);
+    $credentials = $request->only('username', 'password');
+    if (Auth::attempt($credentials, $request->remember)) {
+      $request->session()->regenerate();
+
+      // Create session token
+      $user = User::get();
+      $id   = $user->_id;
+      $user->createToken("api-access-$id", [
+        $user->getRoleNames()->first()
+      ]);
+
+      return redirect()->route('auth.index');
     }
 
-    public function logout()
-    {
-        Session::flush();
-        Auth::logout();
+    return back()->withErrors([
+      'username' => 'Invalid user credentials'
+    ]);
+  }
 
-        return redirect()->route('login');
-    }
+  public function logout()
+  {
+    User::get()->tokens()->delete();
+
+    Session::flush();
+    Auth::logout();
+
+    return redirect()->route('login');
+  }
 }

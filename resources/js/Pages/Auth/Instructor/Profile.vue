@@ -1,7 +1,6 @@
 <script>
 import Profile from '@/Components/Profile.vue'
-import Layout from '@/Components/Layouts/AdminLayout.vue'
-
+import Layout from '@/Components/Layouts/InstructorLayout.vue'
 
 export default {
   layout: Layout,
@@ -11,10 +10,7 @@ export default {
   props: {
     profile: Object,
   },
-  setup({ profile }) {
-    return {
-      profile,
-    }
+  setup() {
   }
 }
 </script>

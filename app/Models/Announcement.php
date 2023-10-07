@@ -5,29 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Jenssegers\Mongodb\Eloquent\Model;
 
-class Activities extends Model
+class Announcement extends Model
 {
   use HasFactory;
 
   protected $fillable = [
-    'title',
-    'start',
-    'deadline',
-    'lock_after_end',
-    'general_directions',
-    'questions',
-    'target',
+    'content',
+    'fileContents',
   ];
 
-  protected $casts = [];
+  protected $casts = [
+    'content' => 'array',
+    'fileContents' => 'array',
+  ];
+
+  protected $dates = [
+    'created_at',
+    'updated_at'
+  ];
 
   public function classroom()
   {
     return $this->belongsTo(Classroom::class);
-  }
-
-  public function answers()
-  {
-    return $this->embedsMany(Answer::class);
   }
 }

@@ -1,34 +1,12 @@
-<template>
-  <n-notification-provider placement="top">
-    <div class="content">
-      <div class="form-content">
-        <n-form @submit.prevent="loginForm.post(route('post.login'), {
-          onError: () => notifyLoginError()
-        })" :model="loginForm">
-          <n-form-item label="Username" :required="true" path="username">
-            <n-input v-model:value="loginForm.username" />
-          </n-form-item>
-          <n-form-item label="Password" :required="true" path="password">
-            <n-input type="password" show-password-on="click" v-model:value="loginForm.password" />
-          </n-form-item>
-          <n-form-item>
-            <n-button type="primary" block attr-type="submit" :loading="loginForm.processing">Login</n-button>
-          </n-form-item>
-        </n-form>
-      </div>
-    </div>
-  </n-notification-provider>
-</template>
-
-
 <script>
-import { useForm } from '@inertiajs/inertia-vue3';
+import { useForm } from '@inertiajs/inertia-vue3'
 import {
   NForm,
   NFormItem,
   NInput,
   NButton,
-  NNotificationProvider,
+  NH1,
+  NSpace,
   useNotification,
 } from 'naive-ui'
 import Layout from '@/Components/Layouts/BaseLayout.vue'
@@ -40,14 +18,15 @@ export default {
     NFormItem,
     NInput,
     NButton,
-    NNotificationProvider,
+    NH1,
+    NSpace,
   },
   setup() {
     const loginForm = useForm({
       username: '',
       password: '',
       remember: false,
-    });
+    })
 
     const notification = useNotification()
 
@@ -55,17 +34,18 @@ export default {
       notification.error({
         title: 'Login Failed',
         content: 'Invalid user credentials',
+        duration: 5000,
       })
     }
 
     return { loginForm, notifyLoginError }
-  }
+  },
 }
 </script>
 
 <style scoped>
 .content {
-  padding: 8rem;
+  padding-top: 8rem;
   display: flex;
   justify-content: center;
 }
@@ -75,3 +55,50 @@ export default {
   max-width: 320px;
 }
 </style>
+
+<template lang="pug">
+.content
+  n-space(
+    justify="center",
+    align="center",
+    :vertical="true",
+    style="width: 100%;",
+    :wrap-item="false"
+  )
+    n-h1(style="text-align: center;") QSign Comparator Ex
+    .form-content
+      n-form(
+        @submit.prevent=`() => loginForm.post(route('post.login'), {
+          onError: () => notifyLoginError(),
+        })`,
+        :model="loginForm"
+      )
+        // Username field
+        n-form-item(
+          required,
+          label="Username",
+          path="username"
+        )
+          n-input(v-model:value="loginForm.username")
+
+        // Password field
+        n-form-item(
+          required,
+          label="Password",
+          path="password"
+        )
+          n-input(
+            v-model:value="loginForm.password",
+            type="password",
+            show-password-on="click"
+          )
+
+        // Submit button
+        n-form-item
+          n-button(
+            block,
+            type="primary",
+            attr-type="submit",
+            :loading="loginForm.processing"
+        ) Login
+</template>
